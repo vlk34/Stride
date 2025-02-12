@@ -20,7 +20,7 @@ const Result = ({ jobs }) => {
           {/* Search bar - fixed width */}
           <div className="w-[40%] relative">
             <input
-              placeholder="Search Jobs"
+              placeholder="İş Ara"
               className="w-full pl-9 pr-3 py-1.5 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 text-sm"
             />
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -34,13 +34,13 @@ const Result = ({ jobs }) => {
                 defaultValue=""
               >
                 <option value="" disabled>
-                  Location
+                  Lokasyon
                 </option>
-                <option value="remote">Remote</option>
-                <option value="hybrid">Hybrid</option>
+                <option value="remote">Uzaktan</option>
+                <option value="hybrid">Hibrit</option>
                 <option value="onsite">On-site</option>
                 <option value="usa">United States</option>
-                <option value="europe">Europe</option>
+                <option value="europe">Avrupa</option>
               </select>
               <MapPin className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             </div>
@@ -51,12 +51,12 @@ const Result = ({ jobs }) => {
                 defaultValue=""
               >
                 <option value="" disabled>
-                  Job Type
+                  İş Türü
                 </option>
                 <option value="full-time">Full-time</option>
                 <option value="part-time">Part-time</option>
-                <option value="contract">Contract</option>
-                <option value="internship">Internship</option>
+                <option value="contract">Sözleşme</option>
+                <option value="internship">Stajyer</option>
               </select>
               <Briefcase className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             </div>
@@ -67,13 +67,13 @@ const Result = ({ jobs }) => {
                 defaultValue=""
               >
                 <option value="" disabled>
-                  Industry
+                  Endüstri
                 </option>
-                <option value="tech">Technology</option>
-                <option value="healthcare">Healthcare</option>
-                <option value="finance">Finance</option>
-                <option value="education">Education</option>
-                <option value="consulting">Consulting</option>
+                <option value="tech">Teknoloji</option>
+                <option value="healthcare">Sağlık</option>
+                <option value="finance">Finans</option>
+                <option value="education">Eğitim</option>
+                <option value="consulting">Danışmanlık</option>
               </select>
               <Building2 className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             </div>
@@ -84,18 +84,18 @@ const Result = ({ jobs }) => {
                 defaultValue=""
               >
                 <option value="" disabled>
-                  Experience
+                  Deneyim
                 </option>
-                <option value="entry">0-1 years</option>
-                <option value="junior">1-3 years</option>
-                <option value="mid">3-5 years</option>
-                <option value="senior">5+ years</option>
+                <option value="entry">0-1 yıl</option>
+                <option value="junior">1-3 yıl</option>
+                <option value="mid">3-5 yıl</option>
+                <option value="senior">5+ yıl</option>
               </select>
               <GraduationCap className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             </div>
 
             <button className="px-4 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm whitespace-nowrap">
-              Apply Filters
+              Filtrele
             </button>
           </div>
         </div>
@@ -105,15 +105,13 @@ const Result = ({ jobs }) => {
         {/* Left column - Job listings */}
         <div className="w-2/5">
           <div className="flex justify-between items-center mb-4">
-            <span className="text-gray-600">
-              {jobs.length} Job Posting Available
-            </span>
+            <span className="text-gray-600">{jobs.length} İş İlanı Mevcut</span>
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">Sort By:</span>
+              <span className="text-sm text-gray-600">Sırala:</span>
               <select className="border rounded-lg px-2 py-1 text-sm">
-                <option>Relevance</option>
-                <option>Latest</option>
-                <option>Oldest</option>
+                <option>Alaka düzeyi</option>
+                <option>En yeni</option>
+                <option>En eski</option>
               </select>
             </div>
           </div>

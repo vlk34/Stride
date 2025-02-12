@@ -1,32 +1,49 @@
 import React from "react";
 import { Link } from "react-router";
+import { Compass, Search, Bookmark, BookMarked } from "lucide-react";
 import photo from "../../assets/photo.jpg";
 
 const Header = () => {
   return (
-    <header className="bg-white shadow-sm">
+    <header className="bg-white border-b border-gray-200">
       <nav className="max-w-7xl mx-auto py-3">
-        <div className="flex justify-between items-center px-4">
-          <div className="flex space-x-4">
-            <Link to="/" className="text-gray-700 hover:text-gray-900">
-              Home
+        <div className="flex items-center px-4">
+          {/* Logo and App Name */}
+          <Link to="/" className="flex items-center space-x-2">
+            <Compass className="w-6 h-6 text-blue-600" />
+            <span className="text-xl font-semibold text-gray-900">Stride</span>
+          </Link>
+
+          {/* Navigation Links - /search should go to the big search one like the welcoming search bar then to the Result.jsx one*/}
+          <div className="flex items-center space-x-6 ml-8">
+            <Link
+              to="/search"
+              className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
+            >
+              <Search className="w-4 h-4" />
+              <span>İş Ara</span>
             </Link>
-            <Link to="/about" className="text-gray-700 hover:text-gray-900">
-              About
-            </Link>
-            <Link to="/contact" className="text-gray-700 hover:text-gray-900">
-              Contact
+            <Link
+              to="/my-jobs"
+              className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
+            >
+              <Bookmark className="w-4 h-4" />
+              <span>İşlerim</span>
             </Link>
           </div>
 
-          <Link to="/profile" className="flex items-center space-x-3">
-            <div className="text-gray-700 hover:text-gray-900">
+          {/* Profile Section */}
+          <Link
+            to="/profile"
+            className="flex items-center space-x-3 ml-auto border-l pl-6 border-gray-200"
+          >
+            <div className="text-gray-700 hover:text-gray-900 text-sm">
               Volkan Erdoğan
             </div>
             <img
               src={photo}
               alt="Profile photo"
-              className="w-8 h-8 rounded-full object-cover"
+              className="w-8 h-8 rounded-full object-cover border border-gray-200"
             />
           </Link>
         </div>

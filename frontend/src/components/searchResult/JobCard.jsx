@@ -46,18 +46,20 @@ const JobCard = ({ job, isSelected, onSelect }) => {
             </div>
             <span className="text-sm text-gray-500">•</span>
             <span className="text-sm text-gray-500">
-              {job.applicants} Applicants
+              {job.applicants} Başvuran
             </span>
             {job.isVerified && (
               <>
                 <span className="text-sm text-gray-500">•</span>
-                <span className="text-sm text-blue-500">Company Verified</span>
+                <span className="text-sm text-blue-500">
+                  Doğrulanmış Şirket
+                </span>
               </>
             )}
           </div>
         </div>
         <button className="text-gray-400 hover:text-gray-600">
-          <span className="sr-only">Save job</span>
+          <span className="sr-only">İlanı kaydet</span>
           {/* Add your bookmark icon here */}
         </button>
       </div>
