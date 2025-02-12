@@ -5,8 +5,8 @@ import photo from "../../assets/photo.jpg";
 const Header = () => {
   return (
     <header className="bg-white shadow-sm">
-      <nav className="max-w-7xl mx-auto px-4 py-3">
-        <div className="flex justify-between items-center">
+      <nav className="max-w-7xl mx-auto py-3">
+        <div className="flex justify-between items-center px-4">
           <div className="flex space-x-4">
             <Link to="/" className="text-gray-700 hover:text-gray-900">
               Home

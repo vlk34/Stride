@@ -28,12 +28,20 @@ const JobCard = ({ job, isSelected, onSelect }) => {
           <div className="mt-3 flex items-center gap-2">
             <div
               className={`flex items-center ${
-                job.rating > 4 ? "text-green-500" : "text-yellow-500"
+                job.rating > 4
+                  ? "text-green-500"
+                  : job.rating > 2
+                  ? "text-yellow-500"
+                  : "text-red-500"
               }`}
             >
               <span className="text-sm font-medium">{job.rating}</span>
               <span className="ml-1 text-sm">
-                {job.rating > 4 ? "Highly Rated" : "Moderately Rated"}
+                {job.rating > 4
+                  ? "Highly Rated"
+                  : job.rating > 2
+                  ? "Moderately Rated"
+                  : "Poorly Rated"}
               </span>
             </div>
             <span className="text-sm text-gray-500">•</span>
