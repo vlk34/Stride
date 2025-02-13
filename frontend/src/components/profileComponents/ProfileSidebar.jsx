@@ -1,7 +1,7 @@
 import React from "react";
 import photo from "../../../assets/photo.jpg";
 
-const PeopleCard = ({ name, avatar, isPremium, mutualConnections }) => {
+const PeopleCard = ({ name, avatar, isPremium, mutualConnections, mutualConnectionNames }) => {
   return (
     <div className="flex items-center justify-between py-3">
       <div className="flex items-center gap-3">
@@ -20,16 +20,26 @@ const PeopleCard = ({ name, avatar, isPremium, mutualConnections }) => {
               </span>
             )}
           </div>
-          <div className="text-sm text-gray-500">
-            <span>Ally Van, Jeniffer Chan</span>
-            <span className="mx-1">and</span>
-            <span>{mutualConnections} mutual connection</span>
+          <div className="text-sm text-gray-500 pr-2">
+            {mutualConnectionNames.map((name, index) => (
+              <React.Fragment key={index}>
+                {index > 0 && index === mutualConnectionNames.length - 1 && (
+                  <span className="mx-1">and</span>
+                )}
+                {index > 0 && index < mutualConnectionNames.length - 1 && (
+                  <span>, </span>
+                )}
+                <span>{name}</span>
+              </React.Fragment>
+            ))}
+            <span className="mx-1">also</span>
+            <span>{mutualConnections} mutual connections</span>
           </div>
-          <span className="text-sm text-gray-400">follow him</span>
+          
         </div>
       </div>
 
-      <button className="px-4 py-1.5 text-sm text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50">
+      <button className="px-2 py-1.5 text-sm text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50">
         Follow
       </button>
     </div>
@@ -42,18 +52,21 @@ function ProfileSidebar() {
       name: "Christoper Nolan",
       avatar: "/api/placeholder/40/40",
       isPremium: true,
+      mutualConnectionNames: ["Ally Van", "Jeniffer Chan"],
       mutualConnections: 23
     },
     {
       name: "Jessica Milla",
       avatar: "/api/placeholder/40/40",
       isPremium: false,
+      mutualConnectionNames: ["Ekin Ay"],
       mutualConnections: 23
     },
     {
       name: "Cecilia Vangeline",
       avatar: "/api/placeholder/40/40",
       isPremium: false,
+      mutualConnectionNames: ["Ally Van", "Jeniffer Chan", "Enes Malik"],
       mutualConnections: 23
     }
   ];
@@ -61,7 +74,7 @@ function ProfileSidebar() {
   return (
     <div className="space-y-6">
       {/* People you may know section */}
-      <div className="bg-white rounded-lg p-4">
+      <div className="bg-white rounded-lg p-4 shadow">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-medium">People you may know</h3>
           <button className="text-gray-400">•••</button>
