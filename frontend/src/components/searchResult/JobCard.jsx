@@ -1,6 +1,6 @@
 import React from "react";
 
-const JobCard = ({ job, isSelected, onSelect }) => {
+const JobCard = ({ job, isSelected, onSelect, appliedAt, isApplied }) => {
   return (
     <div
       className={`p-4 border rounded-lg mb-3 cursor-pointer hover:border-blue-500 transition-all
@@ -26,40 +26,47 @@ const JobCard = ({ job, isSelected, onSelect }) => {
           </div>
 
           <div className="mt-3 flex items-center gap-2">
-            <div
-              className={`flex items-center ${
-                job.rating > 4
-                  ? "text-green-500"
-                  : job.rating > 2
-                  ? "text-yellow-500"
-                  : "text-red-500"
-              }`}
-            >
-              <span className="text-sm font-medium">{job.rating}</span>
-              <span className="ml-1 text-sm">
-                {job.rating > 4
-                  ? "Highly Rated"
-                  : job.rating > 2
-                  ? "Moderately Rated"
-                  : "Poorly Rated"}
+            {isApplied && appliedAt && (
+              <span className="text-sm text-green-600">
+                Applied on {new Date(appliedAt).toLocaleDateString()}
               </span>
-            </div>
-            <span className="text-sm text-gray-500">•</span>
-            <span className="text-sm text-gray-500">
-              {job.applicants} Başvuran
-            </span>
+            )}
+            {!isApplied && (
+              <>
+                <div
+                  className={`flex items-center ${
+                    job.rating > 4
+                      ? "text-green-500"
+                      : job.rating > 2
+                      ? "text-yellow-500"
+                      : "text-red-500"
+                  }`}
+                >
+                  <span className="text-sm font-medium">{job.rating}</span>
+                  <span className="ml-1 text-sm">
+                    {job.rating > 4
+                      ? "Highly Rated"
+                      : job.rating > 2
+                      ? "Moderately Rated"
+                      : "Poorly Rated"}
+                  </span>
+                </div>
+                <span className="text-sm text-gray-500">•</span>
+                <span className="text-sm text-gray-500">
+                  {job.applicants} Applicants
+                </span>
+              </>
+            )}
             {job.isVerified && (
               <>
                 <span className="text-sm text-gray-500">•</span>
-                <span className="text-sm text-blue-500">
-                  Doğrulanmış Şirket
-                </span>
+                <span className="text-sm text-blue-500">Verified Company</span>
               </>
             )}
           </div>
         </div>
         <button className="text-gray-400 hover:text-gray-600">
-          <span className="sr-only">İlanı kaydet</span>
+          <span className="sr-only">Save Job</span>
           {/* Add your bookmark icon here */}
         </button>
       </div>

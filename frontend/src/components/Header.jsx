@@ -21,14 +21,14 @@ const Header = () => {
               className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
             >
               <Search className="w-4 h-4" />
-              <span>İş Ara</span>
+              <span>Seach Jobs</span>
             </Link>
             <Link
-              to="/my-jobs"
+              to="/jobs"
               className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
             >
               <Bookmark className="w-4 h-4" />
-              <span>İşlerim</span>
+              <span>My Jobs</span>
             </Link>
           </div>
 
