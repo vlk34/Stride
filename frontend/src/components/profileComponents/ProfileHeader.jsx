@@ -30,7 +30,6 @@ function ProfileHeader() {
           <div className="flex justify-between items-start">
             <h1 className="text-xl font-semibold flex items-center gap-1">
               Volkan Erdoğan
-              <span className="text-blue-500">+</span>
             </h1>
             <div className="flex gap-2">
               <button className="px-4 py-2 text-sm bg-white border border-gray-200 rounded-lg text-blue-600">
@@ -55,10 +54,6 @@ function ProfileHeader() {
             </div>
             <div className="text-gray-600">
               23 Applicants
-            </div>
-            <div className="flex items-center text-blue-600">
-              <span className="mr-1">✓</span>
-              <span>Company Verified</span>
             </div>
           </div>
         </div>
