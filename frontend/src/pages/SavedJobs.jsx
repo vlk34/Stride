@@ -12,21 +12,7 @@ const SavedJobs = () => {
   const { savedJobs } = useSavedJobs();
   const { appliedJobs } = useAppliedJobs();
 
-  // Get the full job details for applied jobs
-  const appliedJobsWithDetails = appliedJobs
-    .map((application) => {
-      // Find the matching saved job to get full job details
-      const jobDetails = savedJobs.find((job) => job.id === application.jobId);
-      return {
-        ...jobDetails, // Include all job details
-        applicationData: application.applicationData,
-        appliedAt: application.appliedAt,
-      };
-    })
-    .filter((job) => job); // Remove any undefined entries
-
-  const currentJobs =
-    activeTab === "saved" ? savedJobs : appliedJobsWithDetails;
+  const currentJobs = activeTab === "saved" ? savedJobs : appliedJobs;
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">

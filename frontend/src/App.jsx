@@ -9,6 +9,7 @@ import Result from "./pages/Result";
 import twitter from "../assets/twitter.png";
 import facebook from "../assets/Facebook_logo.png";
 import ForgotPassword from "./pages/auth/ForgotPassword";
+import AddJob from "./pages/business/AddJob";
 
 const jobs = [
   {
@@ -16,8 +17,11 @@ const jobs = [
     title: "Senior Product Designer",
     company: "Twitter",
     companyLogo: twitter,
-    location: "Berlin, Germany",
+    location: "Berlin",
+    workstyle: "Remote",
     type: "Full-time",
+    industry: "Technology",
+    experience: "5+ years",
     rating: 4.3,
     applicants: 123,
     isVerified: true,
@@ -41,8 +45,11 @@ const jobs = [
     title: "Senior Software Engineer, Frontend",
     company: "Facebook",
     companyLogo: facebook,
-    location: "New York, USA",
+    location: "Menlo Park",
+    workstyle: "Hybrid",
     type: "Full-time",
+    industry: "Technology",
+    experience: "5+ years",
     rating: 4.6,
     applicants: 305,
     isVerified: true,
@@ -67,8 +74,11 @@ const jobs = [
     title: "QA Automation Engineer",
     company: "Instagram",
     companyLogo: twitter,
-    location: "Istanbul, Turkey",
-    type: "Full-time",
+    location: "San Francisco",
+    workstyle: "On-site",
+    type: "Contract",
+    industry: "Technology",
+    experience: "3-5 years",
     rating: 4.1,
     applicants: 186,
     isVerified: true,
@@ -93,8 +103,11 @@ const jobs = [
     title: "Junior UI/UX Designer",
     company: "Kadir Has University",
     companyLogo: facebook,
-    location: "Istanbul, Turkey",
+    location: "Istanbul",
+    workstyle: "On-site",
     type: "Internship",
+    industry: "Education",
+    experience: "0-1 years",
     rating: 4.2,
     applicants: 51,
     isVerified: true,
@@ -129,6 +142,7 @@ const App = () => {
         <Route path="/profile" element={<Profile />} />
         <Route path="/search" element={<Result jobs={jobs} />} />
         <Route path="/jobs" element={<SavedJobs />} />
+        <Route path="/add-job" element={<AddJob />} />
       </Route>
     </Routes>
   );

@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router";
-import { Compass, Search, Bookmark, BookMarked } from "lucide-react";
+import { Compass, Search, Bookmark, Plus } from "lucide-react";
 import photo from "../../assets/photo.jpg";
 
 const Header = () => {
@@ -29,6 +29,13 @@ const Header = () => {
             >
               <Bookmark className="w-4 h-4" />
               <span>My Jobs</span>
+            </Link>
+            <Link
+              to="/add-job"
+              className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Add Job</span>
             </Link>
           </div>
 

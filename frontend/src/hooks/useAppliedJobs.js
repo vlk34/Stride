@@ -11,11 +11,11 @@ const useAppliedJobs = () => {
     }
   }, []);
 
-  // Apply for a job
+  // Save a job application
   const applyJob = (jobId, applicationData) => {
     const newApplication = {
-      jobId,
-      applicationData,
+      ...applicationData.job, // Include all job details
+      applicationData, // Keep the application form data
       appliedAt: new Date().toISOString(),
     };
     const updatedJobs = [...appliedJobs, newApplication];
@@ -23,14 +23,22 @@ const useAppliedJobs = () => {
     localStorage.setItem("appliedJobs", JSON.stringify(updatedJobs));
   };
 
-  // Check if already applied
+  // Remove a job
+  const removeJob = (jobId) => {
+    const updatedJobs = appliedJobs.filter((job) => job.id !== jobId);
+    setAppliedJobs(updatedJobs);
+    localStorage.setItem("appliedJobs", JSON.stringify(updatedJobs));
+  };
+
+  // Check if a job is saved
   const hasApplied = (jobId) => {
-    return appliedJobs.some((application) => application.jobId === jobId);
+    return appliedJobs.some((job) => job.id === jobId);
   };
 
   return {
     appliedJobs,
     applyJob,
+    removeJob,
     hasApplied,
   };
 };

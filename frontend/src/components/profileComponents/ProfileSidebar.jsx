@@ -1,16 +1,18 @@
 import React from "react";
 import photo from "../../../assets/photo.jpg";
 
-const PeopleCard = ({ name, avatar, isPremium, mutualConnections, mutualConnectionNames }) => {
+const PeopleCard = ({
+  name,
+  avatar,
+  isPremium,
+  mutualConnections,
+  mutualConnectionNames,
+}) => {
   return (
     <div className="flex items-center justify-between py-3">
       <div className="flex items-center gap-3">
-        <img 
-          src={photo} 
-          alt={name} 
-          className="w-10 h-10 rounded-full"
-        />
-        
+        <img src={photo} alt={name} className="w-10 h-10 rounded-full" />
+
         <div className="flex flex-col">
           <div className="flex items-center gap-2">
             <span className="font-medium">{name}</span>
@@ -35,7 +37,6 @@ const PeopleCard = ({ name, avatar, isPremium, mutualConnections, mutualConnecti
             <span className="mx-1">also</span>
             <span>{mutualConnections} mutual connections</span>
           </div>
-          
         </div>
       </div>
 
@@ -53,22 +54,22 @@ function ProfileSidebar() {
       avatar: "/api/placeholder/40/40",
       isPremium: true,
       mutualConnectionNames: ["Ally Van", "Jeniffer Chan"],
-      mutualConnections: 23
+      mutualConnections: 23,
     },
     {
       name: "Jessica Milla",
       avatar: "/api/placeholder/40/40",
       isPremium: false,
       mutualConnectionNames: ["Ekin Ay"],
-      mutualConnections: 23
+      mutualConnections: 23,
     },
     {
       name: "Cecilia Vangeline",
       avatar: "/api/placeholder/40/40",
       isPremium: false,
       mutualConnectionNames: ["Ally Van", "Jeniffer Chan", "Enes Malik"],
-      mutualConnections: 23
-    }
+      mutualConnections: 23,
+    },
   ];
 
   return (

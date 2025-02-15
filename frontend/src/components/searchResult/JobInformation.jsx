@@ -28,7 +28,7 @@ const JobInformation = ({ job }) => {
   };
 
   const handleApplicationSubmit = (applicationData) => {
-    applyJob(job.id, applicationData);
+    applyJob(job.id, { ...applicationData, job });
     setIsModalOpen(false);
   };
 
