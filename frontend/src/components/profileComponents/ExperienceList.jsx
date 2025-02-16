@@ -1,11 +1,16 @@
 import React from "react";
+import { Plus } from "lucide-react";
 
-const ExperienceList = ({ experiences }) => {
+const ExperienceList = ({ experiences, onAdd }) => {
   return (
     <div className="bg-white p-6 rounded-lg shadow">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold">Experience</h2>
-        <button className="text-blue-600 text-sm hover:text-blue-700">
+        <button
+          onClick={onAdd}
+          className="text-blue-600 text-sm hover:text-blue-700 flex items-center gap-1"
+        >
+          <Plus className="w-4 h-4" />
           Add Experience
         </button>
       </div>

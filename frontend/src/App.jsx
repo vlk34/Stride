@@ -10,6 +10,8 @@ import twitter from "../assets/twitter.png";
 import facebook from "../assets/Facebook_logo.png";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import AddJob from "./pages/business/AddJob";
+import Home from "./pages/Home";
+import CompanyProfile from "./pages/CompanyProfile";
 
 const jobs = [
   {
@@ -138,11 +140,12 @@ const App = () => {
 
       {/* Protected routes with Layout */}
       <Route element={<Layout />}>
-        <Route path="/" element={<Profile />} />
+        <Route path="/" element={<Home />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/search" element={<Result jobs={jobs} />} />
         <Route path="/jobs" element={<SavedJobs />} />
         <Route path="/add-job" element={<AddJob />} />
+        <Route path="/company/:id" element={<CompanyProfile />} />
       </Route>
     </Routes>
   );

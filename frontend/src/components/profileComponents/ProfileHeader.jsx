@@ -1,8 +1,9 @@
 import React from "react";
+import { Pencil, MoreHorizontal } from "lucide-react";
 import photo from "../../../assets/photo.jpg";
 
-const ProfileHeader = ({ user }) => {
-  const { name, role, rating, applicants, description } = user;
+const ProfileHeader = ({ user, onEdit }) => {
+  const { name, role, description } = user;
 
   return (
     <div className="w-full bg-white rounded-lg shadow">
@@ -29,11 +30,15 @@ const ProfileHeader = ({ user }) => {
           <div className="flex justify-between items-start">
             <h1 className="text-xl font-semibold">{name}</h1>
             <div className="flex gap-2">
-              <button className="px-4 py-2 text-sm border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50">
+              <button
+                onClick={onEdit}
+                className="px-4 py-2 text-sm border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 flex items-center gap-2"
+              >
+                <Pencil className="w-4 h-4" />
                 Edit Profile
               </button>
               <button className="p-2 text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50">
-                •••
+                <MoreHorizontal className="w-5 h-5" />
               </button>
             </div>
           </div>
