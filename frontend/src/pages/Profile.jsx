@@ -8,6 +8,7 @@ import EducationList from "../components/profileComponents/EducationList";
 import EditProfileModal from "../components/modals/EditProfileModal";
 import AddExperienceModal from "../components/modals/AddExperienceModal";
 import AddEducationModal from "../components/modals/AddEducationModal";
+import twitter from "../../assets/twitter.png";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -28,7 +29,16 @@ const Profile = () => {
         type: "Full-time",
         duration: "Jan 2020 - Present • 4 years 3 months",
         description: "Led the design team in creating innovative solutions...",
+        imageUrl: twitter,
       },
+      {
+        role: "Product Designer",
+        company: "Google",
+        type: "Full-time",
+        duration: "Aug 2019 - Jan 2020 • 6 months",
+        description: "Designed user interfaces for Google's core products...",
+        imageUrl: twitter,
+      }
     ],
     education: [
       {
