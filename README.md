@@ -1,4 +1,4 @@
 # Run backend
 ```
-.\gradlew.bat bootRun
+./mvnw spring-boot:run
 ```
