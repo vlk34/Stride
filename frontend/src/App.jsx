@@ -13,6 +13,10 @@ import ForgotPassword from "./pages/auth/ForgotPassword";
 import AddJob from "./pages/business/AddJob";
 import Home from "./pages/Home";
 import CompanyProfile from "./pages/CompanyProfile";
+import TermsOfService from "./pages/footer/TermsOfService";
+import PrivacyPolicy from "./pages/footer/PrivacyPolicy";
+import CookiePolicy from "./pages/footer/CookiePolicy";
+import Accessibility from "./pages/footer/Accessibility";
 
 const jobs = [
   {
@@ -148,6 +152,10 @@ const App = () => {
           <Route path="/jobs" element={<SavedJobs />} />
           <Route path="/add-job" element={<AddJob />} />
           <Route path="/company/:id" element={<CompanyProfile />} />
+          <Route path="/terms" element={<TermsOfService />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/cookies" element={<CookiePolicy />} />
+          <Route path="/accessibility" element={<Accessibility />} />
         </Route>
       </Route>
     </Routes>

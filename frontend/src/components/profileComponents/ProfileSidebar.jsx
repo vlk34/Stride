@@ -91,24 +91,6 @@ function ProfileSidebar() {
           See more people
         </button>
       </div>
-
-      {/* Opening job positions section */}
-      <div className="bg-white p-4 rounded-lg shadow">
-        <h3 className="text-lg font-medium mb-4">Opening job positions</h3>
-        <ul className="space-y-3">
-          <li className="text-sm">Product Designer @ Alibaba</li>
-          <li className="text-sm">Interactions Designer @ Amplitude</li>
-          <li className="text-sm">m/x Designer @ Adobe Corp</li>
-        </ul>
-      </div>
-
-      {/* Company Info section */}
-      <div className="bg-white p-4 rounded-lg shadow">
-        <h3 className="text-lg font-medium mb-4">Company Info</h3>
-        <p className="text-sm text-gray-600">
-          Makara is an Indonesia's no.1 Software-as-a-Service (SaaS) company...
-        </p>
-      </div>
     </div>
   );
 }
