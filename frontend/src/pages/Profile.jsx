@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
+import { useClerk } from "@clerk/clerk-react";
 import ProfileHeader from "../components/profileComponents/ProfileHeader";
 import ProfileDetails from "../components/profileComponents/ProfileDetails";
 import ProfileSidebar from "../components/profileComponents/ProfileSidebar";
@@ -11,13 +12,14 @@ import AddEducationModal from "../components/modals/AddEducationModal";
 
 const Profile = () => {
   const navigate = useNavigate();
+  const { signOut } = useClerk();
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const [isAddExperienceOpen, setIsAddExperienceOpen] = useState(false);
   const [isAddEducationOpen, setIsAddEducationOpen] = useState(false);
 
   // This would typically come from your API or state management
   const [userData, setUserData] = useState({
-    name: "Volkan Erdoğan",
+    name: "Volkan E.",
     role: "Frontend Builder",
     description: "Frontend Builder with a passion for design innovation...",
     about: "I am a dynamic and results-driven professional...",
@@ -121,6 +123,11 @@ const Profile = () => {
     });
   };
 
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/signin");
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -143,7 +150,7 @@ const Profile = () => {
       </div>
 
       <button
-        onClick={() => navigate("/signin")}
+        onClick={handleSignOut}
         className="mt-8 px-4 py-2 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
       >
         Logout

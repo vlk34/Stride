@@ -1,8 +1,9 @@
 import React from "react";
 import { Routes, Route } from "react-router";
 import Layout from "./util/Layout";
+import ProtectedRoute from "./components/ProtectedRoute";
 import SignIn from "./pages/auth/SignIn";
-import SignUp from "./pages/auth/SignUp";
+import SignUp from "./pages/auth/Signup";
 import Profile from "./pages/Profile";
 import SavedJobs from "./pages/SavedJobs";
 import Result from "./pages/Result";
@@ -133,19 +134,21 @@ const jobs = [
 const App = () => {
   return (
     <Routes>
-      {/* Auth routes without Layout wrapper */}
+      {/* Public routes */}
       <Route path="/signin" element={<SignIn />} />
       <Route path="/signup" element={<SignUp />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
 
-      {/* Protected routes with Layout */}
-      <Route element={<Layout />}>
-        <Route path="/" element={<Home />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/search" element={<Result jobs={jobs} />} />
-        <Route path="/jobs" element={<SavedJobs />} />
-        <Route path="/add-job" element={<AddJob />} />
-        <Route path="/company/:id" element={<CompanyProfile />} />
+      {/* Protected routes */}
+      <Route element={<ProtectedRoute />}>
+        <Route element={<Layout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/search" element={<Result jobs={jobs} />} />
+          <Route path="/jobs" element={<SavedJobs />} />
+          <Route path="/add-job" element={<AddJob />} />
+          <Route path="/company/:id" element={<CompanyProfile />} />
+        </Route>
       </Route>
     </Routes>
   );

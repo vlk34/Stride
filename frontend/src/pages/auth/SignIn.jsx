@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
+import { useSignIn, useAuth } from "@clerk/clerk-react";
 
 const SignIn = () => {
   const [formData, setFormData] = useState({
@@ -10,6 +11,14 @@ const SignIn = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const { signIn, setActive, isLoaded: isSignInLoaded } = useSignIn();
+  const { isSignedIn } = useAuth();
+
+  useEffect(() => {
+    if (isSignedIn) {
+      navigate("/");
+    }
+  }, [isSignedIn, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -21,11 +30,26 @@ const SignIn = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!isSignInLoaded) return;
+
     try {
-      console.log("Signing in with:", formData);
-      navigate("/");
+      const result = await signIn.create({
+        identifier: formData.email,
+        password: formData.password,
+      });
+
+      if (result.status === "complete") {
+        await setActive({ session: result.createdSessionId });
+        navigate("/");
+      } else {
+        console.log("Sign in status:", result.status);
+        setError("Something went wrong. Please try again.");
+      }
     } catch (err) {
-      setError("Invalid email or password");
+      console.error("Error:", err.errors?.[0]?.message);
+      setError(
+        err.errors?.[0]?.message || "Failed to sign in. Please try again."
+      );
     }
   };
 

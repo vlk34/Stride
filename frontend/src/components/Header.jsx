@@ -45,7 +45,7 @@ const Header = () => {
             className="flex items-center space-x-3 ml-auto border-l pl-6 border-gray-200"
           >
             <div className="text-gray-700 hover:text-gray-900 text-sm">
-              Volkan Erdoğan
+              Volkan E.
             </div>
             <img
               src={photo}
