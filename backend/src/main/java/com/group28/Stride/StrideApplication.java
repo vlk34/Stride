@@ -25,6 +25,13 @@ public class StrideApplication {
 		RequestState requestState = AuthenticateRequest.authenticateRequest(HttpConverter.convert(request), AuthenticateRequestOptions
 				.secretKey("sk_test_5MtSsaFSR688og6juJjo63GPAbnrWBTjApE4OmDvER")
 				.build());
+
+		if (requestState.claims().isPresent()) {
+			System.out.println(requestState.claims().get().getSubject());
+		} else {
+			System.out.println("No claims");
+		}
+		
 		return requestState.isSignedIn() ? "true" : "false";
 	}
 }
