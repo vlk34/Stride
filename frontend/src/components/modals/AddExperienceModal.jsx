@@ -1,7 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { X } from "lucide-react";
+import { useUser } from "@clerk/clerk-react";
 
-const AddExperienceModal = ({ isOpen, onClose, onSave }) => {
+const AddExperienceModal = ({
+  isOpen,
+  onClose,
+  experience,
+  experienceIndex,
+  onAdd,
+  onEdit,
+}) => {
+  const { user } = useUser();
+  const isEditing = experience !== undefined;
+  const modalRef = useRef(null);
+
   const [formData, setFormData] = useState({
     role: "",
     company: "",
@@ -12,29 +24,75 @@ const AddExperienceModal = ({ isOpen, onClose, onSave }) => {
     description: "",
   });
 
+  useEffect(() => {
+    if (isOpen) {
+      if (experience) {
+        // If editing, populate with existing data
+        setFormData({
+          role: experience.role || "",
+          company: experience.company || "",
+          type: experience.type || "Full-time",
+          startDate: experience.startDate || "",
+          endDate: experience.endDate || "",
+          current: experience.current || false,
+          description: experience.description || "",
+        });
+      } else {
+        // If adding new, reset to default values
+        setFormData({
+          role: "",
+          company: "",
+          type: "Full-time",
+          startDate: "",
+          endDate: "",
+          current: false,
+          description: "",
+        });
+      }
+    }
+  }, [isOpen, experience]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (modalRef.current && !modalRef.current.contains(event.target)) {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
+    console.log(formData);
+    console.log(isEditing);
     e.preventDefault();
-    onSave(formData);
-    setFormData({
-      role: "",
-      company: "",
-      type: "Full-time",
-      startDate: "",
-      endDate: "",
-      current: false,
-      description: "",
-    });
+    if (isEditing) {
+      await onEdit(formData, experienceIndex);
+    } else {
+      await onAdd(formData);
+    }
     onClose();
   };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+      <div
+        ref={modalRef}
+        className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+      >
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-semibold">Add Experience</h2>
+            <h2 className="text-xl font-semibold">
+              {isEditing ? "Edit Experience" : "Add Experience"}
+            </h2>
             <button
               onClick={onClose}
               className="text-gray-400 hover:text-gray-600"
@@ -165,7 +223,7 @@ const AddExperienceModal = ({ isOpen, onClose, onSave }) => {
                 type="submit"
                 className="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700"
               >
-                Add Experience
+                {isEditing ? "Save Changes" : "Add Experience"}
               </button>
             </div>
           </form>

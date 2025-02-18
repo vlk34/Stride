@@ -1,9 +1,11 @@
 import React from "react";
 import { Link } from "react-router";
 import { Compass, Search, Bookmark, Plus } from "lucide-react";
-import photo from "../../assets/photo.jpg";
+import { useUser } from "@clerk/clerk-react";
 
 const Header = () => {
+  const { user } = useUser();
+
   return (
     <header className="bg-white border-b border-gray-200">
       <nav className="max-w-7xl mx-auto py-3">
@@ -21,7 +23,7 @@ const Header = () => {
               className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
             >
               <Search className="w-4 h-4" />
-              <span>Seach Jobs</span>
+              <span>Search Jobs</span>
             </Link>
             <Link
               to="/jobs"
@@ -45,10 +47,10 @@ const Header = () => {
             className="flex items-center space-x-3 ml-auto border-l pl-6 border-gray-200"
           >
             <div className="text-gray-700 hover:text-gray-900 text-sm">
-              Volkan E.
+              {user?.firstName || ""} {user?.lastName || ""}
             </div>
             <img
-              src={photo}
+              src={user?.imageUrl || ""}
               alt="Profile photo"
               className="w-8 h-8 rounded-full object-cover border border-gray-200"
             />

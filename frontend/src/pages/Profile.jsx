@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
-import { useClerk } from "@clerk/clerk-react";
+import { useClerk, useUser } from "@clerk/clerk-react";
 import ProfileHeader from "../components/profileComponents/ProfileHeader";
 import ProfileDetails from "../components/profileComponents/ProfileDetails";
 import ProfileSidebar from "../components/profileComponents/ProfileSidebar";
@@ -9,128 +9,109 @@ import EducationList from "../components/profileComponents/EducationList";
 import EditProfileModal from "../components/modals/EditProfileModal";
 import AddExperienceModal from "../components/modals/AddExperienceModal";
 import AddEducationModal from "../components/modals/AddEducationModal";
-import twitter from "../../assets/twitter.png";
 
 const Profile = () => {
   const navigate = useNavigate();
   const { signOut } = useClerk();
+  const { user, isLoaded } = useUser();
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const [isAddExperienceOpen, setIsAddExperienceOpen] = useState(false);
   const [isAddEducationOpen, setIsAddEducationOpen] = useState(false);
+  const [isEditExperienceOpen, setIsEditExperienceOpen] = useState(false);
+  const [isEditEducationOpen, setIsEditEducationOpen] = useState(false);
+  const [selectedExperience, setSelectedExperience] = useState(null);
+  const [selectedEducation, setSelectedEducation] = useState(null);
+  const [selectedExperienceIndex, setSelectedExperienceIndex] = useState(null);
+  const [selectedEducationIndex, setSelectedEducationIndex] = useState(null);
 
-  // This would typically come from your API or state management
-  const [userData, setUserData] = useState({
-    name: "Volkan E.",
-    role: "Frontend Builder",
-    description: "Frontend Builder with a passion for design innovation...",
-    about: "I am a dynamic and results-driven professional...",
-    experiences: [
-      {
-        role: "Lead Product Designer",
-        company: "Airbnb",
-        type: "Full-time",
-        duration: "Jan 2020 - Present • 4 years 3 months",
-        description: "Led the design team in creating innovative solutions...",
-        imageUrl: twitter,
-      },
-      {
-        role: "Product Designer",
-        company: "Google",
-        type: "Full-time",
-        duration: "Aug 2019 - Jan 2020 • 6 months",
-        description: "Designed user interfaces for Google's core products...",
-        imageUrl: twitter,
-      }
-    ],
-    education: [
-      {
-        school: "University of Pennsylvania",
-        degree: "Bachelor of Computer Science",
-        duration: "Sep 2015 - Jul 2019",
-        description: "Focused on Human-Computer Interaction and UI/UX Design",
-      },
-    ],
-  });
+  if (!isLoaded) {
+    return null; // or a loading spinner
+  }
 
-  const formatDate = (dateString) => {
-    if (!dateString) return "";
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      month: "short",
-      year: "numeric",
-    });
+  // Extract user data from Clerk
+  const userData = {
+    name: user.fullName,
+    role: user.unsafeMetadata?.role || "No role set",
+    description: user.unsafeMetadata?.description || "No description set",
+    about: user.unsafeMetadata?.about || "No about information set",
+    experiences: user.unsafeMetadata?.experiences || [],
+    education: user.unsafeMetadata?.education || [],
+    imageUrl: user.imageUrl,
+    email: user.primaryEmailAddress?.emailAddress,
   };
 
-  const calculateDuration = (startDate, endDate, isCurrent) => {
-    const start = new Date(startDate);
-    const end = isCurrent ? new Date() : new Date(endDate);
-
-    const yearDiff = end.getFullYear() - start.getFullYear();
-    const monthDiff = end.getMonth() - start.getMonth();
-
-    let totalMonths = yearDiff * 12 + monthDiff;
-    if (end.getDate() < start.getDate()) {
-      totalMonths--;
+  const handleUpdateProfile = async (updatedData) => {
+    try {
+      await user.update({
+        publicMetadata: {
+          ...user.publicMetadata,
+          role: updatedData.role,
+          description: updatedData.description,
+          about: updatedData.about,
+        },
+      });
+      setIsEditProfileOpen(false);
+    } catch (error) {
+      console.error("Error updating profile:", error);
     }
+  };
 
-    const years = Math.floor(totalMonths / 12);
-    const months = totalMonths % 12;
-
-    let durationText = "";
-    if (years > 0) {
-      durationText += `${years} ${years === 1 ? "year" : "years"}`;
-      if (months > 0) {
-        durationText += ` ${months} ${months === 1 ? "month" : "months"}`;
-      }
-    } else if (months > 0) {
-      durationText += `${months} ${months === 1 ? "month" : "months"}`;
-    } else {
-      durationText = "Less than a month";
+  const handleAddExperience = async (newExperience) => {
+    try {
+      const currentExperiences = [...(user.unsafeMetadata?.experiences || [])];
+      await user.update({
+        unsafeMetadata: {
+          ...user.unsafeMetadata,
+          experiences: [...currentExperiences, newExperience],
+        },
+      });
+    } catch (error) {
+      console.error("Error adding experience:", error);
     }
-
-    return durationText;
   };
 
-  const handleProfileUpdate = (updatedData) => {
-    setUserData({ ...userData, ...updatedData });
+  const handleEditExperience = async (updatedExperience, index) => {
+    try {
+      const currentExperiences = [...(user.unsafeMetadata?.experiences || [])];
+      currentExperiences[index] = updatedExperience;
+      await user.update({
+        unsafeMetadata: {
+          ...user.unsafeMetadata,
+          experiences: currentExperiences,
+        },
+      });
+    } catch (error) {
+      console.error("Error updating experience:", error);
+    }
   };
 
-  const handleAddExperience = (newExperience) => {
-    const duration = calculateDuration(
-      newExperience.startDate,
-      newExperience.endDate,
-      newExperience.current
-    );
-
-    const formattedExperience = {
-      ...newExperience,
-      duration: newExperience.current
-        ? `${formatDate(newExperience.startDate)} - Present • ${duration}`
-        : `${formatDate(newExperience.startDate)} - ${formatDate(
-            newExperience.endDate
-          )} • ${duration}`,
-    };
-
-    setUserData({
-      ...userData,
-      experiences: [...userData.experiences, formattedExperience],
-    });
+  const handleAddEducation = async (newEducation) => {
+    try {
+      const currentEducation = [...(user.unsafeMetadata?.education || [])];
+      await user.update({
+        unsafeMetadata: {
+          ...user.unsafeMetadata,
+          education: [...currentEducation, newEducation],
+        },
+      });
+    } catch (error) {
+      console.error("Error adding education:", error);
+    }
   };
 
-  const handleAddEducation = (newEducation) => {
-    const formattedEducation = {
-      ...newEducation,
-      duration: newEducation.current
-        ? `${formatDate(newEducation.startDate)} - Present`
-        : `${formatDate(newEducation.startDate)} - ${formatDate(
-            newEducation.endDate
-          )}`,
-    };
-
-    setUserData({
-      ...userData,
-      education: [...userData.education, formattedEducation],
-    });
+  const handleEditEducation = async (updatedEducation, index) => {
+    try {
+      const currentEducation = [...(user.unsafeMetadata?.education || [])];
+      currentEducation[index] = updatedEducation;
+      await user.update({
+        unsafeMetadata: {
+          ...user.unsafeMetadata,
+          education: currentEducation,
+        },
+      });
+    } catch (error) {
+      console.error("Error updating education:", error);
+    }
   };
 
   const handleSignOut = async () => {
@@ -144,16 +125,26 @@ const Profile = () => {
         <div className="lg:col-span-2 space-y-6">
           <ProfileHeader
             user={userData}
-            onEdit={() => setIsEditProfileOpen(true)}
+            onEditProfile={() => setIsEditProfileOpen(true)}
           />
           <ProfileDetails about={userData.about} />
           <ExperienceList
             experiences={userData.experiences}
-            onAdd={() => setIsAddExperienceOpen(true)}
+            onAddExperience={() => setIsAddExperienceOpen(true)}
+            onEditExperience={(exp, index) => {
+              setSelectedExperience(exp);
+              setSelectedExperienceIndex(index);
+              setIsEditExperienceOpen(true);
+            }}
           />
           <EducationList
             education={userData.education}
-            onAdd={() => setIsAddEducationOpen(true)}
+            onAddEducation={() => setIsAddEducationOpen(true)}
+            onEditEducation={(edu, index) => {
+              setSelectedEducation(edu);
+              setSelectedEducationIndex(index);
+              setIsEditEducationOpen(true);
+            }}
           />
         </div>
         <ProfileSidebar />
@@ -170,18 +161,40 @@ const Profile = () => {
       <EditProfileModal
         isOpen={isEditProfileOpen}
         onClose={() => setIsEditProfileOpen(false)}
+        onSave={handleUpdateProfile}
         userData={userData}
-        onSave={handleProfileUpdate}
       />
       <AddExperienceModal
         isOpen={isAddExperienceOpen}
         onClose={() => setIsAddExperienceOpen(false)}
-        onSave={handleAddExperience}
+        onAdd={handleAddExperience}
+      />
+      <AddExperienceModal
+        isOpen={isEditExperienceOpen}
+        onClose={() => {
+          setIsEditExperienceOpen(false);
+          setSelectedExperience(null);
+          setSelectedExperienceIndex(null);
+        }}
+        experience={selectedExperience}
+        experienceIndex={selectedExperienceIndex}
+        onEdit={handleEditExperience}
       />
       <AddEducationModal
         isOpen={isAddEducationOpen}
         onClose={() => setIsAddEducationOpen(false)}
-        onSave={handleAddEducation}
+        onAdd={handleAddEducation}
+      />
+      <AddEducationModal
+        isOpen={isEditEducationOpen}
+        onClose={() => {
+          setIsEditEducationOpen(false);
+          setSelectedEducation(null);
+          setSelectedEducationIndex(null);
+        }}
+        education={selectedEducation}
+        educationIndex={selectedEducationIndex}
+        onEdit={handleEditEducation}
       />
     </div>
   );

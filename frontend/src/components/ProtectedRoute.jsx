@@ -5,9 +5,7 @@ import { Navigate, Outlet } from "react-router";
 const ProtectedRoute = () => {
   const { isLoaded, isSignedIn } = useAuth();
 
-  useEffect(() => {
-    console.log(isSignedIn);
-  }, [isSignedIn]);
+  useEffect(() => {}, [isSignedIn]);
 
   if (!isLoaded) {
     return null; // or a loading spinner

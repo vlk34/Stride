@@ -1,8 +1,7 @@
 import React from "react";
 import { Pencil, MoreHorizontal } from "lucide-react";
-import photo from "../../../assets/photo.jpg";
 
-const ProfileHeader = ({ user, onEdit }) => {
+const ProfileHeader = ({ user, onEditProfile }) => {
   const { name, role, description } = user;
 
   return (
@@ -18,7 +17,7 @@ const ProfileHeader = ({ user, onEdit }) => {
         <div className="inline-block">
           <div className="w-24 h-24 rounded-full bg-white p-1 shadow">
             <img
-              src={photo}
+              src={user.imageUrl}
               alt={name}
               className="w-full h-full rounded-full object-cover"
             />
@@ -31,7 +30,7 @@ const ProfileHeader = ({ user, onEdit }) => {
             <h1 className="text-xl font-semibold">{name}</h1>
             <div className="flex gap-2">
               <button
-                onClick={onEdit}
+                onClick={onEditProfile}
                 className="px-4 py-2 text-sm border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 flex items-center gap-2"
               >
                 <Pencil className="w-4 h-4" />

@@ -2,8 +2,8 @@ import React from "react";
 import { Routes, Route } from "react-router";
 import Layout from "./util/Layout";
 import ProtectedRoute from "./components/ProtectedRoute";
-import SignIn from "./pages/auth/SignIn";
-import SignUp from "./pages/auth/Signup";
+import CustomSignIn from "./pages/auth/CustomSignIn";
+import CustomSignUp from "./pages/auth/CustomSignUp";
 import Profile from "./pages/Profile";
 import SavedJobs from "./pages/SavedJobs";
 import Result from "./pages/Result";
@@ -135,8 +135,8 @@ const App = () => {
   return (
     <Routes>
       {/* Public routes */}
-      <Route path="/signin" element={<SignIn />} />
-      <Route path="/signup" element={<SignUp />} />
+      <Route path="/signin/*" element={<CustomSignIn />} />
+      <Route path="/signup/*" element={<CustomSignUp />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
 
       {/* Protected routes */}

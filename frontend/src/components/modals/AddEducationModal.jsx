@@ -1,7 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { X } from "lucide-react";
+import { useUser } from "@clerk/clerk-react";
 
-const AddEducationModal = ({ isOpen, onClose, onSave }) => {
+const AddEducationModal = ({
+  isOpen,
+  onClose,
+  education,
+  educationIndex,
+  onAdd,
+  onEdit,
+}) => {
+  const { user } = useUser();
+  const isEditing = education !== undefined;
+  const modalRef = useRef(null);
+
   const [formData, setFormData] = useState({
     school: "",
     degree: "",
@@ -12,29 +24,73 @@ const AddEducationModal = ({ isOpen, onClose, onSave }) => {
     description: "",
   });
 
-  if (!isOpen) return null;
+  useEffect(() => {
+    if (isOpen) {
+      if (education) {
+        // If editing, populate with existing data
+        setFormData({
+          school: education.school || "",
+          degree: education.degree || "",
+          field: education.field || "",
+          startDate: education.startDate || "",
+          endDate: education.endDate || "",
+          current: education.current || false,
+          description: education.description || "",
+        });
+      } else {
+        // If adding new, reset to default values
+        setFormData({
+          school: "",
+          degree: "",
+          field: "",
+          startDate: "",
+          endDate: "",
+          current: false,
+          description: "",
+        });
+      }
+    }
+  }, [isOpen, education]);
 
-  const handleSubmit = (e) => {
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (modalRef.current && !modalRef.current.contains(event.target)) {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen, onClose]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSave(formData);
-    setFormData({
-      school: "",
-      degree: "",
-      field: "",
-      startDate: "",
-      endDate: "",
-      current: false,
-      description: "",
-    });
+    if (isEditing) {
+      await onEdit(formData, educationIndex);
+    } else {
+      await onAdd(formData);
+    }
     onClose();
   };
 
+  if (!isOpen) return null;
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+      <div
+        ref={modalRef}
+        className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+      >
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-semibold">Add Education</h2>
+            <h2 className="text-xl font-semibold">
+              {isEditing ? "Edit Education" : "Add Education"}
+            </h2>
             <button
               onClick={onClose}
               className="text-gray-400 hover:text-gray-600"
@@ -161,7 +217,7 @@ const AddEducationModal = ({ isOpen, onClose, onSave }) => {
                 type="submit"
                 className="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700"
               >
-                Add Education
+                {isEditing ? "Save Changes" : "Add Education"}
               </button>
             </div>
           </form>

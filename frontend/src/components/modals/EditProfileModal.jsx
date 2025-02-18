@@ -1,40 +1,56 @@
 import React, { useState, useEffect } from "react";
 import { X } from "lucide-react";
+import { useUser } from "@clerk/clerk-react";
 
-const EditProfileModal = ({ isOpen, onClose, userData, onSave }) => {
+const EditProfileModal = ({ isOpen, onClose }) => {
+  const { user } = useUser();
   const [formData, setFormData] = useState({
-    name: userData.name,
-    role: userData.role,
-    description: userData.description,
-    about: userData.about,
+    name: "",
+    role: "",
+    description: "",
+    about: "",
   });
 
-  // Reset form data when modal opens/closes or userData changes
+  // Update form data when modal opens or user data changes
   useEffect(() => {
-    setFormData({
-      name: userData.name,
-      role: userData.role,
-      description: userData.description,
-      about: userData.about,
-    });
-  }, [isOpen, userData]);
+    if (isOpen && user) {
+      setFormData({
+        name: user.fullName || "",
+        role: user.unsafeMetadata?.role || "",
+        description: user.unsafeMetadata?.description || "",
+        about: user.unsafeMetadata?.about || "",
+      });
+    }
+  }, [isOpen, user]);
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSave(formData);
-    onClose();
-  };
+    try {
+      // Update metadata
+      await user.update({
+        unsafeMetadata: {
+          ...user.unsafeMetadata,
+          role: formData.role,
+          description: formData.description,
+          about: formData.about,
+        },
+      });
 
-  const handleCancel = () => {
-    setFormData({
-      name: userData.name,
-      role: userData.role,
-      description: userData.description,
-      about: userData.about,
-    });
-    onClose();
+      // Update user's name if changed
+      if (formData.name !== user.fullName) {
+        const [firstName, ...lastNameParts] = formData.name.split(" ");
+        await user.update({
+          firstName,
+          lastName: lastNameParts.join(" "),
+        });
+      }
+
+      onClose();
+    } catch (error) {
+      console.error("Error updating profile:", error);
+    }
   };
 
   return (
@@ -44,7 +60,7 @@ const EditProfileModal = ({ isOpen, onClose, userData, onSave }) => {
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-semibold">Edit Profile</h2>
             <button
-              onClick={handleCancel}
+              onClick={onClose}
               className="text-gray-400 hover:text-gray-600"
             >
               <X className="w-5 h-5" />
@@ -63,6 +79,7 @@ const EditProfileModal = ({ isOpen, onClose, userData, onSave }) => {
                   setFormData({ ...formData, name: e.target.value })
                 }
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+                required
               />
             </div>
 
@@ -77,6 +94,7 @@ const EditProfileModal = ({ isOpen, onClose, userData, onSave }) => {
                   setFormData({ ...formData, role: e.target.value })
                 }
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+                required
               />
             </div>
 
@@ -91,6 +109,7 @@ const EditProfileModal = ({ isOpen, onClose, userData, onSave }) => {
                   setFormData({ ...formData, description: e.target.value })
                 }
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+                required
               />
             </div>
 
@@ -111,7 +130,7 @@ const EditProfileModal = ({ isOpen, onClose, userData, onSave }) => {
             <div className="flex justify-end gap-3">
               <button
                 type="button"
-                onClick={handleCancel}
+                onClick={onClose}
                 className="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200"
               >
                 Cancel
