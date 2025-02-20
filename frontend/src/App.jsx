@@ -17,7 +17,6 @@ import TermsOfService from "./pages/footer/TermsOfService";
 import PrivacyPolicy from "./pages/footer/PrivacyPolicy";
 import CookiePolicy from "./pages/footer/CookiePolicy";
 import Accessibility from "./pages/footer/Accessibility";
-import Admin from "./pages/Admin";
 import AdminUsers from "./components/Admin/AdminUsers";
 import AdminLayout from "./util/AdminLayout";
 import AdminDashboard from "./components/Admin/AdminDashboard";
@@ -195,7 +194,6 @@ const App = () => {
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/cookies" element={<CookiePolicy />} />
             <Route path="/accessibility" element={<Accessibility />} />
-
           </Route>
 
           <Route element={<AdminLayout />}>

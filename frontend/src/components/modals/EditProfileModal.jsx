@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { X } from "lucide-react";
+import { X, Info } from "lucide-react";
 import { useUser } from "@clerk/clerk-react";
 
 const EditProfileModal = ({ isOpen, onClose, onUpdate, userData }) => {
@@ -16,13 +16,13 @@ const EditProfileModal = ({ isOpen, onClose, onUpdate, userData }) => {
   useEffect(() => {
     if (isOpen && userData) {
       setFormData({
-        name: userData.name || "",
+        name: user.fullName || "",
         role: userData.role || "",
         description: userData.description || "",
         about: userData.about || "",
       });
     }
-  }, [isOpen, userData]);
+  }, [isOpen, userData, user.fullName]);
 
   if (!isOpen) return null;
 
@@ -32,36 +32,26 @@ const EditProfileModal = ({ isOpen, onClose, onUpdate, userData }) => {
 
     try {
       // Call the optimistic update handler first
-      onUpdate(formData);
+      onUpdate({
+        ...formData,
+        name: user.fullName,
+      });
 
-      // Wait for both updates to complete
-      await Promise.all([
-        // Update metadata
-        user.update({
-          unsafeMetadata: {
-            ...user.unsafeMetadata,
-            role: formData.role,
-            description: formData.description,
-            about: formData.about,
-          },
-        }),
-        // Update user's name if changed
-        formData.name !== user.fullName &&
-          (async () => {
-            const [firstName, ...lastNameParts] = formData.name.split(" ");
-            await user.update({
-              firstName,
-              lastName: lastNameParts.join(" "),
-            });
-          })(),
-      ]);
+      // Update only the metadata
+      await user.update({
+        unsafeMetadata: {
+          ...user.unsafeMetadata,
+          role: formData.role,
+          description: formData.description,
+          about: formData.about,
+        },
+      });
 
       setIsSubmitting(false);
       onClose();
     } catch (error) {
       console.error("Error updating profile:", error);
       setIsSubmitting(false);
-      // The Profile component will handle reverting the optimistic update
     }
   };
 
@@ -80,21 +70,6 @@ const EditProfileModal = ({ isOpen, onClose, onUpdate, userData }) => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Full Name
-              </label>
-              <input
-                type="text"
-                value={formData.name}
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
-                required
-              />
-            </div>
-
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Role

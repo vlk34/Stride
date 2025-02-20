@@ -45,7 +45,7 @@ const Home = () => {
           <div className="max-w-3xl mx-auto">
             <form
               onSubmit={handleSearch}
-              className="bg-white p-5 rounded-xl shadow-md"
+              className="bg-white p-5 rounded-xl border border-gray-200"
             >
               {/* Main Search Input */}
               <div className="relative mb-4">

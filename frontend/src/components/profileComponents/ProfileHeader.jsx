@@ -1,36 +1,12 @@
-import React, { useRef } from "react";
+import React from "react";
 import { Pencil, MoreHorizontal, Camera } from "lucide-react";
-import { useUserQuery } from "../../hooks/useUserQuery";
-import { useUserData } from "../../contexts/UserDataContext";
+import { useUser, useClerk } from "@clerk/clerk-react";
 
-const ProfileHeader = ({ user, onEditProfile }) => {
-  const { name, role, description, imageUrl } = user;
-  const { updateImage } = useUserQuery();
-  const { setLocalUserData } = useUserData();
-  const fileInputRef = useRef(null);
-
+const ProfileHeader = ({ role, description, onEditProfile }) => {
+  const { user } = useUser();
+  const { openUserProfile } = useClerk();
   const handleImageClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleImageChange = async (event) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    try {
-      // Optimistic update
-      const tempUrl = URL.createObjectURL(file);
-      setLocalUserData((prev) => ({
-        ...prev,
-        imageUrl: tempUrl,
-      }));
-
-      // Update image using TanStack Query mutation
-      await updateImage(file);
-    } catch (error) {
-      console.error("Error updating profile image:", error);
-      // The mutation will handle reverting the optimistic update
-    }
+    openUserProfile();
   };
 
   return (
@@ -42,41 +18,28 @@ const ProfileHeader = ({ user, onEditProfile }) => {
 
       {/* Profile content */}
       <div className="px-6 -mt-16 pb-6 relative">
-        {/* Avatar with edit overlay */}
-        <div className="inline-block relative group">
-          <div
-            className="w-24 h-24 rounded-full bg-white p-1 shadow cursor-pointer"
-            onClick={handleImageClick}
-          >
-            {imageUrl ? (
-              <img
-                src={imageUrl}
-                alt={name}
-                className="w-full h-full rounded-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full rounded-full bg-gray-300 flex items-center justify-center">
-                <span className="text-gray-500">No Image</span>
-              </div>
-            )}
-            {/* Edit overlay */}
+        {/* Avatar with hover effect */}
+        <div
+          className="inline-block relative cursor-pointer group"
+          onClick={handleImageClick}
+        >
+          <div className="w-24 h-24 rounded-full bg-white p-1 shadow">
+            <img
+              src={user?.imageUrl}
+              alt={user?.fullName}
+              className="w-full h-full rounded-full object-cover"
+            />
+            {/* Hover overlay with camera icon */}
             <div className="absolute inset-0 rounded-full bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-              <Camera className="w-6 h-6 text-white" />
+              <Camera className="w-8 h-8 text-white" />
             </div>
           </div>
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleImageChange}
-            accept="image/*"
-            className="hidden"
-          />
         </div>
 
         <div className="mt-4">
           {/* Header with name and actions */}
           <div className="flex justify-between items-start">
-            <h1 className="text-xl font-semibold">{name}</h1>
+            <h1 className="text-xl font-semibold">{user?.fullName}</h1>
             <div className="flex gap-2">
               <button
                 onClick={onEditProfile}

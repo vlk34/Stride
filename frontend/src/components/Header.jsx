@@ -1,14 +1,30 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Link, useLocation } from "react-router";
-import { Compass, Search, Bookmark, Menu, X } from "lucide-react";
-import { useUser } from "@clerk/clerk-react";
+import {
+  Compass,
+  Search,
+  Bookmark,
+  Menu,
+  X,
+  ChevronDown,
+  Settings,
+  HelpCircle,
+  LogOut,
+  User,
+} from "lucide-react";
+import { useUser, UserButton, useClerk } from "@clerk/clerk-react";
 import { useUserData } from "../contexts/UserDataContext";
+import { useNavigate } from "react-router";
 
 const Header = () => {
   const { user } = useUser();
   const { localUserData } = useUserData();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const profileRef = useRef(null);
+  const navigate = useNavigate();
+  const { openUserProfile } = useClerk();
 
   // Use localUserData.name if available, otherwise fall back to user data
   const displayName =
@@ -21,6 +37,48 @@ const Header = () => {
       label: "Search Jobs",
     },
     { path: "/jobs", icon: <Bookmark className="w-5 h-5" />, label: "My Jobs" },
+  ];
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setIsProfileOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate("/signin");
+  };
+
+  // Profile dropdown items
+  const profileMenuItems = [
+    {
+      label: "Go to my account",
+      icon: <User className="w-4 h-4" />,
+      onClick: () => navigate("/profile"),
+    },
+    {
+      label: "Settings",
+      icon: <Settings className="w-4 h-4" />,
+      onClick: () => openUserProfile(),
+    },
+    {
+      label: "Help",
+      icon: <HelpCircle className="w-4 h-4" />,
+      onClick: () => navigate("/help"),
+    },
+    {
+      label: "Logout",
+      icon: <LogOut className="w-4 h-4" />,
+      onClick: handleLogout,
+      className: "text-red-600 hover:bg-red-50",
+    },
   ];
 
   return (
@@ -60,20 +118,70 @@ const Header = () => {
             </div>
 
             {/* Profile Section - Desktop */}
-            <div className="hidden md:flex items-center ml-auto">
-              <Link
-                to="/profile"
-                className="flex items-center space-x-3 px-4 py-2 rounded-lg hover:bg-gray-50"
-              >
-                <img
-                  src={localUserData.imageUrl || user?.imageUrl || ""}
-                  alt="Profile"
-                  className="w-8 h-8 rounded-full object-cover border border-gray-200"
-                />
-                <span className="text-sm font-medium text-gray-700">
-                  {displayName}
-                </span>
-              </Link>
+            <div
+              className="hidden md:flex items-center ml-auto space-x-4"
+              ref={profileRef}
+            >
+              <div className="relative">
+                <button
+                  onClick={() => setIsProfileOpen(!isProfileOpen)}
+                  className="flex items-center space-x-3 px-4 py-2 rounded-lg hover:bg-gray-50"
+                >
+                  <img
+                    src={localUserData.imageUrl || user?.imageUrl || ""}
+                    alt="Profile"
+                    className="w-8 h-8 rounded-full object-cover border border-gray-200"
+                  />
+                  <span className="text-sm font-medium text-gray-700">
+                    {displayName}
+                  </span>
+                  <ChevronDown
+                    className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${
+                      isProfileOpen ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+
+                {/* Animated Profile Dropdown */}
+                {isProfileOpen && (
+                  <div
+                    className={`absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50
+                      transition-all duration-200 ease-out
+                      ${
+                        isProfileOpen
+                          ? "opacity-100 translate-y-0 visible"
+                          : "opacity-0 -translate-y-2 invisible"
+                      }`}
+                  >
+                    <div className="px-4 py-3 border-b border-gray-200">
+                      <p className="text-sm font-medium text-gray-900">
+                        {displayName}
+                      </p>
+                      <p className="text-sm text-gray-500 truncate">
+                        {user?.primaryEmailAddress?.emailAddress}
+                      </p>
+                    </div>
+
+                    <div className="py-1">
+                      {profileMenuItems.map((item, index) => (
+                        <button
+                          key={index}
+                          onClick={() => {
+                            setIsProfileOpen(false);
+                            item.onClick();
+                          }}
+                          className={`w-full px-4 py-2 text-sm text-left flex items-center space-x-2 hover:bg-gray-50 transition-colors ${
+                            item.className || "text-gray-700"
+                          }`}
+                        >
+                          {item.icon}
+                          <span>{item.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Mobile Menu Button - disabled when job details are open */}

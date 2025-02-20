@@ -46,6 +46,12 @@ const Profile = () => {
     }
   }, [userData]);
 
+  useEffect(() => {
+    if (user) {
+      console.log(user);
+    }
+  }, [user]);
+
   const handleUpdateProfile = async (updatedData) => {
     const originalData = { ...localUserData };
 
@@ -193,13 +199,14 @@ const Profile = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
           <ProfileHeader
-            user={localUserData}
+            role={localUserData?.role}
+            description={localUserData?.description}
             onEditProfile={() => setIsEditProfileOpen(true)}
           />
           <div className="space-y-6">
-            <ProfileDetails about={localUserData.about} />
+            <ProfileDetails about={localUserData?.about} />
             <ExperienceList
-              experiences={localUserData.experiences}
+              experiences={localUserData?.experiences || []}
               onAddExperience={() => setIsAddExperienceOpen(true)}
               onEditExperience={(exp, index) => {
                 setSelectedExperience(exp);
@@ -208,7 +215,7 @@ const Profile = () => {
               }}
             />
             <EducationList
-              education={localUserData.education}
+              education={localUserData?.education || []}
               onAddEducation={() => setIsAddEducationOpen(true)}
               onEditEducation={(edu, index) => {
                 setSelectedEducation(edu);
@@ -216,7 +223,7 @@ const Profile = () => {
                 setIsEditEducationOpen(true);
               }}
             />
-            <SkillsList skills={localUserData.skills} />
+            <SkillsList skills={localUserData?.skills || []} />
           </div>
         </div>
         <div className="hidden lg:block">
