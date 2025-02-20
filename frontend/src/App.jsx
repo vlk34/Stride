@@ -17,6 +17,7 @@ import TermsOfService from "./pages/footer/TermsOfService";
 import PrivacyPolicy from "./pages/footer/PrivacyPolicy";
 import CookiePolicy from "./pages/footer/CookiePolicy";
 import Accessibility from "./pages/footer/Accessibility";
+import { UserDataProvider } from "./contexts/UserDataContext";
 
 const jobs = [
   {
@@ -137,28 +138,30 @@ const jobs = [
 
 const App = () => {
   return (
-    <Routes>
-      {/* Public routes */}
-      <Route path="/signin/*" element={<CustomSignIn />} />
-      <Route path="/signup/*" element={<CustomSignUp />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
+    <UserDataProvider>
+      <Routes>
+        {/* Public routes */}
+        <Route path="/signin/*" element={<CustomSignIn />} />
+        <Route path="/signup/*" element={<CustomSignUp />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
 
-      {/* Protected routes */}
-      <Route element={<ProtectedRoute />}>
-        <Route element={<Layout />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/search" element={<Result jobs={jobs} />} />
-          <Route path="/jobs" element={<SavedJobs />} />
-          <Route path="/add-job" element={<AddJob />} />
-          <Route path="/company/:id" element={<CompanyProfile />} />
-          <Route path="/terms" element={<TermsOfService />} />
-          <Route path="/privacy" element={<PrivacyPolicy />} />
-          <Route path="/cookies" element={<CookiePolicy />} />
-          <Route path="/accessibility" element={<Accessibility />} />
+        {/* Protected routes */}
+        <Route element={<ProtectedRoute />}>
+          <Route element={<Layout />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/search" element={<Result jobs={jobs} />} />
+            <Route path="/jobs" element={<SavedJobs />} />
+            <Route path="/add-job" element={<AddJob />} />
+            <Route path="/company/:id" element={<CompanyProfile />} />
+            <Route path="/terms" element={<TermsOfService />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/cookies" element={<CookiePolicy />} />
+            <Route path="/accessibility" element={<Accessibility />} />
+          </Route>
         </Route>
-      </Route>
-    </Routes>
+      </Routes>
+    </UserDataProvider>
   );
 };
 

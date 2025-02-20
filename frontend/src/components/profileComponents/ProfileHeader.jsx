@@ -2,10 +2,10 @@ import React from "react";
 import { Pencil, MoreHorizontal } from "lucide-react";
 
 const ProfileHeader = ({ user, onEditProfile }) => {
-  const { name, role, description } = user;
+  const { name, role, description, imageUrl } = user;
 
   return (
-    <div className="w-full bg-white rounded-lg shadow">
+    <div className="w-full bg-white rounded-lg border border-gray-200">
       {/* Banner background */}
       <div className="relative h-32 overflow-hidden rounded-t-lg">
         <div className="absolute inset-0 bg-blue-600" />
@@ -16,11 +16,18 @@ const ProfileHeader = ({ user, onEditProfile }) => {
         {/* Avatar */}
         <div className="inline-block">
           <div className="w-24 h-24 rounded-full bg-white p-1 shadow">
-            <img
-              src={user.imageUrl}
-              alt={name}
-              className="w-full h-full rounded-full object-cover"
-            />
+            {imageUrl ? (
+              <img
+                src={imageUrl}
+                alt={name}
+                className="w-full h-full rounded-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full rounded-full bg-gray-300 flex items-center justify-center">
+                <span className="text-gray-500">No Image</span>{" "}
+                {/* Placeholder text */}
+              </div>
+            )}
           </div>
         </div>
 

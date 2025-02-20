@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { useClerk, useUser } from "@clerk/clerk-react";
 import ProfileHeader from "../components/profileComponents/ProfileHeader";
@@ -9,11 +9,15 @@ import EducationList from "../components/profileComponents/EducationList";
 import EditProfileModal from "../components/modals/EditProfileModal";
 import AddExperienceModal from "../components/modals/AddExperienceModal";
 import AddEducationModal from "../components/modals/AddEducationModal";
+import SkillsList from "../components/profileComponents/SkillsList";
+import { useUserData } from "../contexts/UserDataContext";
+import { useUserQuery } from "../hooks/useUserQuery";
 
 const Profile = () => {
   const navigate = useNavigate();
   const { signOut } = useClerk();
   const { user, isLoaded } = useUser();
+  const { localUserData, setLocalUserData } = useUserData();
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const [isAddExperienceOpen, setIsAddExperienceOpen] = useState(false);
   const [isAddEducationOpen, setIsAddEducationOpen] = useState(false);
@@ -23,55 +27,89 @@ const Profile = () => {
   const [selectedEducation, setSelectedEducation] = useState(null);
   const [selectedExperienceIndex, setSelectedExperienceIndex] = useState(null);
   const [selectedEducationIndex, setSelectedEducationIndex] = useState(null);
+  const {
+    userData,
+    isLoading,
+    updateProfile,
+    updateExperiences,
+    updateEducation,
+  } = useUserQuery();
 
   if (!isLoaded) {
     return null; // or a loading spinner
   }
 
-  // Extract user data from Clerk
-  const userData = {
-    name: user.fullName,
-    role: user.unsafeMetadata?.role || "No role set",
-    description: user.unsafeMetadata?.description || "No description set",
-    about: user.unsafeMetadata?.about || "No about information set",
-    experiences: user.unsafeMetadata?.experiences || [],
-    education: user.unsafeMetadata?.education || [],
-    imageUrl: user.imageUrl,
-    email: user.primaryEmailAddress?.emailAddress,
-  };
+  // Initialize local state with query data
+  useEffect(() => {
+    if (userData) {
+      setLocalUserData(userData);
+    }
+  }, [userData]);
 
   const handleUpdateProfile = async (updatedData) => {
+    const originalData = { ...localUserData };
+
     try {
-      await user.update({
-        publicMetadata: {
-          ...user.publicMetadata,
+      // Optimistic update
+      setLocalUserData((prev) => ({
+        ...prev,
+        name: updatedData.name,
+        role: updatedData.role,
+        description: updatedData.description,
+        about: updatedData.about,
+      }));
+
+      setIsEditProfileOpen(false);
+
+      // Update in background
+      await updateProfile({
+        updates: {
           role: updatedData.role,
           description: updatedData.description,
           about: updatedData.about,
         },
+        nameUpdate:
+          updatedData.name !== userData.name ? updatedData.name : null,
       });
-      setIsEditProfileOpen(false);
     } catch (error) {
+      setLocalUserData(originalData);
       console.error("Error updating profile:", error);
     }
   };
 
   const handleAddExperience = async (newExperience) => {
     try {
-      const currentExperiences = [...(user.unsafeMetadata?.experiences || [])];
-      await user.update({
-        unsafeMetadata: {
-          ...user.unsafeMetadata,
-          experiences: [...currentExperiences, newExperience],
-        },
-      });
+      // Optimistic update for local state
+      setLocalUserData((prev) => ({
+        ...prev,
+        experiences: [...prev.experiences, newExperience],
+      }));
+      setIsAddExperienceOpen(false);
+
+      // Update using TanStack Query mutation
+      await updateExperiences([...userData.experiences, newExperience]);
     } catch (error) {
+      // Revert local state on error
+      setLocalUserData((prev) => ({
+        ...prev,
+        experiences: userData.experiences,
+      }));
       console.error("Error adding experience:", error);
     }
   };
 
   const handleEditExperience = async (updatedExperience, index) => {
     try {
+      // Optimistic update using context
+      setLocalUserData((prev) => ({
+        ...prev,
+        experiences: prev.experiences.map((exp, i) =>
+          i === index ? updatedExperience : exp
+        ),
+      }));
+      setIsEditExperienceOpen(false);
+
+      // Actual update
       const currentExperiences = [...(user.unsafeMetadata?.experiences || [])];
       currentExperiences[index] = updatedExperience;
       await user.update({
@@ -81,26 +119,48 @@ const Profile = () => {
         },
       });
     } catch (error) {
+      // Revert on error
+      setLocalUserData((prev) => ({
+        ...prev,
+        experiences: user.unsafeMetadata?.experiences || [],
+      }));
       console.error("Error updating experience:", error);
     }
   };
 
   const handleAddEducation = async (newEducation) => {
     try {
-      const currentEducation = [...(user.unsafeMetadata?.education || [])];
-      await user.update({
-        unsafeMetadata: {
-          ...user.unsafeMetadata,
-          education: [...currentEducation, newEducation],
-        },
-      });
+      // Optimistic update for local state
+      setLocalUserData((prev) => ({
+        ...prev,
+        education: [...prev.education, newEducation],
+      }));
+      setIsAddEducationOpen(false);
+
+      // Update using TanStack Query mutation
+      await updateEducation([...userData.education, newEducation]);
     } catch (error) {
+      // Revert local state on error
+      setLocalUserData((prev) => ({
+        ...prev,
+        education: userData.education,
+      }));
       console.error("Error adding education:", error);
     }
   };
 
   const handleEditEducation = async (updatedEducation, index) => {
     try {
+      // Optimistic update using context
+      setLocalUserData((prev) => ({
+        ...prev,
+        education: prev.education.map((edu, i) =>
+          i === index ? updatedEducation : edu
+        ),
+      }));
+      setIsEditEducationOpen(false);
+
+      // Actual update
       const currentEducation = [...(user.unsafeMetadata?.education || [])];
       currentEducation[index] = updatedEducation;
       await user.update({
@@ -110,6 +170,11 @@ const Profile = () => {
         },
       });
     } catch (error) {
+      // Revert on error
+      setLocalUserData((prev) => ({
+        ...prev,
+        education: user.unsafeMetadata?.education || [],
+      }));
       console.error("Error updating education:", error);
     }
   };
@@ -119,17 +184,21 @@ const Profile = () => {
     navigate("/signin");
   };
 
+  if (isLoading) {
+    return <div>Loading...</div>; // Or your loading component
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
           <ProfileHeader
-            user={userData}
+            user={localUserData}
             onEditProfile={() => setIsEditProfileOpen(true)}
           />
-          <ProfileDetails about={userData.about} />
+          <ProfileDetails about={localUserData.about} />
           <ExperienceList
-            experiences={userData.experiences}
+            experiences={localUserData.experiences}
             onAddExperience={() => setIsAddExperienceOpen(true)}
             onEditExperience={(exp, index) => {
               setSelectedExperience(exp);
@@ -138,7 +207,7 @@ const Profile = () => {
             }}
           />
           <EducationList
-            education={userData.education}
+            education={localUserData.education}
             onAddEducation={() => setIsAddEducationOpen(true)}
             onEditEducation={(edu, index) => {
               setSelectedEducation(edu);
@@ -146,6 +215,7 @@ const Profile = () => {
               setIsEditEducationOpen(true);
             }}
           />
+          <SkillsList skills={localUserData.skills} />
         </div>
         <ProfileSidebar />
       </div>
@@ -161,8 +231,8 @@ const Profile = () => {
       <EditProfileModal
         isOpen={isEditProfileOpen}
         onClose={() => setIsEditProfileOpen(false)}
-        onSave={handleUpdateProfile}
-        userData={userData}
+        onUpdate={handleUpdateProfile}
+        userData={localUserData}
       />
       <AddExperienceModal
         isOpen={isAddExperienceOpen}

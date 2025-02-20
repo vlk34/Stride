@@ -2,9 +2,15 @@ import React from "react";
 import { Link } from "react-router";
 import { Compass, Search, Bookmark, Plus } from "lucide-react";
 import { useUser } from "@clerk/clerk-react";
+import { useUserData } from "../contexts/UserDataContext";
 
 const Header = () => {
   const { user } = useUser();
+  const { localUserData } = useUserData();
+
+  // Use localUserData.name if available, otherwise fall back to user data
+  const displayName =
+    localUserData.name || `${user?.firstName || ""} ${user?.lastName || ""}`;
 
   return (
     <header className="bg-white border-b border-gray-200">
@@ -47,10 +53,10 @@ const Header = () => {
             className="flex items-center space-x-3 ml-auto border-l pl-6 border-gray-200"
           >
             <div className="text-gray-700 hover:text-gray-900 text-sm">
-              {user?.firstName || ""} {user?.lastName || ""}
+              {displayName}
             </div>
             <img
-              src={user?.imageUrl || ""}
+              src={localUserData.imageUrl || user?.imageUrl || ""}
               alt="Profile photo"
               className="w-8 h-8 rounded-full object-cover border border-gray-200"
             />
