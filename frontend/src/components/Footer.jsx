@@ -19,7 +19,7 @@ const Footer = () => {
     <footer className="bg-gray-900 text-gray-300">
       {/* Main Footer Content */}
       <div className="max-w-7xl mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Company Info */}
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
@@ -47,7 +47,7 @@ const Footer = () => {
           </div>
 
           {/* Quick Links */}
-          <div>
+          <div className="hidden sm:block">
             <h3 className="text-white font-semibold mb-4">Quick Links</h3>
             <ul className="space-y-2">
               <li>
@@ -94,7 +94,7 @@ const Footer = () => {
           </div>
 
           {/* For Job Seekers */}
-          <div>
+          <div className="hidden lg:block">
             <h3 className="text-white font-semibold mb-4">For Job Seekers</h3>
             <ul className="space-y-2">
               <li>
@@ -169,27 +169,27 @@ const Footer = () => {
       <div className="border-t border-gray-800">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            <div className="text-sm">
+            <div className="text-sm text-center md:text-left">
               © {currentYear} Stride. All rights reserved.
             </div>
-            <div className="flex space-x-6 text-sm">
+            <div className="flex flex-wrap justify-center gap-4 md:gap-6 text-sm">
               <Link
                 to="/terms"
                 className="hover:text-blue-500 transition-colors"
               >
-                Terms of Service
+                Terms
               </Link>
               <Link
                 to="/privacy"
                 className="hover:text-blue-500 transition-colors"
               >
-                Privacy Policy
+                Privacy
               </Link>
               <Link
                 to="/cookies"
                 className="hover:text-blue-500 transition-colors"
               >
-                Cookie Policy
+                Cookies
               </Link>
               <Link
                 to="/accessibility"

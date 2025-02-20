@@ -196,33 +196,37 @@ const Profile = () => {
             user={localUserData}
             onEditProfile={() => setIsEditProfileOpen(true)}
           />
-          <ProfileDetails about={localUserData.about} />
-          <ExperienceList
-            experiences={localUserData.experiences}
-            onAddExperience={() => setIsAddExperienceOpen(true)}
-            onEditExperience={(exp, index) => {
-              setSelectedExperience(exp);
-              setSelectedExperienceIndex(index);
-              setIsEditExperienceOpen(true);
-            }}
-          />
-          <EducationList
-            education={localUserData.education}
-            onAddEducation={() => setIsAddEducationOpen(true)}
-            onEditEducation={(edu, index) => {
-              setSelectedEducation(edu);
-              setSelectedEducationIndex(index);
-              setIsEditEducationOpen(true);
-            }}
-          />
-          <SkillsList skills={localUserData.skills} />
+          <div className="space-y-6">
+            <ProfileDetails about={localUserData.about} />
+            <ExperienceList
+              experiences={localUserData.experiences}
+              onAddExperience={() => setIsAddExperienceOpen(true)}
+              onEditExperience={(exp, index) => {
+                setSelectedExperience(exp);
+                setSelectedExperienceIndex(index);
+                setIsEditExperienceOpen(true);
+              }}
+            />
+            <EducationList
+              education={localUserData.education}
+              onAddEducation={() => setIsAddEducationOpen(true)}
+              onEditEducation={(edu, index) => {
+                setSelectedEducation(edu);
+                setSelectedEducationIndex(index);
+                setIsEditEducationOpen(true);
+              }}
+            />
+            <SkillsList skills={localUserData.skills} />
+          </div>
         </div>
-        <ProfileSidebar />
+        <div className="hidden lg:block">
+          <ProfileSidebar />
+        </div>
       </div>
 
       <button
         onClick={handleSignOut}
-        className="mt-8 px-4 py-2 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+        className="mt-8 px-4 py-2 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors w-full sm:w-auto"
       >
         Logout
       </button>
