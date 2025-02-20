@@ -13,7 +13,7 @@ const AdminSidebar = () => {
       {/* Nav Links */}
       <nav className="flex flex-col gap-2">
         <NavLink
-          to="/admin"
+          to="/admin/dashboard"
           end
           className={({ isActive }) =>
             isActive

@@ -21,7 +21,7 @@ const Layout = () => {
 
       {/* Body area: flex container to hold sidebar + main content */}
       <div className="min-h-screen bg-gray-100">
-        <div className="max-w-7xl mx-auto px-4 py-8 flex gap-6">
+        <div className="mx-auto px-10 py-6 flex gap-6">
           {/* Sidebar on the left */}
           <aside className="flex-shrink-0">
             <AdminSidebar />

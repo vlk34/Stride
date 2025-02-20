@@ -18,10 +18,10 @@ import PrivacyPolicy from "./pages/footer/PrivacyPolicy";
 import CookiePolicy from "./pages/footer/CookiePolicy";
 import Accessibility from "./pages/footer/Accessibility";
 import Admin from "./pages/Admin";
-/* import AdminJobs from "./pages/AdminJobs";
-import AdminUsers from "./pages/AdminUsers"; */
+import AdminUsers from "./components/Admin/AdminUsers";
 import AdminLayout from "./util/AdminLayout";
 import AdminDashboard from "./components/Admin/AdminDashboard";
+import AdminJobs from "./components/Admin/AdminJobs";
 
 const jobs = [
   {
@@ -166,8 +166,8 @@ const App = () => {
 
         <Route element={<AdminLayout />}>
           <Route path="/admin/dashboard" element={<AdminDashboard/>} />
-          {/* <Route path="/admin/jobs" element={<AdminJobs />} />
-          <Route path="/admin/users" element={<AdminUsers />} /> */}
+          <Route path="/admin/users" element={<AdminUsers />} />
+          <Route path="/admin/jobs" element={<AdminJobs jobs={jobs} />} />
         </Route>
 
 
