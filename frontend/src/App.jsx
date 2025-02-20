@@ -17,6 +17,11 @@ import TermsOfService from "./pages/footer/TermsOfService";
 import PrivacyPolicy from "./pages/footer/PrivacyPolicy";
 import CookiePolicy from "./pages/footer/CookiePolicy";
 import Accessibility from "./pages/footer/Accessibility";
+import Admin from "./pages/Admin";
+/* import AdminJobs from "./pages/AdminJobs";
+import AdminUsers from "./pages/AdminUsers"; */
+import AdminLayout from "./util/AdminLayout";
+import AdminDashboard from "./components/Admin/AdminDashboard";
 
 const jobs = [
   {
@@ -156,7 +161,18 @@ const App = () => {
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/cookies" element={<CookiePolicy />} />
           <Route path="/accessibility" element={<Accessibility />} />
+          
         </Route>
+
+        <Route element={<AdminLayout />}>
+          <Route path="/admin/dashboard" element={<AdminDashboard/>} />
+          {/* <Route path="/admin/jobs" element={<AdminJobs />} />
+          <Route path="/admin/users" element={<AdminUsers />} /> */}
+        </Route>
+
+
+
+
       </Route>
     </Routes>
   );
