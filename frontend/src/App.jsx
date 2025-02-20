@@ -195,18 +195,14 @@ const App = () => {
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/cookies" element={<CookiePolicy />} />
             <Route path="/accessibility" element={<Accessibility />} />
-          
-        </Route>
 
-        <Route element={<AdminLayout />}>
-          <Route path="/admin/dashboard" element={<AdminDashboard/>} />
-          <Route path="/admin/users" element={<AdminUsers />} />
-          <Route path="/admin/jobs" element={<AdminJobs jobs={jobs} />} />
           </Route>
 
-
-
-
+          <Route element={<AdminLayout />}>
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/admin/users" element={<AdminUsers />} />
+            <Route path="/admin/jobs" element={<AdminJobs jobs={jobs} />} />
+          </Route>
         </Route>
       </Routes>
     </UserDataProvider>
