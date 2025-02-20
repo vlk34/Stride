@@ -25,6 +25,7 @@ export function useUserQuery() {
       };
     },
     enabled: isLoaded && !!user,
+    staleTime: 1000,
   });
 
   // Mutation for updating profile
@@ -134,20 +135,17 @@ export function useUserQuery() {
   const updateImageMutation = useMutation({
     mutationFn: async (file) => {
       if (!file) return null;
-      const result = await user.setProfileImage({ file });
-      return result;
+      await user.setProfileImage({ file });
+      // Wait for Clerk to process and get fresh user data
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const updatedUser = await user.reload();
+      return updatedUser.imageUrl;
     },
     onMutate: async (file) => {
-      // Cancel any outgoing refetches
       await queryClient.cancelQueries({ queryKey: USER_QUERY_KEY });
-
-      // Snapshot the previous value
       const previousData = queryClient.getQueryData(USER_QUERY_KEY);
-
-      // Create a temporary URL for the file
       const tempImageUrl = URL.createObjectURL(file);
 
-      // Optimistically update the cache
       queryClient.setQueryData(USER_QUERY_KEY, (old) => ({
         ...old,
         imageUrl: tempImageUrl,
@@ -156,31 +154,20 @@ export function useUserQuery() {
       return { previousData, tempImageUrl };
     },
     onError: (err, file, context) => {
-      // On error, roll back to the previous value
       queryClient.setQueryData(USER_QUERY_KEY, context.previousData);
-
-      // Cleanup temporary URL
       if (context.tempImageUrl) {
         URL.revokeObjectURL(context.tempImageUrl);
       }
     },
-    onSuccess: async (result, file, context) => {
-      // Wait a bit to ensure Clerk has processed the image
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Then invalidate the query to get the new image URL
-      queryClient.invalidateQueries({ queryKey: USER_QUERY_KEY });
-
-      // Cleanup temporary URL after successful update
+    onSuccess: async (newImageUrl, file, context) => {
       if (context.tempImageUrl) {
         URL.revokeObjectURL(context.tempImageUrl);
       }
-    },
-    onSettled: (data, error, variables, context) => {
-      // Additional cleanup if needed
-      if (context.tempImageUrl) {
-        URL.revokeObjectURL(context.tempImageUrl);
-      }
+      // Update with the actual URL from Clerk
+      queryClient.setQueryData(USER_QUERY_KEY, (old) => ({
+        ...old,
+        imageUrl: newImageUrl,
+      }));
     },
   });
 

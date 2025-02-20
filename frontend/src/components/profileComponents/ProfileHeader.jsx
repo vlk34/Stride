@@ -1,8 +1,37 @@
-import React from "react";
-import { Pencil, MoreHorizontal } from "lucide-react";
+import React, { useRef } from "react";
+import { Pencil, MoreHorizontal, Camera } from "lucide-react";
+import { useUserQuery } from "../../hooks/useUserQuery";
+import { useUserData } from "../../contexts/UserDataContext";
 
 const ProfileHeader = ({ user, onEditProfile }) => {
   const { name, role, description, imageUrl } = user;
+  const { updateImage } = useUserQuery();
+  const { setLocalUserData } = useUserData();
+  const fileInputRef = useRef(null);
+
+  const handleImageClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleImageChange = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      // Optimistic update
+      const tempUrl = URL.createObjectURL(file);
+      setLocalUserData((prev) => ({
+        ...prev,
+        imageUrl: tempUrl,
+      }));
+
+      // Update image using TanStack Query mutation
+      await updateImage(file);
+    } catch (error) {
+      console.error("Error updating profile image:", error);
+      // The mutation will handle reverting the optimistic update
+    }
+  };
 
   return (
     <div className="w-full bg-white rounded-lg border border-gray-200">
@@ -13,9 +42,12 @@ const ProfileHeader = ({ user, onEditProfile }) => {
 
       {/* Profile content */}
       <div className="px-6 -mt-16 pb-6 relative">
-        {/* Avatar */}
-        <div className="inline-block">
-          <div className="w-24 h-24 rounded-full bg-white p-1 shadow">
+        {/* Avatar with edit overlay */}
+        <div className="inline-block relative group">
+          <div
+            className="w-24 h-24 rounded-full bg-white p-1 shadow cursor-pointer"
+            onClick={handleImageClick}
+          >
             {imageUrl ? (
               <img
                 src={imageUrl}
@@ -24,11 +56,21 @@ const ProfileHeader = ({ user, onEditProfile }) => {
               />
             ) : (
               <div className="w-full h-full rounded-full bg-gray-300 flex items-center justify-center">
-                <span className="text-gray-500">No Image</span>{" "}
-                {/* Placeholder text */}
+                <span className="text-gray-500">No Image</span>
               </div>
             )}
+            {/* Edit overlay */}
+            <div className="absolute inset-0 rounded-full bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              <Camera className="w-6 h-6 text-white" />
+            </div>
           </div>
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleImageChange}
+            accept="image/*"
+            className="hidden"
+          />
         </div>
 
         <div className="mt-4">
