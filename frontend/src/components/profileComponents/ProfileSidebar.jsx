@@ -75,7 +75,7 @@ function ProfileSidebar() {
   return (
     <div className="space-y-6">
       {/* People you may know section */}
-      <div className="bg-white rounded-lg p-4 shadow">
+      <div className="bg-white rounded-lg p-4 border border-gray-200">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-medium">People you may know</h3>
           <button className="text-gray-400">•••</button>

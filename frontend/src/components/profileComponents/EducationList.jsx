@@ -2,11 +2,13 @@ import React, { useState, useEffect, useRef } from "react";
 import { Plus, MoreVertical } from "lucide-react";
 import { useUser } from "@clerk/clerk-react";
 import formatDate from "../../util/formatDate";
+import { useUserData } from "../../contexts/UserDataContext";
 
 const EducationList = ({ education, onAddEducation, onEditEducation }) => {
-  const { user } = useUser();
   const [activeDropdown, setActiveDropdown] = useState(null);
   const dropdownRef = useRef(null);
+  const { user } = useUser();
+  const { setLocalUserData } = useUserData();
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -23,9 +25,16 @@ const EducationList = ({ education, onAddEducation, onEditEducation }) => {
 
   const handleDelete = async (index) => {
     try {
+      // Optimistic update using context
+      setLocalUserData((prev) => ({
+        ...prev,
+        education: prev.education.filter((_, i) => i !== index),
+      }));
+      setActiveDropdown(null);
+
+      // Actual update
       const currentEducation = [...(user.unsafeMetadata?.education || [])];
       currentEducation.splice(index, 1);
-
       await user.update({
         unsafeMetadata: {
           ...user.unsafeMetadata,
@@ -33,13 +42,17 @@ const EducationList = ({ education, onAddEducation, onEditEducation }) => {
         },
       });
     } catch (error) {
+      // Revert on error
+      setLocalUserData((prev) => ({
+        ...prev,
+        education: user.unsafeMetadata?.education || [],
+      }));
       console.error("Error deleting education:", error);
     }
-    setActiveDropdown(null);
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow">
+    <div className="bg-white p-6 rounded-lg border border-gray-200">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold">Education</h2>
         <button

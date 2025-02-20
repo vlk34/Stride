@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import { useUser } from "@clerk/clerk-react";
 
-const EditProfileModal = ({ isOpen, onClose }) => {
+const EditProfileModal = ({ isOpen, onClose, onUpdate, userData }) => {
   const { user } = useUser();
   const [formData, setFormData] = useState({
     name: "",
@@ -10,46 +10,58 @@ const EditProfileModal = ({ isOpen, onClose }) => {
     description: "",
     about: "",
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Update form data when modal opens or user data changes
   useEffect(() => {
-    if (isOpen && user) {
+    if (isOpen && userData) {
       setFormData({
-        name: user.fullName || "",
-        role: user.unsafeMetadata?.role || "",
-        description: user.unsafeMetadata?.description || "",
-        about: user.unsafeMetadata?.about || "",
+        name: userData.name || "",
+        role: userData.role || "",
+        description: userData.description || "",
+        about: userData.about || "",
       });
     }
-  }, [isOpen, user]);
+  }, [isOpen, userData]);
 
   if (!isOpen) return null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
+
     try {
-      // Update metadata
-      await user.update({
-        unsafeMetadata: {
-          ...user.unsafeMetadata,
-          role: formData.role,
-          description: formData.description,
-          about: formData.about,
-        },
-      });
+      // Call the optimistic update handler first
+      onUpdate(formData);
 
-      // Update user's name if changed
-      if (formData.name !== user.fullName) {
-        const [firstName, ...lastNameParts] = formData.name.split(" ");
-        await user.update({
-          firstName,
-          lastName: lastNameParts.join(" "),
-        });
-      }
+      // Wait for both updates to complete
+      await Promise.all([
+        // Update metadata
+        user.update({
+          unsafeMetadata: {
+            ...user.unsafeMetadata,
+            role: formData.role,
+            description: formData.description,
+            about: formData.about,
+          },
+        }),
+        // Update user's name if changed
+        formData.name !== user.fullName &&
+          (async () => {
+            const [firstName, ...lastNameParts] = formData.name.split(" ");
+            await user.update({
+              firstName,
+              lastName: lastNameParts.join(" "),
+            });
+          })(),
+      ]);
 
+      setIsSubmitting(false);
       onClose();
     } catch (error) {
       console.error("Error updating profile:", error);
+      setIsSubmitting(false);
+      // The Profile component will handle reverting the optimistic update
     }
   };
 
@@ -131,15 +143,24 @@ const EditProfileModal = ({ isOpen, onClose }) => {
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200"
+                disabled={isSubmitting}
+                className="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700"
+                disabled={isSubmitting}
+                className="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
               >
-                Save Changes
+                {isSubmitting ? (
+                  <>
+                    <span className="animate-spin">⏳</span>
+                    Saving...
+                  </>
+                ) : (
+                  "Save Changes"
+                )}
               </button>
             </div>
           </form>

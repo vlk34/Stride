@@ -22,6 +22,7 @@ import AdminUsers from "./components/Admin/AdminUsers";
 import AdminLayout from "./util/AdminLayout";
 import AdminDashboard from "./components/Admin/AdminDashboard";
 import AdminJobs from "./components/Admin/AdminJobs";
+import { UserDataProvider } from "./contexts/UserDataContext";
 
 const jobs = [
   {
@@ -48,9 +49,41 @@ const jobs = [
       "Present design solutions to senior stakeholders and executive team",
       "Partner with engineering to ensure pixel-perfect implementation",
       "Contribute to strategic product decisions and roadmap planning",
+      "Lead the end-to-end design process for major product initiatives",
+      "Create user flows, wireframes, and high-fidelity prototypes",
+      "Conduct and participate in design critiques to ensure high-quality solutions",
+      "Mentor junior designers and contribute to our design system",
+      "Collaborate with research teams to gather and incorporate user feedback",
+      "Present design solutions to senior stakeholders and executive team",
+      "Partner with engineering to ensure pixel-perfect implementation",
+      "Contribute to strategic product decisions and roadmap planning",
+      "Lead the end-to-end design process for major product initiatives",
+      "Create user flows, wireframes, and high-fidelity prototypes",
+      "Conduct and participate in design critiques to ensure high-quality solutions",
+      "Mentor junior designers and contribute to our design system",
+      "Collaborate with research teams to gather and incorporate user feedback",
+      "Present design solutions to senior stakeholders and executive team",
+      "Partner with engineering to ensure pixel-perfect implementation",
+      "Contribute to strategic product decisions and roadmap planning",
+      "Lead the end-to-end design process for major product initiatives",
+      "Create user flows, wireframes, and high-fidelity prototypes",
+      "Conduct and participate in design critiques to ensure high-quality solutions",
+      "Mentor junior designers and contribute to our design system",
+      "Collaborate with research teams to gather and incorporate user feedback",
+      "Present design solutions to senior stakeholders and executive team",
+      "Partner with engineering to ensure pixel-perfect implementation",
+      "Contribute to strategic product decisions and roadmap planning",
+      "Lead the end-to-end design process for major product initiatives",
+      "Create user flows, wireframes, and high-fidelity prototypes",
+      "Conduct and participate in design critiques to ensure high-quality solutions",
+      "Mentor junior designers and contribute to our design system",
+      "Collaborate with research teams to gather and incorporate user feedback",
+      "Present design solutions to senior stakeholders and executive team",
+      "Partner with engineering to ensure pixel-perfect implementation",
+      "Contribute to strategic product decisions and roadmap planning",
     ],
     about:
-      "Twitter is where the world comes to share ideas and stay informed. Our purpose is to serve the public conversation – it's essential to connecting the world. We're committed to protecting the health of the public conversation while respecting fundamental human rights. Our team of passionate individuals works together to create products that have real-world impact. Join us in building the future of public discourse.",
+      "Lorem Ipsum Twitter is where the world comes to share ideas and stay informed. Our purpose is to serve the public conversation – it's essential to connecting the world. We're committed to protecting the health of the public conversation while respecting fundamental human rights. Our team of passionate individuals works together to create products that have real-world impact.  Twitter is where the world comes to sha  Twitter is where the world comes to sha  Twitter is where the world comes to sha  Twitter is where the world comes to sha  Twitter is where the world comes to sha Twitter is where the world comes to sha Twitter is where the world comes to sha Twitter is where the world comes to sha Twitter is where the world comes to sha Twitter is where the world comes to sha Twitter is where the world comes to sha Twitter is where the world comes to sha  Twitter is where the world comes to sha Twitter is where the world comes to sha Twitter is where the world comes to sha Twitter is where the world comes to sha Twitter is where the world comes to shaJoin us in building the future of public discourse.",
   },
   {
     id: 2,
@@ -142,25 +175,26 @@ const jobs = [
 
 const App = () => {
   return (
-    <Routes>
-      {/* Public routes */}
-      <Route path="/signin/*" element={<CustomSignIn />} />
-      <Route path="/signup/*" element={<CustomSignUp />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
+    <UserDataProvider>
+      <Routes>
+        {/* Public routes */}
+        <Route path="/signin/*" element={<CustomSignIn />} />
+        <Route path="/signup/*" element={<CustomSignUp />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
 
-      {/* Protected routes */}
-      <Route element={<ProtectedRoute />}>
-        <Route element={<Layout />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/search" element={<Result jobs={jobs} />} />
-          <Route path="/jobs" element={<SavedJobs />} />
-          <Route path="/add-job" element={<AddJob />} />
-          <Route path="/company/:id" element={<CompanyProfile />} />
-          <Route path="/terms" element={<TermsOfService />} />
-          <Route path="/privacy" element={<PrivacyPolicy />} />
-          <Route path="/cookies" element={<CookiePolicy />} />
-          <Route path="/accessibility" element={<Accessibility />} />
+        {/* Protected routes */}
+        <Route element={<ProtectedRoute />}>
+          <Route element={<Layout />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/search" element={<Result jobs={jobs} />} />
+            <Route path="/jobs" element={<SavedJobs />} />
+            <Route path="/add-job" element={<AddJob />} />
+            <Route path="/company/:id" element={<CompanyProfile />} />
+            <Route path="/terms" element={<TermsOfService />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/cookies" element={<CookiePolicy />} />
+            <Route path="/accessibility" element={<Accessibility />} />
           
         </Route>
 
@@ -168,13 +202,14 @@ const App = () => {
           <Route path="/admin/dashboard" element={<AdminDashboard/>} />
           <Route path="/admin/users" element={<AdminUsers />} />
           <Route path="/admin/jobs" element={<AdminJobs jobs={jobs} />} />
+          </Route>
+
+
+
+
         </Route>
-
-
-
-
-      </Route>
-    </Routes>
+      </Routes>
+    </UserDataProvider>
   );
 };
 

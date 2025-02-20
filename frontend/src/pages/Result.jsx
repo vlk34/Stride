@@ -8,11 +8,14 @@ import {
   Building2,
   GraduationCap,
   Search,
+  Filter,
+  X,
 } from "lucide-react";
 
 const Result = ({ jobs }) => {
   const [selectedJob, setSelectedJob] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
     workstyle: "",
     type: "",
@@ -59,21 +62,28 @@ const Result = ({ jobs }) => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">
-      <div className="bg-white p-3 rounded-lg border border-gray-200 mb-6">
+      {/* Search bar */}
+      <div className="sticky top-0 z-10 bg-white pb-4">
         <div className="flex items-center gap-3">
-          {/* Search bar - fixed width */}
-          <div className="w-[40%] relative">
+          <div className="relative flex-1">
             <input
-              placeholder="Search Jobs"
+              placeholder="Search for jobs..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-3 py-1.5 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 text-sm"
+              className="w-full pl-9 pr-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
             />
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           </div>
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className="p-2.5 border border-gray-200 rounded-lg hover:border-gray-300"
+          >
+            <Filter className="w-5 h-5 text-gray-500" />
+          </button>
+        </div>
 
-          {/* Filters container */}
-          <div className="flex-1 flex items-center gap-3">
+        {showFilters && (
+          <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-3">
             <div className="flex-1 relative">
               <select
                 name="workstyle"
@@ -137,24 +147,57 @@ const Result = ({ jobs }) => {
               <GraduationCap className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             </div>
           </div>
-        </div>
+        )}
       </div>
 
-      <div className="flex gap-6">
-        {/* Left column - Job listings */}
-        <div className="w-2/5">
-          <div className="flex justify-between items-center mb-4">
-            <span className="text-gray-600">
-              {filteredJobs.length} Job Listings Available
-            </span>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">Sort by:</span>
+      {/* Content */}
+      <div className="mt-6">
+        {/* Desktop Layout */}
+        <div className="hidden lg:flex gap-6">
+          {/* Job listings */}
+          <div className="w-2/5">
+            <div className="flex justify-between items-center mb-4">
+              <span className="text-gray-600">
+                {filteredJobs.length} Job Listings Available
+              </span>
               <select className="border rounded-lg px-2 py-1 text-sm">
                 <option>Relevance</option>
                 <option>Latest</option>
                 <option>Oldest</option>
               </select>
             </div>
+
+            <div className="space-y-4 max-h-[calc(100vh-180px)] overflow-y-auto">
+              {filteredJobs.map((job) => (
+                <JobCard
+                  key={job.id}
+                  job={job}
+                  isSelected={selectedJob?.id === job.id}
+                  onSelect={setSelectedJob}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Job details - Desktop */}
+          <div className="w-3/5 bg-white rounded-lg border border-gray-200">
+            <div className="h-[calc(100vh-180px)] overflow-y-auto">
+              <JobInformation job={selectedJob} />
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Layout */}
+        <div className="lg:hidden">
+          <div className="flex justify-between items-center mb-4">
+            <span className="text-gray-600">
+              {filteredJobs.length} Job Listings Available
+            </span>
+            <select className="border rounded-lg px-2 py-1 text-sm">
+              <option>Relevance</option>
+              <option>Latest</option>
+              <option>Oldest</option>
+            </select>
           </div>
 
           <div className="space-y-4">
@@ -167,11 +210,53 @@ const Result = ({ jobs }) => {
               />
             ))}
           </div>
-        </div>
 
-        {/* Right column - Job details */}
-        <div className="w-3/5 bg-white rounded-lg shadow-sm border">
-          <JobInformation job={selectedJob} />
+          {/* Mobile Job details overlay */}
+          {selectedJob && (
+            <>
+              <div
+                className="fixed inset-0 bg-black/30 transition-opacity z-40"
+                onClick={() => setSelectedJob(null)}
+              />
+
+              <div
+                className="fixed inset-x-0 bottom-0 z-50 bg-white border-t border-gray-200 transform transition-transform duration-300 ease-out"
+                style={{
+                  height: "90vh",
+                  transform: "translateY(0)",
+                  animation: "slideUp 300ms ease-out",
+                }}
+              >
+                <div className="h-full overflow-y-auto overscroll-contain">
+                  <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex justify-between items-center">
+                    <h2 className="font-semibold text-lg">
+                      {selectedJob.title}
+                    </h2>
+                    <button
+                      onClick={() => setSelectedJob(null)}
+                      className="p-2 hover:bg-gray-100 rounded-full lg:hidden"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+                  <div className="p-4">
+                    <JobInformation job={selectedJob} />
+                  </div>
+                </div>
+              </div>
+
+              <style jsx>{`
+                @keyframes slideUp {
+                  from {
+                    transform: translateY(100%);
+                  }
+                  to {
+                    transform: translateY(0);
+                  }
+                }
+              `}</style>
+            </>
+          )}
         </div>
       </div>
     </div>

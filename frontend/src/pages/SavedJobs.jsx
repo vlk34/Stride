@@ -4,9 +4,10 @@ import JobInformation from "../components/searchResult/JobInformation";
 import useSavedJobs from "../hooks/useSavedJobs";
 import useAppliedJobs from "../hooks/useAppliedJobs";
 import { useNavigate } from "react-router";
+import { X } from "lucide-react";
 
 const SavedJobs = () => {
-  const [activeTab, setActiveTab] = useState("saved"); // "saved" or "applied"
+  const [activeTab, setActiveTab] = useState("saved");
   const [selectedJob, setSelectedJob] = useState(null);
   const navigate = useNavigate();
   const { savedJobs } = useSavedJobs();
@@ -42,26 +43,23 @@ const SavedJobs = () => {
         </button>
       </div>
 
-      {/* Content */}
-      <div className="flex gap-6">
-        {/* Left column - Job listings */}
+      {/* Desktop Layout */}
+      <div className="hidden lg:flex gap-6">
+        {/* Job listings */}
         <div className="w-2/5">
           <div className="flex justify-between items-center mb-4">
             <span className="text-gray-600">
               {currentJobs.length} {activeTab === "saved" ? "Saved" : "Applied"}{" "}
               Jobs
             </span>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">Sort by:</span>
-              <select className="border rounded-lg px-2 py-1 text-sm">
-                <option>Newest</option>
-                <option>Oldest</option>
-              </select>
-            </div>
+            <select className="border rounded-lg px-2 py-1 text-sm">
+              <option>Newest</option>
+              <option>Oldest</option>
+            </select>
           </div>
 
           {currentJobs.length > 0 ? (
-            <div className="space-y-4">
+            <div className="space-y-4 max-h-[calc(100vh-180px)] overflow-y-auto">
               {currentJobs.map((job) => (
                 <JobCard
                   key={job.id}
@@ -90,10 +88,100 @@ const SavedJobs = () => {
           )}
         </div>
 
-        {/* Right column - Job details */}
+        {/* Job details - Desktop */}
         <div className="w-3/5 bg-white rounded-lg border border-gray-200">
-          <JobInformation job={selectedJob} />
+          <div className="h-[calc(100vh-180px)] overflow-y-auto">
+            <JobInformation job={selectedJob} />
+          </div>
         </div>
+      </div>
+
+      {/* Mobile Layout */}
+      <div className="lg:hidden">
+        <div className="flex justify-between items-center mb-4">
+          <span className="text-gray-600">
+            {currentJobs.length} {activeTab === "saved" ? "Saved" : "Applied"}{" "}
+            Jobs
+          </span>
+          <select className="border rounded-lg px-2 py-1 text-sm">
+            <option>Newest</option>
+            <option>Oldest</option>
+          </select>
+        </div>
+
+        {currentJobs.length > 0 ? (
+          <div className="space-y-4">
+            {currentJobs.map((job) => (
+              <JobCard
+                key={job.id}
+                job={job}
+                isSelected={selectedJob?.id === job.id}
+                onSelect={setSelectedJob}
+                appliedAt={job.appliedAt}
+                isApplied={activeTab === "applied"}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
+            <p className="text-gray-500">
+              {activeTab === "saved"
+                ? "You haven't saved any jobs yet."
+                : "You haven't applied to any jobs yet."}
+            </p>
+            <button
+              onClick={() => navigate("/search")}
+              className="mt-4 px-4 py-2 text-sm text-blue-600 hover:text-blue-700"
+            >
+              Explore Job Listings
+            </button>
+          </div>
+        )}
+
+        {/* Mobile Job details overlay */}
+        {selectedJob && (
+          <>
+            <div
+              className="fixed inset-0 bg-black/30 transition-opacity z-40"
+              onClick={() => setSelectedJob(null)}
+            />
+
+            <div
+              className="fixed inset-x-0 bottom-0 z-50 bg-white border-t border-gray-200 transform transition-transform duration-300 ease-out"
+              style={{
+                height: "90vh",
+                transform: "translateY(0)",
+                animation: "slideUp 300ms ease-out",
+              }}
+            >
+              <div className="h-full overflow-y-auto overscroll-contain">
+                <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex justify-between items-center">
+                  <h2 className="font-semibold text-lg">{selectedJob.title}</h2>
+                  <button
+                    onClick={() => setSelectedJob(null)}
+                    className="p-2 hover:bg-gray-100 rounded-full lg:hidden"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+                <div className="p-4">
+                  <JobInformation job={selectedJob} />
+                </div>
+              </div>
+            </div>
+
+            <style jsx>{`
+              @keyframes slideUp {
+                from {
+                  transform: translateY(100%);
+                }
+                to {
+                  transform: translateY(0);
+                }
+              }
+            `}</style>
+          </>
+        )}
       </div>
     </div>
   );

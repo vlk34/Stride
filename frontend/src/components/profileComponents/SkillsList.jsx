@@ -1,14 +1,17 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Plus, MoreVertical } from "lucide-react";
-import formatDate from "../../util/formatDate";
 import { useUser } from "@clerk/clerk-react";
 import { useUserData } from "../../contexts/UserDataContext";
+import { useUserQuery } from "../../hooks/useUserQuery";
+import AddSkillModal from "../modals/AddSkillModal";
 
-const ExperienceList = ({ experiences, onAddExperience, onEditExperience }) => {
-  const [activeDropdown, setActiveDropdown] = useState(null);
-  const dropdownRef = useRef(null);
+const SkillsList = ({ skills }) => {
   const { user } = useUser();
   const { setLocalUserData } = useUserData();
+  const { updateSkills, userData } = useUserQuery();
+  const [activeDropdown, setActiveDropdown] = useState(null);
+  const [isAddSkillModalOpen, setIsAddSkillModalOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -28,62 +31,70 @@ const ExperienceList = ({ experiences, onAddExperience, onEditExperience }) => {
       // Optimistic update using context
       setLocalUserData((prev) => ({
         ...prev,
-        experiences: prev.experiences.filter((_, i) => i !== index),
+        skills: prev.skills.filter((_, i) => i !== index),
       }));
       setActiveDropdown(null);
 
-      // Actual update
-      const currentExperiences = [...(user.unsafeMetadata?.experiences || [])];
-      currentExperiences.splice(index, 1);
-      await user.update({
-        unsafeMetadata: {
-          ...user.unsafeMetadata,
-          experiences: currentExperiences,
-        },
-      });
+      // Update using TanStack Query mutation
+      const newSkills = userData.skills.filter((_, i) => i !== index);
+      await updateSkills(newSkills);
     } catch (error) {
       // Revert on error
       setLocalUserData((prev) => ({
         ...prev,
-        experiences: user.unsafeMetadata?.experiences || [],
+        skills: userData.skills,
       }));
-      console.error("Error deleting experience:", error);
+      console.error("Error deleting skill:", error);
+    }
+  };
+
+  const handleAddSkill = async (newSkill) => {
+    try {
+      // Optimistic update using context
+      setLocalUserData((prev) => ({
+        ...prev,
+        skills: [...prev.skills, newSkill],
+      }));
+
+      // Update using TanStack Query mutation
+      await updateSkills([...userData.skills, newSkill]);
+    } catch (error) {
+      // Revert on error
+      setLocalUserData((prev) => ({
+        ...prev,
+        skills: userData.skills,
+      }));
+      console.error("Error adding skill:", error);
     }
   };
 
   return (
     <div className="bg-white p-6 rounded-lg border border-gray-200">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold">Experience</h2>
+        <h2 className="text-xl font-semibold">Skills</h2>
         <button
-          onClick={() => onAddExperience()}
+          onClick={() => setIsAddSkillModalOpen(true)}
           className="text-blue-600 text-sm hover:text-blue-700 flex items-center gap-1"
         >
           <Plus className="w-4 h-4" />
-          Add Experience
+          Add Skill
         </button>
       </div>
 
-      {experiences.length === 0 ? (
+      {skills.length === 0 ? (
         <div className="pl-4 py-3 text-gray-500 border-l-2 border-gray-200">
-          <p>No experience added yet.</p>
+          <p>No skills added yet.</p>
         </div>
       ) : (
         <ul className="space-y-6">
-          {experiences.map((exp, index) => (
+          {skills.map((skill, index) => (
             <li
               key={index}
               className="relative pl-4 border-l-2 border-gray-200"
             >
               <div className="flex justify-between items-start">
                 <div>
-                  <h3 className="font-semibold text-gray-900">
-                    {exp.role} @ {exp.company}
-                  </h3>
-                  <p className="text-sm text-gray-500 mt-1">
-                    {exp.type} • {formatDate(exp.startDate)} -{" "}
-                    {exp.current ? "Present" : formatDate(exp.endDate)}
-                  </p>
+                  <h3 className="font-semibold text-gray-900">{skill}</h3>
                 </div>
                 <div
                   className="relative"
@@ -100,15 +111,6 @@ const ExperienceList = ({ experiences, onAddExperience, onEditExperience }) => {
                   {activeDropdown === index && (
                     <div className="absolute right-0 mt-1 py-2 w-32 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
                       <button
-                        onClick={() => {
-                          onEditExperience(exp, index);
-                          setActiveDropdown(null);
-                        }}
-                        className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
-                      >
-                        Edit
-                      </button>
-                      <button
                         onClick={() => handleDelete(index)}
                         className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100"
                       >
@@ -118,13 +120,18 @@ const ExperienceList = ({ experiences, onAddExperience, onEditExperience }) => {
                   )}
                 </div>
               </div>
-              <p className="text-gray-600 text-sm mt-2">{exp.description}</p>
             </li>
           ))}
         </ul>
       )}
+
+      <AddSkillModal
+        isOpen={isAddSkillModalOpen}
+        onClose={() => setIsAddSkillModalOpen(false)}
+        onAdd={handleAddSkill}
+      />
     </div>
   );
 };
 
-export default ExperienceList;
+export default SkillsList;
