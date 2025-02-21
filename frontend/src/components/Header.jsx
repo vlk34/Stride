@@ -24,7 +24,7 @@ const Header = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileRef = useRef(null);
   const navigate = useNavigate();
-  const { openUserProfile } = useClerk();
+  const { openUserProfile, signOut } = useClerk();
 
   // Use localUserData.name if available, otherwise fall back to user data
   const displayName =

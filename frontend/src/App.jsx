@@ -22,6 +22,7 @@ import AdminLayout from "./util/AdminLayout";
 import AdminDashboard from "./components/Admin/AdminDashboard";
 import AdminJobs from "./components/Admin/AdminJobs";
 import { UserDataProvider } from "./contexts/UserDataContext";
+import Help from "./pages/Help";
 
 const jobs = [
   {
@@ -172,6 +173,107 @@ const jobs = [
   },
 ];
 
+const faqData = {
+  categories: [
+    {
+      id: "account",
+      name: "Account & Profile",
+      questions: [
+        {
+          id: 1,
+          question: "How do I create an account?",
+          answer:
+            "You can create an account by clicking the 'Sign Up' button in the top right corner. You'll need to provide your email address and create a password. You can also sign up using your Google or GitHub account for faster access.",
+        },
+        {
+          id: 2,
+          question: "How can I change my profile picture?",
+          answer:
+            "To change your profile picture, go to your profile page and hover over your current profile image. Click on the camera icon that appears, and you'll be directed to the profile settings where you can upload a new photo.",
+        },
+        {
+          id: 3,
+          question: "How do I update my personal information?",
+          answer:
+            "You can update your personal information by going to your profile page and clicking the 'Edit Profile' button. From there, you can modify your role, description, and about section.",
+        },
+        {
+          id: 4,
+          question: "Can I delete my account?",
+          answer:
+            "Yes, you can delete your account by going to your profile settings. Please note that this action is permanent and will remove all your data, including saved jobs and applications.",
+        },
+      ],
+    },
+    {
+      id: "applications",
+      name: "Job Applications",
+      questions: [
+        {
+          id: 5,
+          question: "How do I apply for a job?",
+          answer:
+            "To apply for a job, click on the job listing you're interested in and click the 'Apply Now' button. You'll need to fill out the application form and attach your resume. Make sure your profile is complete before applying.",
+        },
+        {
+          id: 6,
+          question: "Can I track my job applications?",
+          answer:
+            "Yes, you can track all your job applications in the 'My Applications' section of your profile. There you can see the status of each application and any messages from employers.",
+        },
+        {
+          id: 7,
+          question: "How do I withdraw my application?",
+          answer:
+            "You can withdraw your application by going to 'My Applications' and clicking the 'Withdraw' button next to the relevant application. Note that you cannot reapply for the same position after withdrawing.",
+        },
+      ],
+    },
+    {
+      id: "jobs",
+      name: "Finding Jobs",
+      questions: [
+        {
+          id: 8,
+          question: "How do I save a job for later?",
+          answer:
+            "To save a job, click the bookmark icon next to the job listing. You can find all your saved jobs in the 'Saved Jobs' section of your profile.",
+        },
+        {
+          id: 9,
+          question: "What do the different job tags mean?",
+          answer:
+            "Jobs are tagged with various indicators: 'Remote' means you can work from anywhere, 'Hybrid' means a mix of office and remote work, and 'On-site' means you need to work at the office. 'Verified' means the employer has been verified by our team.",
+        },
+        {
+          id: 10,
+          question: "How do I filter job searches?",
+          answer:
+            "You can filter jobs using the search bar and filter options at the top of the job listings page. Filter by location, job type, industry, and experience level to find the most relevant positions.",
+        },
+      ],
+    },
+    {
+      id: "technical",
+      name: "Technical Support",
+      questions: [
+        {
+          id: 11,
+          question: "What browsers are supported?",
+          answer:
+            "Our platform supports the latest versions of Chrome, Firefox, Safari, and Edge. For the best experience, we recommend keeping your browser updated to the latest version.",
+        },
+        {
+          id: 12,
+          question: "The site isn't loading properly. What should I do?",
+          answer:
+            "First, try clearing your browser cache and cookies. If the problem persists, try using a different browser or device. If you're still experiencing issues, please contact our support team.",
+        },
+      ],
+    },
+  ],
+};
+
 const App = () => {
   return (
     <UserDataProvider>
@@ -194,6 +296,7 @@ const App = () => {
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/cookies" element={<CookiePolicy />} />
             <Route path="/accessibility" element={<Accessibility />} />
+            <Route path="/help" element={<Help faqData={faqData} />} />
           </Route>
 
           <Route element={<AdminLayout />}>

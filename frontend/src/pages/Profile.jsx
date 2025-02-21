@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router";
-import { useClerk, useUser } from "@clerk/clerk-react";
+import { useUser } from "@clerk/clerk-react";
 import ProfileHeader from "../components/profileComponents/ProfileHeader";
 import ProfileDetails from "../components/profileComponents/ProfileDetails";
 import ProfileSidebar from "../components/profileComponents/ProfileSidebar";
@@ -14,8 +13,6 @@ import { useUserData } from "../contexts/UserDataContext";
 import { useUserQuery } from "../hooks/useUserQuery";
 
 const Profile = () => {
-  const navigate = useNavigate();
-  const { signOut } = useClerk();
   const { user, isLoaded } = useUser();
   const { localUserData, setLocalUserData } = useUserData();
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
@@ -185,11 +182,6 @@ const Profile = () => {
     }
   };
 
-  const handleSignOut = async () => {
-    await signOut();
-    navigate("/signin");
-  };
-
   if (isLoading) {
     return <div>Loading...</div>; // Or your loading component
   }
@@ -230,13 +222,6 @@ const Profile = () => {
           <ProfileSidebar />
         </div>
       </div>
-
-      <button
-        onClick={handleSignOut}
-        className="mt-8 px-4 py-2 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors w-full sm:w-auto"
-      >
-        Logout
-      </button>
 
       {/* Modals */}
       <EditProfileModal
