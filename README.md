@@ -1,4 +1,8 @@
-# Run backend
+## Run backend
 ```
-./mvnw spring-boot:run
+.\mvnw.cmd spring-boot:run
+```
+## Create JAR
+```
+.\mvnw.cmd clean package
 ```

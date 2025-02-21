@@ -1,4 +1,4 @@
-package com.group28.Stride;
+package com.group28.Stride.util;
 
 import java.io.IOException;
 import java.net.URI;

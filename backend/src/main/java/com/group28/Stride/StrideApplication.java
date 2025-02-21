@@ -1,21 +1,22 @@
 package com.group28.Stride;
 
+import com.clerk.backend_api.Clerk;
 import com.clerk.backend_api.helpers.jwks.AuthenticateRequest;
 import com.clerk.backend_api.helpers.jwks.AuthenticateRequestOptions;
 import com.clerk.backend_api.helpers.jwks.RequestState;
+import com.clerk.backend_api.models.operations.GetUserResponse;
+import com.group28.Stride.util.HttpConverter;
 import io.github.cdimascio.dotenv.Dotenv;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import java.sql.*;
 
 @SpringBootApplication
 @RestController
 public class StrideApplication {
-
 	public static void main(String[] args) throws Exception {
 		SpringApplication.run(StrideApplication.class, args);
 	}
