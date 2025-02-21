@@ -26,6 +26,7 @@ import Search from "./pages/Search";
 import BusinessUpgrade from "./pages/BusinessUpgrade";
 import BusinessAccountCreation from "./pages/BusinessAccountCreation";
 import BusinessDashboard from "./pages/BusinessDashboard";
+import CreateJobListing from "./pages/CreateJobListing";
 const jobs = [
   {
     id: 1,
@@ -422,6 +423,7 @@ const App = () => {
               element={<BusinessAccountCreation />}
             />
             <Route path="/business-dashboard" element={<BusinessDashboard />} />
+            <Route path="/create-job-listing" element={<CreateJobListing />} />
           </Route>
 
           <Route element={<AdminLayout />}>

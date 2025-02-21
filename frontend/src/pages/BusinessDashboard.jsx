@@ -105,7 +105,7 @@ const BusinessDashboard = () => {
           <p className="text-gray-600">Welcome back, Company Name</p>
         </div>
         <Link
-          to="/post-job"
+          to="/create-job-listing"
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
         >
           Post New Job
