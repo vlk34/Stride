@@ -45,6 +45,19 @@ const AdminSidebar = () => {
         >
           Manage Jobs
         </NavLink>
+
+        <NavLink
+          to="/admin/business"
+          className={({ isActive }) =>
+            isActive
+              ? "block p-2 rounded bg-blue-100 text-blue-700"
+              : "block p-2 rounded hover:bg-gray-100"
+          }
+        >
+          Business Applications
+        </NavLink>
+
+
       </nav>
     </aside>
   );

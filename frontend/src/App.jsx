@@ -20,6 +20,7 @@ import AdminUsers from "./components/Admin/AdminUsers";
 import AdminLayout from "./util/AdminLayout";
 import AdminDashboard from "./components/Admin/AdminDashboard";
 import AdminJobs from "./components/Admin/AdminJobs";
+import AdminBusiness from "./components/Admin/AdminBusiness";
 import { UserDataProvider } from "./contexts/UserDataContext";
 import Help from "./pages/Help";
 import Search from "./pages/Search";
@@ -430,6 +431,7 @@ const App = () => {
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/admin/users" element={<AdminUsers />} />
             <Route path="/admin/jobs" element={<AdminJobs jobs={jobs} />} />
+            <Route path="/admin/business" element={<AdminBusiness />} />
           </Route>
         </Route>
       </Routes>
