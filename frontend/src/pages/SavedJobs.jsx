@@ -3,8 +3,9 @@ import JobCard from "../components/searchResult/JobCard";
 import JobInformation from "../components/searchResult/JobInformation";
 import useSavedJobs from "../hooks/useSavedJobs";
 import useAppliedJobs from "../hooks/useAppliedJobs";
-import { useNavigate } from "react-router";
-import { X } from "lucide-react";
+import { useNavigate, Link } from "react-router";
+import { X, Bookmark } from "lucide-react";
+import { useUser } from "@clerk/clerk-react";
 
 const SavedJobs = () => {
   const [activeTab, setActiveTab] = useState("saved");
@@ -12,8 +13,42 @@ const SavedJobs = () => {
   const navigate = useNavigate();
   const { savedJobs } = useSavedJobs();
   const { appliedJobs } = useAppliedJobs();
+  const { user } = useUser();
 
   const currentJobs = activeTab === "saved" ? savedJobs : appliedJobs;
+
+  if (!user) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-16">
+        <div className="text-center">
+          <div className="flex justify-center mb-6">
+            <div className="bg-blue-100 p-4 rounded-full">
+              <Bookmark className="w-8 h-8 text-blue-600" />
+            </div>
+          </div>
+          <h2 className="text-2xl font-semibold text-gray-900 mb-3">
+            Sign in to save jobs
+          </h2>
+          <p className="text-gray-600 mb-8 max-w-md mx-auto">
+            Create an account to save jobs you're interested in and keep track
+            of the positions you've applied to.
+          </p>
+          <Link
+            to="/signin"
+            className="inline-flex px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Sign In to Get Started
+          </Link>
+          <p className="mt-4 text-sm text-gray-500">
+            Don't have an account?{" "}
+            <Link to="/signup" className="text-blue-600 hover:text-blue-700">
+              Sign up
+            </Link>
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">

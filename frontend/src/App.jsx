@@ -9,7 +9,6 @@ import SavedJobs from "./pages/SavedJobs";
 import Result from "./pages/Result";
 import twitter from "../assets/twitter.png";
 import facebook from "../assets/Facebook_logo.png";
-import ForgotPassword from "./pages/auth/ForgotPassword";
 import AddJob from "./pages/business/AddJob";
 import Home from "./pages/Home";
 import CompanyProfile from "./pages/CompanyProfile";
@@ -24,7 +23,10 @@ import AdminJobs from "./components/Admin/AdminJobs";
 import AdminBusiness from "./components/Admin/AdminBusiness";
 import { UserDataProvider } from "./contexts/UserDataContext";
 import Help from "./pages/Help";
-
+import Search from "./pages/Search";
+import BusinessUpgrade from "./pages/BusinessUpgrade";
+import BusinessAccountCreation from "./pages/BusinessAccountCreation";
+import BusinessDashboard from "./pages/BusinessDashboard";
 const jobs = [
   {
     id: 1,
@@ -84,7 +86,7 @@ const jobs = [
       "Contribute to strategic product decisions and roadmap planning",
     ],
     about:
-      "Lorem Ipsum Twitter is where the world comes to share ideas and stay informed. Our purpose is to serve the public conversation – it's essential to connecting the world. We're committed to protecting the health of the public conversation while respecting fundamental human rights. Our team of passionate individuals works together to create products that have real-world impact.  Twitter is where the world comes to sha  Twitter is where the world comes to sha  Twitter is where the world comes to sha  Twitter is where the world comes to sha  Twitter is where the world comes to sha Twitter is where the world comes to sha Twitter is where the world comes to sha Twitter is where the world comes to sha Twitter is where the world comes to sha Twitter is where the world comes to sha Twitter is where the world comes to sha Twitter is where the world comes to sha  Twitter is where the world comes to sha Twitter is where the world comes to sha Twitter is where the world comes to sha Twitter is where the world comes to sha Twitter is where the world comes to shaJoin us in building the future of public discourse.",
+      "Lorem Ipsum Twitter is where the world comes to share ideas and stay informed. Our purpose is to serve the public conversation – it's essential to connecting the world. We're committed to protecting the health of the public conversation while respecting fundamental human rights. Our team of passionate individuals works together to create products that have real-world impact.  Twitter is where the world comes to sha  Twitter is where the world comes to sha  Twitter is where the world comes to sha  Twitter is where the world comes to sha  Twitter is where the world comes to sha Twitter is where the world comes to sha Twitter is where the world comes to sha Twitter is where the world comes to sha Twitter is where the world comes to sha Twitter is where the world comes to sha Twitter is where the world comes to shaJoin us in building the future of public discourse.",
   },
   {
     id: 2,
@@ -146,6 +148,62 @@ const jobs = [
   },
   {
     id: 4,
+    title: "Junior UI/UX Designer",
+    company: "Kadir Has University",
+    companyLogo: facebook,
+    location: "Istanbul",
+    workstyle: "On-site",
+    type: "Internship",
+    industry: "Education",
+    experience: "0-1 years",
+    rating: 4.2,
+    applicants: 51,
+    isVerified: true,
+    overview:
+      "Kadir Has University is seeking a talented Junior UI/UX Designer to join our digital transformation team. This role offers an excellent opportunity for someone starting their design career to work on meaningful projects that impact thousands of students and faculty members. You'll be involved in redesigning our digital platforms and creating new tools for education.",
+    responsibilities: [
+      "Create user-centered designs for web and mobile applications",
+      "Develop wireframes and prototypes for new features and improvements",
+      "Conduct user research and usability testing",
+      "Create and maintain design documentation and style guides",
+      "Collaborate with developers to ensure design feasibility",
+      "Participate in design sprints and brainstorming sessions",
+      "Help maintain consistency across all university digital platforms",
+      "Gather and analyze user feedback to improve designs",
+    ],
+    about:
+      "Kadir Has University is one of Turkey's leading private universities, committed to providing world-class education and research opportunities. Founded in 1997, we have grown to become a center of academic excellence, combining traditional educational values with innovative approaches to learning and technology. Our campus in the heart of Istanbul serves as a hub for intellectual and cultural exchange.",
+  },
+  {
+    id: 5,
+    title: "Junior UI/UX Designer",
+    company: "Kadir Has University",
+    companyLogo: facebook,
+    location: "Istanbul",
+    workstyle: "On-site",
+    type: "Internship",
+    industry: "Education",
+    experience: "0-1 years",
+    rating: 4.2,
+    applicants: 51,
+    isVerified: true,
+    overview:
+      "Kadir Has University is seeking a talented Junior UI/UX Designer to join our digital transformation team. This role offers an excellent opportunity for someone starting their design career to work on meaningful projects that impact thousands of students and faculty members. You'll be involved in redesigning our digital platforms and creating new tools for education.",
+    responsibilities: [
+      "Create user-centered designs for web and mobile applications",
+      "Develop wireframes and prototypes for new features and improvements",
+      "Conduct user research and usability testing",
+      "Create and maintain design documentation and style guides",
+      "Collaborate with developers to ensure design feasibility",
+      "Participate in design sprints and brainstorming sessions",
+      "Help maintain consistency across all university digital platforms",
+      "Gather and analyze user feedback to improve designs",
+    ],
+    about:
+      "Kadir Has University is one of Turkey's leading private universities, committed to providing world-class education and research opportunities. Founded in 1997, we have grown to become a center of academic excellence, combining traditional educational values with innovative approaches to learning and technology. Our campus in the heart of Istanbul serves as a hub for intellectual and cultural exchange.",
+  },
+  {
+    id: 6,
     title: "Junior UI/UX Designer",
     company: "Kadir Has University",
     companyLogo: facebook,
@@ -276,28 +334,95 @@ const faqData = {
 };
 
 const App = () => {
+  const dummyData = {
+    recommendedJobs: [
+      {
+        id: 1,
+        title: "Senior Frontend Developer",
+        company: "TechCorp Inc.",
+        location: "San Francisco, CA",
+        salary: "$120k - $150k",
+        type: "Full-time",
+        postedAt: "2 days ago",
+        logo: "https://logo.clearbit.com/techcorp.com",
+      },
+      {
+        id: 2,
+        title: "Product Designer",
+        company: "Design Studio",
+        location: "Remote",
+        salary: "$90k - $120k",
+        type: "Full-time",
+        postedAt: "1 day ago",
+        logo: "https://logo.clearbit.com/designstudio.com",
+      },
+      // Add more recommended jobs...
+    ],
+    trendingJobs: [
+      {
+        id: 3,
+        title: "AI Engineer",
+        company: "AI Solutions Ltd",
+        location: "New York, NY",
+        salary: "$130k - $160k",
+        type: "Full-time",
+        postedAt: "3 days ago",
+        logo: "https://logo.clearbit.com/aisolutions.com",
+      },
+      // Add more trending jobs...
+    ],
+    recentSearches: [
+      {
+        id: 1,
+        query: "Frontend Developer",
+        location: "San Francisco",
+        timestamp: "2024-03-10T10:00:00Z",
+      },
+      // Add more recent searches...
+    ],
+    matchingCompanies: [
+      {
+        id: 1,
+        name: "TechCorp Inc.",
+        industry: "Technology",
+        openPositions: 5,
+        logo: "https://logo.clearbit.com/techcorp.com",
+      },
+      // Add more companies...
+    ],
+  };
+
   return (
     <UserDataProvider>
       <Routes>
         {/* Public routes */}
         <Route path="/signin/*" element={<CustomSignIn />} />
         <Route path="/signup/*" element={<CustomSignUp />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
+
+        <Route element={<Layout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/search" element={<Result jobs={jobs} />} />
+          <Route path="/help" element={<Help faqData={faqData} />} />
+          <Route path="/jobs" element={<SavedJobs />} />
+          <Route path="/company/:id" element={<CompanyProfile />} />
+          <Route path="/terms" element={<TermsOfService />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/cookies" element={<CookiePolicy />} />
+          <Route path="/accessibility" element={<Accessibility />} />
+          <Route path="/search" element={<Search dummyData={dummyData} />} />
+        </Route>
 
         {/* Protected routes */}
         <Route element={<ProtectedRoute />}>
           <Route element={<Layout />}>
-            <Route path="/" element={<Home />} />
             <Route path="/profile" element={<Profile />} />
-            <Route path="/search" element={<Result jobs={jobs} />} />
-            <Route path="/jobs" element={<SavedJobs />} />
             <Route path="/add-job" element={<AddJob />} />
-            <Route path="/company/:id" element={<CompanyProfile />} />
-            <Route path="/terms" element={<TermsOfService />} />
-            <Route path="/privacy" element={<PrivacyPolicy />} />
-            <Route path="/cookies" element={<CookiePolicy />} />
-            <Route path="/accessibility" element={<Accessibility />} />
-            <Route path="/help" element={<Help faqData={faqData} />} />
+            <Route path="/business-upgrade" element={<BusinessUpgrade />} />
+            <Route
+              path="/business-account-creation"
+              element={<BusinessAccountCreation />}
+            />
+            <Route path="/business-dashboard" element={<BusinessDashboard />} />
           </Route>
 
           <Route element={<AdminLayout />}>

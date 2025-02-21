@@ -11,6 +11,7 @@ import {
   HelpCircle,
   LogOut,
   User,
+  Building2,
 } from "lucide-react";
 import { useUser, UserButton, useClerk } from "@clerk/clerk-react";
 import { useUserData } from "../contexts/UserDataContext";
@@ -26,9 +27,9 @@ const Header = () => {
   const navigate = useNavigate();
   const { openUserProfile, signOut } = useClerk();
 
-  // Use localUserData.name if available, otherwise fall back to user data
-  const displayName =
-    localUserData.name || `${user?.firstName || ""} ${user?.lastName || ""}`;
+  const displayName = user
+    ? localUserData.name || `${user.firstName || ""} ${user.lastName || ""}`
+    : "Guest";
 
   const menuItems = [
     {
@@ -72,6 +73,12 @@ const Header = () => {
       label: "Help",
       icon: <HelpCircle className="w-4 h-4" />,
       onClick: () => navigate("/help"),
+    },
+    {
+      label: "Upgrade to Business",
+      icon: <Building2 className="w-4 h-4" />,
+      onClick: () => navigate("/business-upgrade"),
+      className: "text-blue-600 hover:bg-blue-50",
     },
     {
       label: "Logout",
@@ -122,66 +129,77 @@ const Header = () => {
               className="hidden md:flex items-center ml-auto space-x-4"
               ref={profileRef}
             >
-              <div className="relative">
-                <button
-                  onClick={() => setIsProfileOpen(!isProfileOpen)}
-                  className="flex items-center space-x-3 px-4 py-2 rounded-lg hover:bg-gray-50"
-                >
-                  <img
-                    src={localUserData.imageUrl || user?.imageUrl || ""}
-                    alt="Profile"
-                    className="w-8 h-8 rounded-full object-cover border border-gray-200"
-                  />
-                  <span className="text-sm font-medium text-gray-700">
-                    {displayName}
-                  </span>
-                  <ChevronDown
-                    className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${
-                      isProfileOpen ? "rotate-180" : ""
-                    }`}
-                  />
-                </button>
-
-                {/* Animated Profile Dropdown */}
-                {isProfileOpen && (
-                  <div
-                    className={`absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50
-                      transition-all duration-200 ease-out
-                      ${
-                        isProfileOpen
-                          ? "opacity-100 translate-y-0 visible"
-                          : "opacity-0 -translate-y-2 invisible"
-                      }`}
-                  >
-                    <div className="px-4 py-3 border-b border-gray-200">
-                      <p className="text-sm font-medium text-gray-900">
+              {user ? (
+                <>
+                  <div className="relative">
+                    <button
+                      onClick={() => setIsProfileOpen(!isProfileOpen)}
+                      className="flex items-center space-x-3 px-4 py-2 rounded-lg hover:bg-gray-50"
+                    >
+                      <img
+                        src={localUserData.imageUrl || user?.imageUrl || ""}
+                        alt="Profile"
+                        className="w-8 h-8 rounded-full object-cover border border-gray-200"
+                      />
+                      <span className="text-sm font-medium text-gray-700">
                         {displayName}
-                      </p>
-                      <p className="text-sm text-gray-500 truncate">
-                        {user?.primaryEmailAddress?.emailAddress}
-                      </p>
-                    </div>
+                      </span>
+                      <ChevronDown
+                        className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${
+                          isProfileOpen ? "rotate-180" : ""
+                        }`}
+                      />
+                    </button>
 
-                    <div className="py-1">
-                      {profileMenuItems.map((item, index) => (
-                        <button
-                          key={index}
-                          onClick={() => {
-                            setIsProfileOpen(false);
-                            item.onClick();
-                          }}
-                          className={`w-full px-4 py-2 text-sm text-left flex items-center space-x-2 hover:bg-gray-50 transition-colors ${
-                            item.className || "text-gray-700"
+                    {/* Animated Profile Dropdown */}
+                    {isProfileOpen && (
+                      <div
+                        className={`absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50
+                          transition-all duration-200 ease-out
+                          ${
+                            isProfileOpen
+                              ? "opacity-100 translate-y-0 visible"
+                              : "opacity-0 -translate-y-2 invisible"
                           }`}
-                        >
-                          {item.icon}
-                          <span>{item.label}</span>
-                        </button>
-                      ))}
-                    </div>
+                      >
+                        <div className="px-4 py-3 border-b border-gray-200">
+                          <p className="text-sm font-medium text-gray-900">
+                            {displayName}
+                          </p>
+                          <p className="text-sm text-gray-500 truncate">
+                            {user?.primaryEmailAddress?.emailAddress}
+                          </p>
+                        </div>
+
+                        <div className="py-1">
+                          {profileMenuItems.map((item, index) => (
+                            <button
+                              key={index}
+                              onClick={() => {
+                                setIsProfileOpen(false);
+                                item.onClick();
+                              }}
+                              className={`w-full px-4 py-2 text-sm text-left flex items-center space-x-2 hover:bg-gray-50 transition-colors ${
+                                item.className || "text-gray-700"
+                              }`}
+                            >
+                              {item.icon}
+                              <span>{item.label}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
+                </>
+              ) : (
+                <Link
+                  to="/signin"
+                  className="px-4 py-2 rounded-lg bg-blue-600 text-sm font-medium text-white hover:bg-blue-700 hover:shadow-sm"
+                >
+                  Sign In
+                </Link>
+              )}
             </div>
 
             {/* Mobile Menu Button - disabled when job details are open */}
@@ -227,18 +245,30 @@ const Header = () => {
               ))}
 
               {/* Mobile Profile Link */}
-              <Link
-                to="/profile"
-                onClick={() => setIsMenuOpen(false)}
-                className="flex items-center space-x-2 px-4 py-3 border-t border-gray-200"
-              >
-                <img
-                  src={localUserData.imageUrl || user?.imageUrl || ""}
-                  alt="Profile"
-                  className="w-8 h-8 rounded-full object-cover border border-gray-200"
-                />
-                <span className="font-medium text-gray-700">{displayName}</span>
-              </Link>
+              {user ? (
+                <Link
+                  to="/profile"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="flex items-center space-x-2 px-4 py-3 border-t border-gray-200"
+                >
+                  <img
+                    src={localUserData.imageUrl || user?.imageUrl || ""}
+                    alt="Profile"
+                    className="w-8 h-8 rounded-full object-cover border border-gray-200"
+                  />
+                  <span className="font-medium text-gray-700">
+                    {displayName}
+                  </span>
+                </Link>
+              ) : (
+                <Link
+                  to="/signin"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="flex items-center space-x-2 px-4 py-3 border-t border-gray-200"
+                >
+                  <span className="font-medium text-gray-700">Sign In</span>
+                </Link>
+              )}
             </div>
           </div>
         </nav>
