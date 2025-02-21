@@ -11,6 +11,7 @@ import {
   HelpCircle,
   LogOut,
   User,
+  Building2,
 } from "lucide-react";
 import { useUser, UserButton, useClerk } from "@clerk/clerk-react";
 import { useUserData } from "../contexts/UserDataContext";
@@ -72,6 +73,12 @@ const Header = () => {
       label: "Help",
       icon: <HelpCircle className="w-4 h-4" />,
       onClick: () => navigate("/help"),
+    },
+    {
+      label: "Upgrade to Business",
+      icon: <Building2 className="w-4 h-4" />,
+      onClick: () => navigate("/business-upgrade"),
+      className: "text-blue-600 hover:bg-blue-50",
     },
     {
       label: "Logout",

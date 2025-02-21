@@ -9,7 +9,6 @@ import SavedJobs from "./pages/SavedJobs";
 import Result from "./pages/Result";
 import twitter from "../assets/twitter.png";
 import facebook from "../assets/Facebook_logo.png";
-import ForgotPassword from "./pages/auth/ForgotPassword";
 import AddJob from "./pages/business/AddJob";
 import Home from "./pages/Home";
 import CompanyProfile from "./pages/CompanyProfile";
@@ -24,7 +23,9 @@ import AdminJobs from "./components/Admin/AdminJobs";
 import { UserDataProvider } from "./contexts/UserDataContext";
 import Help from "./pages/Help";
 import Search from "./pages/Search";
-
+import BusinessUpgrade from "./pages/BusinessUpgrade";
+import BusinessAccountCreation from "./pages/BusinessAccountCreation";
+import BusinessDashboard from "./pages/BusinessDashboard";
 const jobs = [
   {
     id: 1,
@@ -396,7 +397,7 @@ const App = () => {
         {/* Public routes */}
         <Route path="/signin/*" element={<CustomSignIn />} />
         <Route path="/signup/*" element={<CustomSignUp />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
+
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
           <Route path="/search" element={<Result jobs={jobs} />} />
@@ -415,6 +416,12 @@ const App = () => {
           <Route element={<Layout />}>
             <Route path="/profile" element={<Profile />} />
             <Route path="/add-job" element={<AddJob />} />
+            <Route path="/business-upgrade" element={<BusinessUpgrade />} />
+            <Route
+              path="/business-account-creation"
+              element={<BusinessAccountCreation />}
+            />
+            <Route path="/business-dashboard" element={<BusinessDashboard />} />
           </Route>
 
           <Route element={<AdminLayout />}>
