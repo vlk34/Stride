@@ -10,6 +10,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.sql.*;
+
 @SpringBootApplication
 @RestController
 public class StrideApplication {
@@ -20,21 +22,37 @@ public class StrideApplication {
 
 	@GetMapping("/hello")
 	public String hello(HttpServletRequest request) throws Exception {
-		Dotenv dotenv = Dotenv.configure()
-				.directory("backend")
-				.load();
-
-		RequestState requestState = AuthenticateRequest.authenticateRequest(HttpConverter.convert(request), AuthenticateRequestOptions
-				.secretKey(dotenv.get("SECRET"))
-				.build());
-
-		if (requestState.claims().isPresent()) {
-			System.out.println(requestState.claims().get().getSubject());
-		} else {
-			System.out.println("No claims");
+		try {
+			Connection connection = DriverManager.getConnection("jdbc:postgresql://192.168.50.74:5432/stride", "kerem", "ilovelux");
+			Statement statement = connection.createStatement();
+			ResultSet res = statement.executeQuery("SELECT * FROM jobs");
+			while (res.next()) {
+				System.out.println(res.getString("title"));
+			}
+			res.close();
+			statement.close();
+			connection.close();
+		} catch (SQLException sqlException) {
+			return "Database Error";
 		}
 
-		return requestState.isSignedIn() ? "true" : "false";
+		return "";
+
+//		Dotenv dotenv = Dotenv.configure()
+//				.directory("backend")
+//				.load();
+//
+//		RequestState requestState = AuthenticateRequest.authenticateRequest(HttpConverter.convert(request), AuthenticateRequestOptions
+//				.secretKey(dotenv.get("SECRET"))
+//				.build());
+//
+//		if (requestState.claims().isPresent()) {
+//			System.out.println(requestState.claims().get().getSubject());
+//		} else {
+//			System.out.println("No claims");
+//		}
+//
+//		return requestState.isSignedIn() ? "true" : "false";
 
 //		Clerk sdk = Clerk.builder()
 //				.bearerAuth(dotenv.get("SECRET"))
