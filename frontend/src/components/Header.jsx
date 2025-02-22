@@ -18,7 +18,7 @@ import { useUserData } from "../contexts/UserDataContext";
 import { useNavigate } from "react-router";
 
 const Header = () => {
-  const { user } = useUser();
+  const { user, isLoaded } = useUser();
   const { localUserData } = useUserData();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
@@ -57,7 +57,10 @@ const Header = () => {
     navigate("/signin");
   };
 
-  // Profile dropdown items
+  // Check if user is business
+  const isBusinessUser = user?.publicMetadata?.role === "business";
+
+  // Profile dropdown items with conditional business option
   const profileMenuItems = [
     {
       label: "Go to my account",
@@ -75,9 +78,10 @@ const Header = () => {
       onClick: () => navigate("/help"),
     },
     {
-      label: "Upgrade to Business",
+      label: isBusinessUser ? "Business Dashboard" : "Upgrade to Business",
       icon: <Building2 className="w-4 h-4" />,
-      onClick: () => navigate("/business-upgrade"),
+      onClick: () =>
+        navigate(isBusinessUser ? "/business-dashboard" : "/business-upgrade"),
       className: "text-blue-600 hover:bg-blue-50",
     },
     {
@@ -95,7 +99,7 @@ const Header = () => {
           isMenuOpen ? "shadow-md" : "shadow-sm"
         } border-b border-gray-200 z-40`}
       >
-        <nav className="max-w-7xl mx-auto py-3">
+        <nav className="max-w-7xl mx-auto py-2">
           <div className="flex items-center px-4">
             {/* Logo and App Name */}
             <Link to="/" className="flex items-center space-x-2 mr-8">
@@ -129,7 +133,13 @@ const Header = () => {
               className="hidden md:flex items-center ml-auto space-x-4"
               ref={profileRef}
             >
-              {user ? (
+              {!isLoaded ? (
+                // Loading skeleton
+                <div className="flex items-center space-x-3 px-4 py-2">
+                  <div className="w-8 h-8 bg-gray-200 rounded-full animate-pulse" />
+                  <div className="w-32 h-4 bg-gray-200 rounded animate-pulse" />
+                </div>
+              ) : user ? (
                 <>
                   <div className="relative">
                     <button
@@ -193,12 +203,14 @@ const Header = () => {
                   </div>
                 </>
               ) : (
-                <Link
-                  to="/signin"
-                  className="px-4 py-2 rounded-lg bg-blue-600 text-sm font-medium text-white hover:bg-blue-700 hover:shadow-sm"
-                >
-                  Sign In
-                </Link>
+                <div className="h-[48px]">
+                  <Link
+                    to="/signin"
+                    className="px-4 py-2 rounded-lg bg-blue-600 text-sm font-medium text-white hover:bg-blue-700 hover:shadow-sm"
+                  >
+                    Sign In
+                  </Link>
+                </div>
               )}
             </div>
 

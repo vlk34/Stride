@@ -28,6 +28,9 @@ import BusinessUpgrade from "./pages/BusinessUpgrade";
 import BusinessAccountCreation from "./pages/BusinessAccountCreation";
 import BusinessDashboard from "./pages/BusinessDashboard";
 import CreateJobListing from "./pages/CreateJobListing";
+import BusinessRoute from "./components/BusinessRoute";
+import UnauthorizedAccess from "./pages/UnauthorizedAccess";
+
 const jobs = [
   {
     id: 1,
@@ -411,28 +414,35 @@ const App = () => {
           <Route path="/cookies" element={<CookiePolicy />} />
           <Route path="/accessibility" element={<Accessibility />} />
           <Route path="/search" element={<Search dummyData={dummyData} />} />
+          <Route path="/unauthorized" element={<UnauthorizedAccess />} />
         </Route>
 
         {/* Protected routes */}
         <Route element={<ProtectedRoute />}>
           <Route element={<Layout />}>
             <Route path="/profile" element={<Profile />} />
-            <Route path="/add-job" element={<AddJob />} />
             <Route path="/business-upgrade" element={<BusinessUpgrade />} />
             <Route
               path="/business-account-creation"
               element={<BusinessAccountCreation />}
             />
+          </Route>
+        </Route>
+
+        {/* Business routes */}
+        <Route element={<BusinessRoute />}>
+          <Route element={<Layout />}>
             <Route path="/business-dashboard" element={<BusinessDashboard />} />
             <Route path="/create-job-listing" element={<CreateJobListing />} />
           </Route>
+        </Route>
 
-          <Route element={<AdminLayout />}>
-            <Route path="/admin/dashboard" element={<AdminDashboard />} />
-            <Route path="/admin/users" element={<AdminUsers />} />
-            <Route path="/admin/jobs" element={<AdminJobs jobs={jobs} />} />
-            <Route path="/admin/business" element={<AdminBusiness />} />
-          </Route>
+        {/* Admin routes */}
+        <Route element={<AdminLayout />}>
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/users" element={<AdminUsers />} />
+          <Route path="/admin/jobs" element={<AdminJobs jobs={jobs} />} />
+          <Route path="/admin/business" element={<AdminBusiness />} />
         </Route>
       </Routes>
     </UserDataProvider>
