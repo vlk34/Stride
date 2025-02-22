@@ -68,13 +68,13 @@ const EditUserModal = ({ user, onClose, onSubmit }) => {
             <button
               type="button"
               onClick={onClose}
-              className="py-2 px-4 bg-gray-300 rounded hover:bg-gray-400"
+              className="py-2 px-4 bg-gray-300 rounded hover:bg-gray-400 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700"
+              className="py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
             >
               Save
             </button>
@@ -130,8 +130,11 @@ const ManageUsers = () => {
   };
 
   return (
-    <div className="bg-white rounded p-6 shadow relative">
-      <h2 className="text-2xl font-bold mb-4">Manage Users</h2>
+    <div className="bg-white rounded p-6 shadow relative mt-3">
+      <header className="mb-6">
+        <h2 className="text-2xl font-bold text-gray-900">Manage Users</h2>
+        <p className="text-gray-600">Search, edit, or delete users from the system.</p>
+      </header>
 
       {/* Search Bar */}
       <div className="mb-4">
@@ -140,46 +143,48 @@ const ManageUsers = () => {
           placeholder="Search users..."
           value={searchQuery}
           onChange={handleSearchChange}
-          className="border border-gray-300 rounded px-3 py-2 w-full"
+          className="border border-gray-300 rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
         />
       </div>
 
-      {/* Users Table */}
-      <table className="w-full">
-        <thead>
-          <tr className="border-b">
-            <th className="text-left p-3">ID</th>
-            <th className="text-left p-3">Name</th>
-            <th className="text-left p-3">Email</th>
-            <th className="text-left p-3">Role</th>
-            <th className="p-3"></th> {/* Action column header removed */}
-          </tr>
-        </thead>
-        <tbody>
-          {filteredUsers.map((user) => (
-            <tr key={user.id} className="border-b hover:bg-gray-50">
-              <td className="p-3">{user.id}</td>
-              <td className="p-3">{user.name}</td>
-              <td className="p-3">{user.email}</td>
-              <td className="p-3">{user.role}</td>
-              <td className="p-3 text-right">
-                <button
-                  onClick={() => openEditModal(user)}
-                  className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 mr-2"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(user.id)}
-                  className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                >
-                  Delete
-                </button>
-              </td>
+      {/* Users Table with horizontal scroll on small screens */}
+      <div className="overflow-x-auto">
+        <table className="min-w-full">
+          <thead>
+            <tr className="border-b">
+              <th className="text-left p-3">ID</th>
+              <th className="text-left p-3">Name</th>
+              <th className="text-left p-3">Email</th>
+              <th className="text-left p-3">Role</th>
+              <th className="p-3"></th> {/* Action column header removed */}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {filteredUsers.map((user) => (
+              <tr key={user.id} className="border-b hover:bg-gray-50">
+                <td className="p-3">{user.id}</td>
+                <td className="p-3">{user.name}</td>
+                <td className="p-3">{user.email}</td>
+                <td className="p-3">{user.role}</td>
+                <td className="p-3 text-right">
+                  <button
+                    onClick={() => openEditModal(user)}
+                    className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-green-600 transition-colors mr-2"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(user.id)}
+                    className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition-colors"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {/* Edit Modal */}
       {userToEdit && (

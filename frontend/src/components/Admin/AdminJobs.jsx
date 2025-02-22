@@ -32,7 +32,7 @@ const EditJobModal = ({ job, onClose, onSubmit }) => {
               name="title"
               value={editedJob.title}
               onChange={handleChange}
-              className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+              className="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
               required
             />
           </div>
@@ -45,7 +45,7 @@ const EditJobModal = ({ job, onClose, onSubmit }) => {
               name="company"
               value={editedJob.company}
               onChange={handleChange}
-              className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+              className="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
               required
             />
           </div>
@@ -58,7 +58,7 @@ const EditJobModal = ({ job, onClose, onSubmit }) => {
               name="location"
               value={editedJob.location}
               onChange={handleChange}
-              className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+              className="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
               required
             />
           </div>
@@ -66,13 +66,13 @@ const EditJobModal = ({ job, onClose, onSubmit }) => {
             <button
               type="button"
               onClick={onClose}
-              className="py-2 px-4 bg-gray-300 rounded hover:bg-gray-400"
+              className="py-2 px-4 bg-gray-300 rounded hover:bg-gray-400 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700"
+              className="py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
             >
               Save
             </button>
@@ -119,7 +119,7 @@ const ManageJobs = ({ jobs, onEdit, onDelete }) => {
   };
 
   return (
-    <div className="bg-white rounded p-6 shadow relative">
+    <div className="bg-white rounded p-6 shadow relative mt-3">
       <h2 className="text-2xl font-bold mb-4">Manage Jobs</h2>
 
       {/* Search Bar */}
@@ -129,46 +129,48 @@ const ManageJobs = ({ jobs, onEdit, onDelete }) => {
           placeholder="Search jobs..."
           value={searchQuery}
           onChange={handleSearchChange}
-          className="border border-gray-300 rounded px-3 py-2 w-full"
+          className="border border-gray-300 rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
         />
       </div>
 
       {/* Jobs Table */}
-      <table className="w-full">
-        <thead>
-          <tr className="border-b">
-            <th className="text-left p-3">Job ID</th>
-            <th className="text-left p-3">Title</th>
-            <th className="text-left p-3">Company</th>
-            <th className="text-left p-3">Location</th>
-            <th className="p-3"></th> {/* Removed header text for actions */}
-          </tr>
-        </thead>
-        <tbody>
-          {filteredJobs.map((job) => (
-            <tr key={job.id} className="border-b hover:bg-gray-50">
-              <td className="p-3">{job.id}</td>
-              <td className="p-3">{job.title}</td>
-              <td className="p-3">{job.company}</td>
-              <td className="p-3">{job.location}</td>
-              <td className="p-3 text-right">
-                <button
-                  onClick={() => openEditModal(job)}
-                  className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 mr-2"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDeleteClick(job.id)}
-                  className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                >
-                  Delete
-                </button>
-              </td>
+      <div className="overflow-x-auto">
+        <table className="min-w-full">
+          <thead>
+            <tr className="border-b">
+              <th className="text-left p-3">Job ID</th>
+              <th className="text-left p-3">Title</th>
+              <th className="text-left p-3">Company</th>
+              <th className="text-left p-3">Location</th>
+              <th className="p-3"></th> {/* Action column header removed */}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {filteredJobs.map((job) => (
+              <tr key={job.id} className="border-b hover:bg-gray-50">
+                <td className="p-3">{job.id}</td>
+                <td className="p-3">{job.title}</td>
+                <td className="p-3">{job.company}</td>
+                <td className="p-3">{job.location}</td>
+                <td className="p-3 text-right">
+                  <button
+                    onClick={() => openEditModal(job)}
+                    className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-green-600 transition-colors mr-2"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDeleteClick(job.id)}
+                    className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition-colors"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {/* Edit Modal */}
       {jobToEdit && (
