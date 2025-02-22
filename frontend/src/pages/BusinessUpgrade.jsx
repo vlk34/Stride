@@ -104,41 +104,42 @@ const BusinessUpgrade = () => {
       </div>
 
 
-      <div className="relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] my-10">
-        <Marquee autoFill gradient={true}>
-          <img
-            src={facebook}
-            alt="Facebook logo"
-            className="w-20 sm:w-32 md:w-[10rem] mx-4 md:mx-12"
-          />
-          <img
-            src={boeing}
-            alt="Boeing logo"
-            className="w-20 sm:w-32 md:w-[10rem] mx-4 md:mx-12"
-          />
-          <img
-            src={dell}
-            alt="Dell logo"
-            className="w-20 sm:w-32 md:w-[10rem] mx-4 md:mx-12"
-          />
-          <img
-            src={ibm}
-            alt="IBM logo"
-            className="w-20 sm:w-32 md:w-[10rem] mx-4 md:mx-12"
-          />
-          <img
-            src={cicso}
-            alt="Cicso logo"
-            className="w-20 sm:w-32 md:w-[10rem] mx-4 md:mx-12"
-          />
-          <img
-            src={microsoft}
-            alt="Microsoft logo"
-            className="w-20 sm:w-32 md:w-[10rem] mx-4 md:mx-12"
-          />
-        </Marquee>
-      </div>
-
+      
+        <div className=" mx-auto my-7">
+          <Marquee autoFill gradient={true} gradientWidth={75}>
+            <img
+              src={facebook}
+              alt="Facebook logo"
+              className="w-20 sm:w-32 md:w-[10rem] mx-4 md:mx-12"
+            />
+            <img
+              src={boeing}
+              alt="Boeing logo"
+              className="w-20 sm:w-32 md:w-[10rem] mx-4 md:mx-12"
+            />
+            <img
+              src={dell}
+              alt="Dell logo"
+              className="w-20 sm:w-32 md:w-[10rem] mx-4 md:mx-12"
+            />
+            <img
+              src={ibm}
+              alt="IBM logo"
+              className="w-20 sm:w-32 md:w-[10rem] mx-4 md:mx-12"
+            />
+            <img
+              src={cicso}
+              alt="Cicso logo"
+              className="w-20 sm:w-32 md:w-[10rem] mx-4 md:mx-12"
+            />
+            <img
+              src={microsoft}
+              alt="Microsoft logo"
+              className="w-20 sm:w-32 md:w-[10rem] mx-4 md:mx-12"
+            />
+          </Marquee>
+        </div>
+      
 
 
 
