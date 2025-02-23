@@ -30,6 +30,8 @@ import BusinessDashboard from "./pages/BusinessDashboard";
 import CreateJobListing from "./pages/CreateJobListing";
 import BusinessRoute from "./components/BusinessRoute";
 import UnauthorizedAccess from "./pages/UnauthorizedAccess";
+import AdminRoute from "./components/AdminRoute";
+import AdminUnathorized from "./pages/AdminUnathorized";
 
 const jobs = [
   {
@@ -415,6 +417,7 @@ const App = () => {
           <Route path="/accessibility" element={<Accessibility />} />
           <Route path="/search" element={<Search dummyData={dummyData} />} />
           <Route path="/unauthorized" element={<UnauthorizedAccess />} />
+          <Route path="/admin-unauthorized" element={<AdminUnathorized />} />
         </Route>
 
         {/* Protected routes */}
@@ -438,12 +441,16 @@ const App = () => {
         </Route>
 
         {/* Admin routes */}
-        <Route element={<AdminLayout />}>
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
-          <Route path="/admin/users" element={<AdminUsers />} />
-          <Route path="/admin/jobs" element={<AdminJobs jobs={jobs} />} />
-          <Route path="/admin/business" element={<AdminBusiness />} />
+
+        <Route element={<AdminRoute />}>
+          <Route element={<AdminLayout />}>
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/admin/users" element={<AdminUsers />} />
+            <Route path="/admin/jobs" element={<AdminJobs jobs={jobs} />} />
+            <Route path="/admin/business" element={<AdminBusiness />} />
+          </Route>
         </Route>
+
       </Routes>
     </UserDataProvider>
   );
