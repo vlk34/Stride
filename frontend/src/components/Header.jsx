@@ -12,6 +12,7 @@ import {
   LogOut,
   User,
   Building2,
+  MessageSquare,
 } from "lucide-react";
 import { useUser, UserButton, useClerk } from "@clerk/clerk-react";
 import { useUserData } from "../contexts/UserDataContext";
@@ -130,7 +131,7 @@ const Header = () => {
 
             {/* Profile Section - Desktop */}
             <div
-              className="hidden md:flex items-center ml-auto space-x-4"
+              className="hidden md:flex items-center ml-auto"
               ref={profileRef}
             >
               {!isLoaded ? (
@@ -141,7 +142,17 @@ const Header = () => {
                 </div>
               ) : user ? (
                 <>
-                  <div className="relative">
+                  <Link
+                    to="/messages"
+                    className="flex items-center px-3 py-2 rounded-lg hover:bg-gray-50 text-gray-700 hover:text-gray-900 relative mx-2"
+                  >
+                    <MessageSquare className="w-5 h-5" />
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                      2
+                    </span>
+                  </Link>
+                  <div className="h-8 w-px bg-gray-200 ml-2" />
+                  <div className="relative mx-2">
                     <button
                       onClick={() => setIsProfileOpen(!isProfileOpen)}
                       className="flex items-center space-x-3 px-4 py-2 rounded-lg hover:bg-gray-50"

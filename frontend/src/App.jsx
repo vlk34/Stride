@@ -32,7 +32,7 @@ import BusinessRoute from "./components/BusinessRoute";
 import UnauthorizedAccess from "./pages/UnauthorizedAccess";
 import AdminRoute from "./components/AdminRoute";
 import AdminUnathorized from "./pages/AdminUnathorized";
-
+import Messages from "./pages/Messages";
 const jobs = [
   {
     id: 1,
@@ -424,6 +424,7 @@ const App = () => {
         <Route element={<ProtectedRoute />}>
           <Route element={<Layout />}>
             <Route path="/profile" element={<Profile />} />
+            <Route path="/messages" element={<Messages />} />
             <Route path="/business-upgrade" element={<BusinessUpgrade />} />
             <Route
               path="/business-account-creation"
@@ -450,7 +451,6 @@ const App = () => {
             <Route path="/admin/business" element={<AdminBusiness />} />
           </Route>
         </Route>
-
       </Routes>
     </UserDataProvider>
   );
