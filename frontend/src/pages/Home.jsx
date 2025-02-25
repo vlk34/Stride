@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
+import { motion } from "framer-motion";
 import {
   Search,
   MapPin,
@@ -10,6 +11,19 @@ import {
   Users,
   Rocket,
 } from "lucide-react";
+
+// Simple fade in animation
+const fadeIn = {
+  initial: { opacity: 0, y: 15 },
+  animate: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.6,
+      ease: "easeOut",
+    },
+  },
+};
 
 const Home = () => {
   const navigate = useNavigate();
@@ -27,11 +41,21 @@ const Home = () => {
   };
 
   return (
-    <div className="min-h-[calc(100vh-64px)]">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="min-h-[calc(100vh-64px)]"
+    >
       {/* Hero Section */}
       <div className="">
         <div className="max-w-7xl mx-auto px-4 py-12">
-          <div className="text-center mb-8">
+          <motion.div
+            variants={fadeIn}
+            initial="initial"
+            animate="animate"
+            className="text-center mb-8"
+          >
             <h1 className="text-3xl font-bold text-gray-900 mb-3">
               Your Career Journey Starts Here
             </h1>
@@ -39,10 +63,15 @@ const Home = () => {
               Find your perfect job match with personalized recommendations and
               powerful search tools.
             </p>
-          </div>
+          </motion.div>
 
           {/* Search Section */}
-          <div className="max-w-3xl mx-auto">
+          <motion.div
+            variants={fadeIn}
+            initial="initial"
+            animate="animate"
+            className="max-w-3xl mx-auto"
+          >
             <form
               onSubmit={handleSearch}
               className="bg-white p-5 rounded-xl border border-gray-200"
@@ -66,7 +95,7 @@ const Home = () => {
 
               {/* Filters Grid */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-                {/* Workstyle Filter */}
+                {/* Filter components */}
                 <div className="relative">
                   <select
                     value={searchParams.workstyle}
@@ -86,7 +115,6 @@ const Home = () => {
                   <MapPin className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                 </div>
 
-                {/* Job Type Filter */}
                 <div className="relative">
                   <select
                     value={searchParams.type}
@@ -107,7 +135,6 @@ const Home = () => {
                   <Briefcase className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                 </div>
 
-                {/* Industry Filter */}
                 <div className="relative">
                   <select
                     value={searchParams.industry}
@@ -128,7 +155,6 @@ const Home = () => {
                   <Building2 className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                 </div>
 
-                {/* Experience Filter */}
                 <div className="relative">
                   <select
                     value={searchParams.experience}
@@ -157,25 +183,30 @@ const Home = () => {
                 Search Jobs
               </button>
             </form>
-          </div>
+          </motion.div>
         </div>
       </div>
 
       {/* Features Section */}
-      <div className="max-w-7xl mx-auto px-4 py-12">
+      <motion.div
+        variants={fadeIn}
+        initial="initial"
+        whileInView="animate"
+        viewport={{ once: true }}
+        className="max-w-7xl mx-auto px-4 py-12"
+      >
         <h2 className="text-2xl font-semibold text-center mb-2">
           Why Choose Stride?
         </h2>
         <p className="text-center text-gray-600 mb-8 max-w-2xl mx-auto">
-          We're revolutionizing how job seekers connect with opportunities. Our
-          platform combines cutting-edge technology with a user-first approach.
+          We're revolutionizing how job seekers connect with opportunities.
         </p>
         <div className="grid md:grid-cols-3 gap-8">
           {features.map((feature, index) => (
             <FeatureCard key={index} {...feature} />
           ))}
         </div>
-      </div>
+      </motion.div>
 
       {/* How It Works Section */}
       <div className="bg-gray-50 py-12">
@@ -286,13 +317,13 @@ const Home = () => {
           ))}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
-// Helper Components
+// Simple Feature Card without hover animations
 const FeatureCard = ({ icon, title, description }) => (
-  <div className="p-6 bg-white rounded-lg border border-gray-200 hover:shadow-md transition-all">
+  <div className="p-6 bg-white rounded-lg border border-gray-200">
     <div className="mb-4">{icon}</div>
     <h3 className="text-lg font-semibold mb-2">{title}</h3>
     <p className="text-gray-600">{description}</p>

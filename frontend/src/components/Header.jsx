@@ -13,6 +13,12 @@ import {
   User,
   Building2,
   MessageSquare,
+  Briefcase,
+  Users,
+  BarChart3,
+  FileText,
+  Bell,
+  CreditCard,
 } from "lucide-react";
 import { useUser, UserButton, useClerk } from "@clerk/clerk-react";
 import { useUserData } from "../contexts/UserDataContext";
@@ -32,7 +38,11 @@ const Header = () => {
     ? localUserData.name || `${user.firstName || ""} ${user.lastName || ""}`
     : "Guest";
 
-  const menuItems = [
+  // Check if user is business
+  const isBusinessUser = user?.publicMetadata?.role === "business";
+
+  // Different menu items based on user type
+  const regularMenuItems = [
     {
       path: "/search",
       icon: <Search className="w-5 h-5" />,
@@ -40,6 +50,21 @@ const Header = () => {
     },
     { path: "/jobs", icon: <Bookmark className="w-5 h-5" />, label: "My Jobs" },
   ];
+
+  const businessMenuItems = [
+    {
+      path: "/business-dashboard",
+      icon: <BarChart3 className="w-5 h-5" />,
+      label: "Dashboard",
+    },
+    {
+      path: "/manage-jobs",
+      icon: <Briefcase className="w-5 h-5" />,
+      label: "Manage Jobs",
+    },
+  ];
+
+  const menuItems = isBusinessUser ? businessMenuItems : regularMenuItems;
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -58,11 +83,8 @@ const Header = () => {
     navigate("/signin");
   };
 
-  // Check if user is business
-  const isBusinessUser = user?.publicMetadata?.role === "business";
-
   // Profile dropdown items with conditional business option
-  const profileMenuItems = [
+  const regularProfileItems = [
     {
       label: "Go to my account",
       icon: <User className="w-4 h-4" />,
@@ -79,10 +101,9 @@ const Header = () => {
       onClick: () => navigate("/help"),
     },
     {
-      label: isBusinessUser ? "Business Dashboard" : "Upgrade to Business",
+      label: "Upgrade to Business",
       icon: <Building2 className="w-4 h-4" />,
-      onClick: () =>
-        navigate(isBusinessUser ? "/business-dashboard" : "/business-upgrade"),
+      onClick: () => navigate("/business-upgrade"),
       className: "text-blue-600 hover:bg-blue-50",
     },
     {
@@ -92,6 +113,50 @@ const Header = () => {
       className: "text-red-600 hover:bg-red-50",
     },
   ];
+
+  const businessProfileItems = [
+    {
+      label: "Company Profile",
+      icon: <Building2 className="w-4 h-4" />,
+      onClick: () => navigate("/business-profile"),
+    },
+    {
+      label: "Account Settings",
+      icon: <Settings className="w-4 h-4" />,
+      onClick: () => openUserProfile(),
+    },
+    {
+      label: "Billing & Plans",
+      icon: <CreditCard className="w-4 h-4" />,
+      onClick: () => navigate("/business-billing"),
+    },
+    {
+      label: "Team Members",
+      icon: <Users className="w-4 h-4" />,
+      onClick: () => navigate("/business-team"),
+    },
+    {
+      label: "Help Center",
+      icon: <HelpCircle className="w-4 h-4" />,
+      onClick: () => navigate("/business-help"),
+    },
+    {
+      label: "Switch to Personal",
+      icon: <User className="w-4 h-4" />,
+      onClick: () => navigate("/"),
+      className: "text-blue-600 hover:bg-blue-50",
+    },
+    {
+      label: "Logout",
+      icon: <LogOut className="w-4 h-4" />,
+      onClick: handleLogout,
+      className: "text-red-600 hover:bg-red-50",
+    },
+  ];
+
+  const profileMenuItems = isBusinessUser
+    ? businessProfileItems
+    : regularProfileItems;
 
   return (
     <>
@@ -108,6 +173,11 @@ const Header = () => {
               <span className="text-xl font-semibold text-gray-900">
                 Stride
               </span>
+              {isBusinessUser && (
+                <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                  Business
+                </span>
+              )}
             </Link>
 
             {/* Desktop Navigation */}
@@ -142,8 +212,26 @@ const Header = () => {
                 </div>
               ) : user ? (
                 <>
+                  {/* Notifications */}
                   <Link
-                    to="/messages"
+                    to={
+                      isBusinessUser
+                        ? "/business-notifications"
+                        : "/notifications"
+                    }
+                    className="flex items-center px-3 py-2 rounded-lg hover:bg-gray-50 text-gray-700 hover:text-gray-900 relative mx-2"
+                  >
+                    <Bell className="w-5 h-5" />
+                    {isBusinessUser && (
+                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                        3
+                      </span>
+                    )}
+                  </Link>
+
+                  {/* Messages */}
+                  <Link
+                    to={isBusinessUser ? "/business-messages" : "/messages"}
                     className="flex items-center px-3 py-2 rounded-lg hover:bg-gray-50 text-gray-700 hover:text-gray-900 relative mx-2"
                   >
                     <MessageSquare className="w-5 h-5" />
@@ -151,6 +239,7 @@ const Header = () => {
                       2
                     </span>
                   </Link>
+
                   <div className="h-8 w-px bg-gray-200 ml-2" />
                   <div className="relative mx-2">
                     <button
@@ -163,7 +252,9 @@ const Header = () => {
                         className="w-8 h-8 rounded-full object-cover border border-gray-200"
                       />
                       <span className="text-sm font-medium text-gray-700">
-                        {displayName}
+                        {isBusinessUser
+                          ? localUserData.companyName || displayName
+                          : displayName}
                       </span>
                       <ChevronDown
                         className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${
@@ -185,11 +276,18 @@ const Header = () => {
                       >
                         <div className="px-4 py-3 border-b border-gray-200">
                           <p className="text-sm font-medium text-gray-900">
-                            {displayName}
+                            {isBusinessUser
+                              ? localUserData.companyName || displayName
+                              : displayName}
                           </p>
                           <p className="text-sm text-gray-500 truncate">
                             {user?.primaryEmailAddress?.emailAddress}
                           </p>
+                          {isBusinessUser && (
+                            <div className="mt-1 text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full inline-block">
+                              Business Account
+                            </div>
+                          )}
                         </div>
 
                         <div className="py-1">
@@ -214,7 +312,7 @@ const Header = () => {
                   </div>
                 </>
               ) : (
-                <div className="h-[48px]">
+                <div className="h-[48px] flex items-center">
                   <Link
                     to="/signin"
                     className="px-4 py-2 rounded-lg bg-blue-600 text-sm font-medium text-white hover:bg-blue-700 hover:shadow-sm"
@@ -225,7 +323,7 @@ const Header = () => {
               )}
             </div>
 
-            {/* Mobile Menu Button - disabled when job details are open */}
+            {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className={`md:hidden ml-auto p-2 transition-colors ${
@@ -246,7 +344,7 @@ const Header = () => {
           {/* Mobile Menu */}
           <div
             className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
-              isMenuOpen ? "max-h-64" : "max-h-0"
+              isMenuOpen ? "max-h-screen" : "max-h-0"
             }`}
           >
             <div className="px-4 py-2 space-y-1 bg-white shadow-lg">
@@ -269,20 +367,68 @@ const Header = () => {
 
               {/* Mobile Profile Link */}
               {user ? (
-                <Link
-                  to="/profile"
-                  onClick={() => setIsMenuOpen(false)}
-                  className="flex items-center space-x-2 px-4 py-3 border-t border-gray-200"
-                >
-                  <img
-                    src={localUserData.imageUrl || user?.imageUrl || ""}
-                    alt="Profile"
-                    className="w-8 h-8 rounded-full object-cover border border-gray-200"
-                  />
-                  <span className="font-medium text-gray-700">
-                    {displayName}
-                  </span>
-                </Link>
+                <>
+                  <div className="border-t border-gray-200 pt-2 mt-2">
+                    <Link
+                      to={isBusinessUser ? "/business-profile" : "/profile"}
+                      onClick={() => setIsMenuOpen(false)}
+                      className="flex items-center space-x-2 px-4 py-3"
+                    >
+                      <img
+                        src={localUserData.imageUrl || user?.imageUrl || ""}
+                        alt="Profile"
+                        className="w-8 h-8 rounded-full object-cover border border-gray-200"
+                      />
+                      <div>
+                        <span className="font-medium text-gray-700">
+                          {isBusinessUser
+                            ? localUserData.companyName || displayName
+                            : displayName}
+                        </span>
+                        {isBusinessUser && (
+                          <div className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full inline-block mt-1">
+                            Business Account
+                          </div>
+                        )}
+                      </div>
+                    </Link>
+                  </div>
+
+                  {/* Additional mobile menu items for business users */}
+                  {isBusinessUser && (
+                    <div className="border-t border-gray-200 pt-2 mt-2">
+                      <Link
+                        to="/business-billing"
+                        onClick={() => setIsMenuOpen(false)}
+                        className="flex items-center space-x-2 px-4 py-3 text-gray-600 hover:bg-gray-50"
+                      >
+                        <CreditCard className="w-5 h-5" />
+                        <span className="font-medium">Billing & Plans</span>
+                      </Link>
+                      <Link
+                        to="/business-team"
+                        onClick={() => setIsMenuOpen(false)}
+                        className="flex items-center space-x-2 px-4 py-3 text-gray-600 hover:bg-gray-50"
+                      >
+                        <Users className="w-5 h-5" />
+                        <span className="font-medium">Team Members</span>
+                      </Link>
+                    </div>
+                  )}
+
+                  <div className="border-t border-gray-200 pt-2 mt-2">
+                    <button
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        handleLogout();
+                      }}
+                      className="flex items-center space-x-2 px-4 py-3 text-red-600 w-full text-left"
+                    >
+                      <LogOut className="w-5 h-5" />
+                      <span className="font-medium">Logout</span>
+                    </button>
+                  </div>
+                </>
               ) : (
                 <Link
                   to="/signin"

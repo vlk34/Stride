@@ -7,9 +7,6 @@ import CustomSignUp from "./pages/auth/CustomSignUp";
 import Profile from "./pages/Profile";
 import SavedJobs from "./pages/SavedJobs";
 import Result from "./pages/Result";
-import twitter from "../assets/twitter.png";
-import facebook from "../assets/Facebook_logo.png";
-import AddJob from "./pages/business/AddJob";
 import Home from "./pages/Home";
 import CompanyProfile from "./pages/CompanyProfile";
 import TermsOfService from "./pages/footer/TermsOfService";
@@ -33,9 +30,10 @@ import UnauthorizedAccess from "./pages/UnauthorizedAccess";
 import AdminRoute from "./components/AdminRoute";
 import AdminUnathorized from "./pages/AdminUnathorized";
 import Messages from "./pages/Messages";
-import  jobs  from "./jobs";
-
-
+import jobs from "./jobs";
+import ManageJobs from "./pages/ManageJobs";
+import Applicants from "./pages/Applicants";
+import ReviewApplicant from "./pages/ReviewApplicant";
 const faqData = {
   categories: [
     {
@@ -224,10 +222,13 @@ const App = () => {
             <Route path="/profile" element={<Profile />} />
             <Route path="/messages" element={<Messages />} />
             <Route path="/business-upgrade" element={<BusinessUpgrade />} />
+            <Route path="/business-upgrade" element={<BusinessUpgrade />} />
             <Route
               path="/business-account-creation"
               element={<BusinessAccountCreation />}
             />
+            <Route path="/manage-jobs" element={<ManageJobs />} />
+            <Route path="/applicants" element={<Applicants />} />
           </Route>
         </Route>
 
@@ -236,6 +237,7 @@ const App = () => {
           <Route element={<Layout />}>
             <Route path="/business-dashboard" element={<BusinessDashboard />} />
             <Route path="/create-job-listing" element={<CreateJobListing />} />
+            <Route path="/review-applicant/:id" element={<ReviewApplicant />} />
           </Route>
         </Route>
 
