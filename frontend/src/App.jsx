@@ -36,6 +36,7 @@ import Applicants from "./pages/Applicants";
 import ReviewApplicant from "./pages/ReviewApplicant";
 import BusinessProfile from "./pages/BusinessProfile";
 import BusinessBilling from "./pages/BusinessBilling";
+import BusinessHelp from "./pages/BusinessHelp";
 const faqData = {
   categories: [
     {
@@ -242,6 +243,7 @@ const App = () => {
             <Route path="/review-applicant/:id" element={<ReviewApplicant />} />
             <Route path="/business-profile" element={<BusinessProfile />} />
             <Route path="/business-billing" element={<BusinessBilling />} />
+            <Route path="/business-help" element={<BusinessHelp />} />
           </Route>
         </Route>
 
