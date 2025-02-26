@@ -17,14 +17,10 @@ public class GetUserInfo {
         UnifiedJedis jedis = new UnifiedJedis(String.format("redis://%s:%s", dotenv.get("REDIS_HOST"), dotenv.get("REDIS_PORT")));
         Gson gson = new Gson();
 
-        HashMap<String, Object> user;
-
         if (jedis.exists(user_id)) {
-            System.out.println("found");
-            user = gson.fromJson(jedis.get(user_id), HashMap.class);
-            return user;
-        } else {
-            user = new HashMap<>();
+            HashMap<String, Object> temp = gson.fromJson(jedis.get(user_id), HashMap.class);
+            jedis.close();
+            return temp;
         }
 
         Clerk sdk = Clerk.builder()
@@ -35,13 +31,17 @@ public class GetUserInfo {
                 .userId(user_id)
                 .call();
 
-        if (res.user().isEmpty())
+        if (res.user().isEmpty()) {
+            jedis.close();
             return null;
+        }
+
+        HashMap<String, Object> user = new HashMap<>();
 
         user.put("first_name", res.user().get().firstName().get());
         user.put("last_name", res.user().get().lastName().get());
 
-        jedis.setex(user_id, 60, gson.toJson(user));
+        jedis.setex(user_id, Integer.parseInt(dotenv.get("REDIS_EXPIRE")), gson.toJson(user));
         jedis.close();
 
         return user;
