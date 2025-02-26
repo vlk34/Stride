@@ -42,6 +42,7 @@ public class GetUserInfo {
         user.put("last_name", res.user().get().lastName().get());
 
         jedis.setex(user_id, 60, gson.toJson(user));
+        jedis.close();
 
         return user;
     }
