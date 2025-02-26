@@ -24,7 +24,7 @@ public class StrideApplication {
 		System.out.println(Authentication.getClaims(request).getSubject());
 		System.out.println(Authentication.getClaims(request).get("metadata", HashMap.class).get("role"));
 
-		System.out.println(GetUserInfo.fromUserID("user_2tDY5Zt8xMiIVvK4mvBqe7q0AIJ").firstName().get());
+		System.out.println(GetUserInfo.fromUserID("user_2tDY5Zt8xMiIVvK4mvBqe7q0AIJ").get("first_name"));
 
 		return "";
 	}
