@@ -2,9 +2,9 @@ import React, { useEffect } from "react";
 import { Outlet, useLocation } from "react-router";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import AdminSidebar from "../components/Admin/AdminSidebar"; // or wherever your sidebar lives
+import AdminSidebar from "../components/Admin/AdminSidebar";
 
-const Layout = () => {
+const AdminLayout = () => {
   const location = useLocation();
 
   useEffect(() => {
@@ -15,15 +15,15 @@ const Layout = () => {
   }, [location.pathname]);
 
   return (
-    <div>
+    <div className="min-h-screen bg-gray-100">
       {/* Keep your site-wide header at the top */}
       <Header />
 
       {/* Body area: flex container to hold sidebar + main content */}
-      <div className="min-h-screen bg-gray-100">
-        <div className="mx-auto px-10 py-6 flex gap-6">
+      <div className="min-h-screen max-w-[96rem] mx-auto px-4 py-6">
+        <div className="flex flex-col md:flex-row gap-6">
           {/* Sidebar on the left */}
-          <aside className="flex-shrink-0">
+          <aside className="w-full md:w-64 flex-shrink-0">
             <AdminSidebar />
           </aside>
 
@@ -40,4 +40,4 @@ const Layout = () => {
   );
 };
 
-export default Layout;
+export default AdminLayout;

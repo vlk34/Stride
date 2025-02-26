@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Search, Edit, Trash2, Plus, Filter } from "lucide-react";
 
 // Modal component for editing a user
 const EditUserModal = ({ user, onClose, onSubmit }) => {
@@ -6,6 +7,7 @@ const EditUserModal = ({ user, onClose, onSubmit }) => {
     name: user.name,
     email: user.email,
     role: user.role,
+    status: user.status,
   });
 
   const handleChange = (e) => {
@@ -21,7 +23,7 @@ const EditUserModal = ({ user, onClose, onSubmit }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
-        <h3 className="text-xl font-semibold mb-4">Edit User</h3>
+        <h3 className="text-lg font-semibold mb-4">Edit User</h3>
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
             <label className="block text-sm font-medium text-gray-700">
@@ -61,20 +63,37 @@ const EditUserModal = ({ user, onClose, onSubmit }) => {
               required
             >
               <option value="User">User</option>
+              <option value="Business">Business</option>
               <option value="Admin">Admin</option>
+            </select>
+          </div>
+          <div className="mb-3">
+            <label className="block text-sm font-medium text-gray-700">
+              Status
+            </label>
+            <select
+              name="status"
+              value={editedUser.status}
+              onChange={handleChange}
+              className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+              required
+            >
+              <option value="Active">Active</option>
+              <option value="Suspended">Suspended</option>
+              <option value="Inactive">Inactive</option>
             </select>
           </div>
           <div className="flex justify-end space-x-3">
             <button
               type="button"
               onClick={onClose}
-              className="py-2 px-4 bg-gray-300 rounded hover:bg-gray-400 transition-colors"
+              className="py-2 px-4 bg-gray-300 rounded hover:bg-gray-400"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+              className="py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700"
             >
               Save
             </button>
@@ -85,27 +104,70 @@ const EditUserModal = ({ user, onClose, onSubmit }) => {
   );
 };
 
-const ManageUsers = () => {
+const AdminUsers = () => {
+  // Example data - replace with real data
   const initialUsers = [
-    { id: 1, name: "Alice", role: "User", email: "alice@example.com" },
-    { id: 2, name: "Bob", role: "Admin", email: "bob@example.com" },
-    { id: 3, name: "Charlie", role: "User", email: "charlie@example.com" },
+    {
+      id: 1,
+      name: "John Doe",
+      email: "john@example.com",
+      role: "User",
+      status: "Active",
+      lastLogin: "2 hours ago",
+    },
+    {
+      id: 2,
+      name: "Jane Smith",
+      email: "jane@example.com",
+      role: "Business",
+      status: "Active",
+      lastLogin: "1 day ago",
+    },
+    {
+      id: 3,
+      name: "Admin User",
+      email: "admin@example.com",
+      role: "Admin",
+      status: "Active",
+      lastLogin: "Just now",
+    },
+    {
+      id: 4,
+      name: "Inactive User",
+      email: "inactive@example.com",
+      role: "User",
+      status: "Inactive",
+      lastLogin: "2 months ago",
+    },
+    {
+      id: 5,
+      name: "Suspended User",
+      email: "suspended@example.com",
+      role: "Business",
+      status: "Suspended",
+      lastLogin: "1 week ago",
+    },
   ];
 
   const [users, setUsers] = useState(initialUsers);
   const [searchQuery, setSearchQuery] = useState("");
+  const [roleFilter, setRoleFilter] = useState("All");
   const [userToEdit, setUserToEdit] = useState(null);
 
-  // Filter users based on the search query
+  // Filter users based on search query and role filter
   const filteredUsers = users.filter(
     (user) =>
-      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.role.toLowerCase().includes(searchQuery.toLowerCase())
+      (user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        user.email.toLowerCase().includes(searchQuery.toLowerCase())) &&
+      (roleFilter === "All" || user.role === roleFilter)
   );
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
+  };
+
+  const handleRoleFilterChange = (e) => {
+    setRoleFilter(e.target.value);
   };
 
   const openEditModal = (user) => {
@@ -130,54 +192,118 @@ const ManageUsers = () => {
   };
 
   return (
-    <div className="bg-white rounded p-6 shadow relative mt-3">
-      <header className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">Manage Users</h2>
-        <p className="text-gray-600">Search, edit, or delete users from the system.</p>
-      </header>
-
-      {/* Search Bar */}
-      <div className="mb-4">
-        <input
-          type="text"
-          placeholder="Search users..."
-          value={searchQuery}
-          onChange={handleSearchChange}
-          className="border border-gray-300 rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
-        />
+    <div className="bg-white rounded-lg border border-gray-200 p-6">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-xl font-bold">Manage Users</h2>
+        <button className="flex items-center bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+          <Plus className="w-4 h-4 mr-2" /> Add User
+        </button>
       </div>
 
-      {/* Users Table with horizontal scroll on small screens */}
-      <div className="overflow-x-auto">
-        <table className="min-w-full">
-          <thead>
-            <tr className="border-b">
-              <th className="text-left p-3">ID</th>
-              <th className="text-left p-3">Name</th>
-              <th className="text-left p-3">Email</th>
-              <th className="text-left p-3">Role</th>
-              <th className="p-3"></th> {/* Action column header removed */}
+      {/* Search and Filter Bar */}
+      <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <input
+            type="text"
+            placeholder="Search users..."
+            value={searchQuery}
+            onChange={handleSearchChange}
+            className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded"
+          />
+        </div>
+        <div className="flex items-center">
+          <Filter className="text-gray-400 w-5 h-5 mr-2" />
+          <select
+            value={roleFilter}
+            onChange={handleRoleFilterChange}
+            className="border border-gray-300 rounded px-3 py-2"
+          >
+            <option value="All">All Roles</option>
+            <option value="User">User</option>
+            <option value="Business">Business</option>
+            <option value="Admin">Admin</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Users Table */}
+      <div className="border rounded-lg overflow-hidden">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                ID
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Name
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Email
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Role
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Status
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Last Login
+              </th>
+              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Actions
+              </th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="bg-white divide-y divide-gray-200">
             {filteredUsers.map((user) => (
-              <tr key={user.id} className="border-b hover:bg-gray-50">
-                <td className="p-3">{user.id}</td>
-                <td className="p-3">{user.name}</td>
-                <td className="p-3">{user.email}</td>
-                <td className="p-3">{user.role}</td>
-                <td className="p-3 text-right">
+              <tr key={user.id} className="hover:bg-gray-50">
+                <td className="px-4 py-3 whitespace-nowrap">{user.id}</td>
+                <td className="px-4 py-3 whitespace-nowrap">{user.name}</td>
+                <td className="px-4 py-3 whitespace-nowrap">{user.email}</td>
+                <td className="px-4 py-3 whitespace-nowrap">
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      user.role === "Admin"
+                        ? "bg-purple-100 text-purple-800"
+                        : user.role === "Business"
+                        ? "bg-blue-100 text-blue-800"
+                        : "bg-gray-100 text-gray-800"
+                    }`}
+                  >
+                    {user.role}
+                  </span>
+                </td>
+                <td className="px-4 py-3 whitespace-nowrap">
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      user.status === "Active"
+                        ? "bg-green-100 text-green-800"
+                        : user.status === "Suspended"
+                        ? "bg-red-100 text-red-800"
+                        : "bg-yellow-100 text-yellow-800"
+                    }`}
+                  >
+                    {user.status}
+                  </span>
+                </td>
+                <td className="px-4 py-3 whitespace-nowrap">
+                  {user.lastLogin}
+                </td>
+                <td className="px-4 py-3 whitespace-nowrap text-right">
                   <button
                     onClick={() => openEditModal(user)}
-                    className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-green-600 transition-colors mr-2"
+                    className="text-blue-600 hover:text-blue-800 mr-3"
+                    title="Edit"
                   >
-                    Edit
+                    <Edit className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => handleDelete(user.id)}
-                    className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition-colors"
+                    className="text-red-600 hover:text-red-800"
+                    title="Delete"
                   >
-                    Delete
+                    <Trash2 className="w-4 h-4" />
                   </button>
                 </td>
               </tr>
@@ -198,4 +324,4 @@ const ManageUsers = () => {
   );
 };
 
-export default ManageUsers;
+export default AdminUsers;

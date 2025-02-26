@@ -1,6 +1,134 @@
 import React, { useState } from "react";
+import { Search, Eye, Check, X, Filter } from "lucide-react";
 
-const ManageBusinessApplications = () => {
+// Modal component for viewing application details
+const ViewModal = ({ application, onClose }) => {
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-lg">
+        <h3 className="text-lg font-semibold mb-4">
+          Business Application Details
+        </h3>
+
+        <div className="space-y-4 mb-6">
+          <div>
+            <h4 className="text-sm font-medium text-gray-500">Business Name</h4>
+            <p className="text-gray-900">{application.businessName}</p>
+          </div>
+
+          <div>
+            <h4 className="text-sm font-medium text-gray-500">
+              Applicant Name
+            </h4>
+            <p className="text-gray-900">{application.applicantName}</p>
+          </div>
+
+          <div>
+            <h4 className="text-sm font-medium text-gray-500">Email</h4>
+            <p className="text-gray-900">{application.email}</p>
+          </div>
+
+          <div>
+            <h4 className="text-sm font-medium text-gray-500">Business Type</h4>
+            <p className="text-gray-900">
+              {application.businessType || "Technology"}
+            </p>
+          </div>
+
+          <div>
+            <h4 className="text-sm font-medium text-gray-500">Description</h4>
+            <p className="text-gray-900">
+              {application.description ||
+                "A technology company focused on AI solutions for recruitment and HR."}
+            </p>
+          </div>
+
+          <div>
+            <h4 className="text-sm font-medium text-gray-500">Status</h4>
+            <p
+              className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
+                application.status === "Accepted"
+                  ? "bg-green-100 text-green-800"
+                  : application.status === "Declined"
+                  ? "bg-red-100 text-red-800"
+                  : "bg-yellow-100 text-yellow-800"
+              }`}
+            >
+              {application.status}
+            </p>
+          </div>
+
+          {application.status === "Declined" && application.declineReason && (
+            <div>
+              <h4 className="text-sm font-medium text-gray-500">
+                Decline Reason
+              </h4>
+              <p className="text-gray-900">{application.declineReason}</p>
+            </div>
+          )}
+        </div>
+
+        <div className="flex justify-end">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Modal component for declining with reason
+const DeclineModal = ({ application, onClose, onSubmit }) => {
+  const [reason, setReason] = useState("");
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSubmit(reason);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+        <h3 className="text-lg font-semibold mb-4">Decline Application</h3>
+        <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Reason for declining
+            </label>
+            <textarea
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              className="w-full border border-gray-300 rounded-md p-2 h-32"
+              placeholder="Please provide a reason for declining this application..."
+              required
+            />
+          </div>
+          <div className="flex justify-end space-x-3">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+            >
+              Decline Application
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+const AdminBusiness = () => {
   // Example mock data for business opening applications
   const initialApplications = [
     {
@@ -9,6 +137,7 @@ const ManageBusinessApplications = () => {
       applicantName: "John Doe",
       email: "john@example.com",
       status: "Pending",
+      date: "2023-06-15",
     },
     {
       id: 2,
@@ -16,6 +145,7 @@ const ManageBusinessApplications = () => {
       applicantName: "Jane Smith",
       email: "jane@example.com",
       status: "Pending",
+      date: "2023-06-14",
     },
     {
       id: 3,
@@ -23,28 +153,50 @@ const ManageBusinessApplications = () => {
       applicantName: "Mike Johnson",
       email: "mike@example.com",
       status: "Pending",
+      date: "2023-06-10",
+    },
+    {
+      id: 4,
+      businessName: "Global Logistics",
+      applicantName: "Sarah Williams",
+      email: "sarah@example.com",
+      status: "Accepted",
+      date: "2023-06-05",
+    },
+    {
+      id: 5,
+      businessName: "Digital Marketing Pro",
+      applicantName: "Alex Brown",
+      email: "alex@example.com",
+      status: "Declined",
+      declineReason: "Insufficient business information provided.",
+      date: "2023-06-01",
     },
   ];
 
   const [applications, setApplications] = useState(initialApplications);
   const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All");
   const [selectedApplication, setSelectedApplication] = useState(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-
-  // New state for handling decline modal
   const [declineModalOpen, setDeclineModalOpen] = useState(false);
   const [applicationToDecline, setApplicationToDecline] = useState(null);
 
-  // Filter applications based on search query
+  // Filter applications based on search query and status filter
   const filteredApplications = applications.filter(
     (app) =>
-      app.businessName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      app.applicantName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      app.email.toLowerCase().includes(searchQuery.toLowerCase())
+      (app.businessName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        app.applicantName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        app.email.toLowerCase().includes(searchQuery.toLowerCase())) &&
+      (statusFilter === "All" || app.status === statusFilter)
   );
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
+  };
+
+  const handleStatusFilterChange = (e) => {
+    setStatusFilter(e.target.value);
   };
 
   const handleAccept = (id) => {
@@ -76,175 +228,129 @@ const ManageBusinessApplications = () => {
     setApplicationToDecline(null);
   };
 
-  // View modal to see application details
-  const ViewModal = ({ application, onClose }) => {
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-        <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
-          <h3 className="text-xl font-semibold mb-4">Application Details</h3>
-          <div className="space-y-3">
-            <p>
-              <span className="font-medium">Business Name:</span>{" "}
-              {application.businessName}
-            </p>
-            <p>
-              <span className="font-medium">Applicant:</span>{" "}
-              {application.applicantName}
-            </p>
-            <p>
-              <span className="font-medium">Email:</span> {application.email}
-            </p>
-            <p>
-              <span className="font-medium">Status:</span>
-              <span
-                className={`ml-2 px-2 py-1 rounded ${
-                  application.status === "Accepted"
-                    ? "bg-green-100 text-green-800"
-                    : application.status === "Declined"
-                    ? "bg-red-100 text-red-800"
-                    : "bg-yellow-100 text-yellow-800"
-                }`}
-              >
-                {application.status}
-              </span>
-            </p>
-            {application.declineReason && (
-              <p>
-                <span className="font-medium">Decline Reason:</span>{" "}
-                {application.declineReason}
-              </p>
-            )}
-          </div>
-          <div className="mt-6 flex justify-end">
-            <button
-              onClick={onClose}
-              className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  // Decline modal to capture reason for declining
-  const DeclineModal = ({ application, onClose, onSubmit }) => {
-    const [reason, setReason] = useState("");
-
-    const handleSubmit = (e) => {
-      e.preventDefault();
-      onSubmit(reason);
-    };
-
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-        <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-[35rem]">
-          <h3 className="text-xl font-semibold mb-3">Decline Application</h3>
-          <p className="mb-5">
-            Please provide a reason for declining the application for{" "}
-            <strong>{application.businessName}</strong>.
-          </p>
-          <form onSubmit={handleSubmit}>
-            <div className="mb-3">
-              <textarea
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
-                placeholder="Enter reason for decline..."
-                required
-              />
-            </div>
-            <div className="flex justify-end space-x-3">
-              <button
-                type="button"
-                onClick={onClose}
-                className="py-2 px-4 bg-gray-300 rounded hover:bg-gray-400 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="py-2 px-4 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
-              >
-                Decline
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    );
-  };
-
   return (
-    <div className="bg-white rounded p-6 shadow mt-3">
-      <h2 className="text-2xl font-bold mb-4">
-        Business Opening Applications
-      </h2>
+    <div className="bg-white rounded-lg border border-gray-200 p-6">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-xl font-bold">Business Applications</h2>
+      </div>
 
-      {/* Search Bar */}
-      <div className="mb-4">
-        <input
-          type="text"
-          placeholder="Search applications..."
-          value={searchQuery}
-          onChange={handleSearchChange}
-          className="border border-gray-300 rounded px-3 py-2 w-full"
-        />
+      {/* Search and Filter Bar */}
+      <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <input
+            type="text"
+            placeholder="Search applications..."
+            value={searchQuery}
+            onChange={handleSearchChange}
+            className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded"
+          />
+        </div>
+        <div className="flex items-center">
+          <Filter className="text-gray-400 w-5 h-5 mr-2" />
+          <select
+            value={statusFilter}
+            onChange={handleStatusFilterChange}
+            className="border border-gray-300 rounded px-3 py-2"
+          >
+            <option value="All">All Statuses</option>
+            <option value="Pending">Pending</option>
+            <option value="Accepted">Accepted</option>
+            <option value="Declined">Declined</option>
+          </select>
+        </div>
       </div>
 
       {/* Applications Table */}
-      <table className="w-full">
-        <thead>
-          <tr className="border-b">
-            <th className="text-left p-3">ID</th>
-            <th className="text-left p-3">Business Name</th>
-            <th className="text-left p-3">Applicant Name</th>
-            <th className="text-left p-3">Email</th>
-            <th className="text-left p-3">Status</th>
-            <th className="p-3"></th> {/* Action column header */}
-          </tr>
-        </thead>
-        <tbody>
-          {filteredApplications.map((app) => (
-            <tr key={app.id} className="border-b hover:bg-gray-50">
-              <td className="p-3">{app.id}</td>
-              <td className="p-3">{app.businessName}</td>
-              <td className="p-3">{app.applicantName}</td>
-              <td className="p-3">{app.email}</td>
-              <td className="p-3">{app.status}</td>
-              <td className="p-3 text-right">
-                <button
-                  onClick={() => {
-                    setSelectedApplication(app);
-                    setIsViewModalOpen(true);
-                  }}
-                  className="text-blue-600 hover:text-blue-800 mr-2"
-                >
-                  View
-                </button>
-                {app.status === "Pending" && (
-                  <>
-                    <button
-                      onClick={() => handleAccept(app.id)}
-                      className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-green-600 mr-2"
-                    >
-                      Accept
-                    </button>
-                    <button
-                      onClick={() => openDeclineModal(app)}
-                      className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                    >
-                      Decline
-                    </button>
-                  </>
-                )}
-              </td>
+      <div className="border rounded-lg overflow-hidden">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                ID
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Business Name
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Applicant Name
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Email
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Status
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Date
+              </th>
+              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Actions
+              </th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {filteredApplications.map((app) => (
+              <tr key={app.id} className="hover:bg-gray-50">
+                <td className="px-4 py-3 whitespace-nowrap">{app.id}</td>
+                <td className="px-4 py-3 whitespace-nowrap">
+                  {app.businessName}
+                </td>
+                <td className="px-4 py-3 whitespace-nowrap">
+                  {app.applicantName}
+                </td>
+                <td className="px-4 py-3 whitespace-nowrap">{app.email}</td>
+                <td className="px-4 py-3 whitespace-nowrap">
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      app.status === "Accepted"
+                        ? "bg-green-100 text-green-800"
+                        : app.status === "Declined"
+                        ? "bg-red-100 text-red-800"
+                        : "bg-yellow-100 text-yellow-800"
+                    }`}
+                  >
+                    {app.status}
+                  </span>
+                </td>
+                <td className="px-4 py-3 whitespace-nowrap">{app.date}</td>
+                <td className="px-4 py-3 whitespace-nowrap text-right">
+                  <button
+                    onClick={() => {
+                      setSelectedApplication(app);
+                      setIsViewModalOpen(true);
+                    }}
+                    className="text-blue-600 hover:text-blue-800 mr-2"
+                    title="View"
+                  >
+                    <Eye className="w-4 h-4" />
+                  </button>
+                  {app.status === "Pending" && (
+                    <>
+                      <button
+                        onClick={() => handleAccept(app.id)}
+                        className="text-green-600 hover:text-green-800 mr-2"
+                        title="Accept"
+                      >
+                        <Check className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => openDeclineModal(app)}
+                        className="text-red-600 hover:text-red-800"
+                        title="Decline"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
+      {/* View Modal */}
       {isViewModalOpen && selectedApplication && (
         <ViewModal
           application={selectedApplication}
@@ -255,6 +361,7 @@ const ManageBusinessApplications = () => {
         />
       )}
 
+      {/* Decline Modal */}
       {declineModalOpen && applicationToDecline && (
         <DeclineModal
           application={applicationToDecline}
@@ -269,4 +376,4 @@ const ManageBusinessApplications = () => {
   );
 };
 
-export default ManageBusinessApplications;
+export default AdminBusiness;

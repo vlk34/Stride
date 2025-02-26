@@ -35,8 +35,8 @@ import ManageJobs from "./pages/ManageJobs";
 import Applicants from "./pages/Applicants";
 import ReviewApplicant from "./pages/ReviewApplicant";
 import BusinessProfile from "./pages/BusinessProfile";
-import BusinessBilling from "./pages/BusinessBilling";
 import BusinessHelp from "./pages/BusinessHelp";
+import SwitchToPersonal from "./pages/SwitchToPersonal";
 const faqData = {
   categories: [
     {
@@ -225,7 +225,6 @@ const App = () => {
             <Route path="/profile" element={<Profile />} />
             <Route path="/messages" element={<Messages />} />
             <Route path="/business-upgrade" element={<BusinessUpgrade />} />
-            <Route path="/business-upgrade" element={<BusinessUpgrade />} />
             <Route
               path="/business-account-creation"
               element={<BusinessAccountCreation />}
@@ -239,11 +238,12 @@ const App = () => {
         <Route element={<BusinessRoute />}>
           <Route element={<Layout />}>
             <Route path="/business-dashboard" element={<BusinessDashboard />} />
+            <Route path="/business-messages" element={<Messages />} />
             <Route path="/create-job-listing" element={<CreateJobListing />} />
             <Route path="/review-applicant/:id" element={<ReviewApplicant />} />
             <Route path="/business-profile" element={<BusinessProfile />} />
-            <Route path="/business-billing" element={<BusinessBilling />} />
             <Route path="/business-help" element={<BusinessHelp />} />
+            <Route path="/switch-to-personal" element={<SwitchToPersonal />} />
           </Route>
         </Route>
 
@@ -254,7 +254,7 @@ const App = () => {
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/admin/users" element={<AdminUsers />} />
             <Route path="/admin/jobs" element={<AdminJobs jobs={jobs} />} />
-            <Route path="/admin/business" element={<AdminBusiness />} />
+            <Route path="/admin/businesses" element={<AdminBusiness />} />
           </Route>
         </Route>
       </Routes>
