@@ -1,12 +1,12 @@
 import React from "react";
 import { Link } from "react-router";
 import Marquee from "react-fast-marquee";
-import facebook from "../../assets/marphotos/facebook_logo_(2023).svg.png";
-import boeing from "../../assets/marphotos/boeing.3037b0a6.png";
-import dell from "../../assets/marphotos/dell.09332c44.png";
-import ibm from "../../assets/marphotos/ibm.bcec6b9a.png";
-import cicso from "../../assets/marphotos/download.png";
-import microsoft from "../../assets/marphotos/microsoft.4a9a93f0.png";
+import facebook from "../../../assets/marphotos/facebook_logo_(2023).svg.png";
+import boeing from "../../../assets/marphotos/boeing.3037b0a6.png";
+import dell from "../../../assets/marphotos/dell.09332c44.png";
+import ibm from "../../../assets/marphotos/ibm.bcec6b9a.png";
+import cicso from "../../../assets/marphotos/download.png";
+import microsoft from "../../../assets/marphotos/microsoft.4a9a93f0.png";
 import {
   Building2,
   Users,
@@ -103,45 +103,40 @@ const BusinessUpgrade = () => {
         </div>
       </div>
 
-
-      
-        <div className=" mx-auto my-7">
-          <Marquee autoFill gradient={true} gradientWidth={75}>
-            <img
-              src={facebook}
-              alt="Facebook logo"
-              className="w-20 sm:w-32 md:w-[10rem] mx-4 md:mx-12"
-            />
-            <img
-              src={boeing}
-              alt="Boeing logo"
-              className="w-20 sm:w-32 md:w-[10rem] mx-4 md:mx-12"
-            />
-            <img
-              src={dell}
-              alt="Dell logo"
-              className="w-20 sm:w-32 md:w-[10rem] mx-4 md:mx-12"
-            />
-            <img
-              src={ibm}
-              alt="IBM logo"
-              className="w-20 sm:w-32 md:w-[10rem] mx-4 md:mx-12"
-            />
-            <img
-              src={cicso}
-              alt="Cicso logo"
-              className="w-20 sm:w-32 md:w-[10rem] mx-4 md:mx-12"
-            />
-            <img
-              src={microsoft}
-              alt="Microsoft logo"
-              className="w-20 sm:w-32 md:w-[10rem] mx-4 md:mx-12"
-            />
-          </Marquee>
-        </div>
-      
-
-
+      <div className=" mx-auto my-7">
+        <Marquee autoFill gradient={true} gradientWidth={75}>
+          <img
+            src={facebook}
+            alt="Facebook logo"
+            className="w-20 sm:w-32 md:w-[10rem] mx-4 md:mx-12"
+          />
+          <img
+            src={boeing}
+            alt="Boeing logo"
+            className="w-20 sm:w-32 md:w-[10rem] mx-4 md:mx-12"
+          />
+          <img
+            src={dell}
+            alt="Dell logo"
+            className="w-20 sm:w-32 md:w-[10rem] mx-4 md:mx-12"
+          />
+          <img
+            src={ibm}
+            alt="IBM logo"
+            className="w-20 sm:w-32 md:w-[10rem] mx-4 md:mx-12"
+          />
+          <img
+            src={cicso}
+            alt="Cicso logo"
+            className="w-20 sm:w-32 md:w-[10rem] mx-4 md:mx-12"
+          />
+          <img
+            src={microsoft}
+            alt="Microsoft logo"
+            className="w-20 sm:w-32 md:w-[10rem] mx-4 md:mx-12"
+          />
+        </Marquee>
+      </div>
 
       {/* Trust Section */}
       <div className="text-center mb-16">

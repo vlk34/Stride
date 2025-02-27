@@ -14,7 +14,7 @@ import {
   Heart,
   Coffee,
 } from "lucide-react";
-import { useUserData } from "../contexts/UserDataContext";
+import { useUserData } from "../../contexts/UserDataContext";
 import { Link } from "react-router";
 
 const BusinessProfile = () => {
@@ -83,7 +83,7 @@ const BusinessProfile = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* Simplified Header Section */}
-      <div className="mb-8 bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+      <div className="mb-8 bg-white rounded-xl border border-gray-200 p-6">
         <div className="flex items-center gap-6">
           <div className="w-24 h-24 rounded-xl bg-white border border-gray-200 p-2 flex items-center justify-center">
             <img
@@ -158,7 +158,7 @@ const BusinessProfile = () => {
           {activeTab === "about" && (
             <>
               {/* Company Description */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+              <div className="bg-white rounded-xl border border-gray-200 p-6">
                 <h2 className="text-xl font-semibold mb-4">About Us</h2>
                 <p className="text-gray-600 leading-relaxed mb-6">
                   {companyData.about}
@@ -206,7 +206,7 @@ const BusinessProfile = () => {
           )}
 
           {activeTab === "jobs" && (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div className="bg-white rounded-xl border border-gray-200 p-6">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-semibold">Open Positions</h2>
                 <Link
@@ -275,7 +275,7 @@ const BusinessProfile = () => {
           )}
 
           {activeTab === "team" && (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div className="bg-white rounded-xl border border-gray-200 p-6">
               <h2 className="text-xl font-semibold mb-6">Our Team</h2>
               <p className="text-gray-600 mb-8">
                 Meet the talented people behind our success. Our diverse team
@@ -294,7 +294,7 @@ const BusinessProfile = () => {
           )}
 
           {activeTab === "reviews" && (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div className="bg-white rounded-xl border border-gray-200 p-6">
               <h2 className="text-xl font-semibold mb-6">Company Reviews</h2>
               <p className="text-gray-600 mb-8">
                 See what people are saying about working at {companyData.name}.
@@ -314,7 +314,7 @@ const BusinessProfile = () => {
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Company Stats */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <div className="bg-white rounded-xl border border-gray-200 p-6">
             <h3 className="text-lg font-medium mb-4">Company Overview</h3>
             <div className="space-y-4">
               <div className="flex items-start gap-3">
@@ -351,7 +351,7 @@ const BusinessProfile = () => {
           </div>
 
           {/* Profile Completion */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <div className="bg-white rounded-xl border border-gray-200 p-6">
             <h3 className="text-lg font-medium mb-4">Profile Completion</h3>
             <div className="w-full bg-gray-200 rounded-full h-2.5 mb-4">
               <div className="bg-blue-600 h-2.5 rounded-full w-[75%]"></div>

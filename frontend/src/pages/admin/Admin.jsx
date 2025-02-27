@@ -1,7 +1,7 @@
 import React from "react";
 import { Navigate } from "react-router";
 import { useUser } from "@clerk/clerk-react";
-import AdminDashboard from "../components/Admin/AdminDashboard";
+import AdminDashboard from "../../components/Admin/AdminDashboard";
 
 const Admin = () => {
   const { user, isLoaded } = useUser();

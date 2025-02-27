@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ChevronDown, ChevronUp, Search, Menu, Filter } from "lucide-react";
+import { ChevronDown, ChevronUp, Search, Filter } from "lucide-react";
 
 const BusinessHelp = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -10,42 +10,6 @@ const BusinessHelp = () => {
   // Business-specific FAQ data
   const faqData = {
     categories: [
-      {
-        id: "account",
-        name: "Account & Billing",
-        questions: [
-          {
-            id: "account-1",
-            question: "How do I upgrade my subscription plan?",
-            answer:
-              "You can upgrade your subscription plan by navigating to the Billing & Plans page from your dashboard. Select the plan that best suits your needs and click 'Select Plan'. You'll be guided through the payment process, and your account will be upgraded immediately with access to new features.",
-          },
-          {
-            id: "account-2",
-            question: "Can I switch between monthly and annual billing?",
-            answer:
-              "Yes, you can switch between monthly and annual billing cycles. Go to the Billing & Plans page and select 'Change Billing Cycle' under your current plan. Annual plans offer a 20% discount compared to monthly billing.",
-          },
-          {
-            id: "account-3",
-            question: "How do I update my payment information?",
-            answer:
-              "To update your payment information, go to the Billing & Plans page and select the 'Payment' tab. Click on 'Edit' next to your current payment method or 'Add New Payment Method' to enter new card details.",
-          },
-          {
-            id: "account-4",
-            question: "What happens when I downgrade my plan?",
-            answer:
-              "When you downgrade your plan, you'll continue to have access to your current features until the end of your billing cycle. After that, your account will transition to the features available in your new plan. Any data associated with premium features not included in your new plan will be archived but not deleted for 30 days.",
-          },
-          {
-            id: "account-5",
-            question: "How do I cancel my subscription?",
-            answer:
-              "To cancel your subscription, go to the Billing & Plans page and click 'Cancel Plan' under your current plan details. You'll be asked to confirm your cancellation and provide feedback. Your account will remain active until the end of your current billing cycle.",
-          },
-        ],
-      },
       {
         id: "jobs",
         name: "Job Postings & Management",
@@ -120,42 +84,6 @@ const BusinessHelp = () => {
         ],
       },
       {
-        id: "team",
-        name: "Team Collaboration",
-        questions: [
-          {
-            id: "team-1",
-            question: "How do I invite team members to my account?",
-            answer:
-              "To invite team members, go to the Team Members page and click 'Invite Team Member'. Enter their email address and select their role (Admin, Recruiter, or Viewer). They'll receive an invitation email with instructions to join your account.",
-          },
-          {
-            id: "team-2",
-            question: "What are the different team member roles?",
-            answer:
-              "We offer three roles: Admins have full access to all features including billing; Recruiters can manage jobs and candidates but can't access billing or add team members; Viewers can only view jobs and candidates without making changes. You can customize permissions for each role in your account settings.",
-          },
-          {
-            id: "team-3",
-            question: "How many team members can I add to my account?",
-            answer:
-              "The number of team members you can add depends on your subscription plan. Starter plans include 2 team members, Growth plans include 5 team members, and Enterprise plans include unlimited team members. Additional team member seats can be purchased separately.",
-          },
-          {
-            id: "team-4",
-            question: "Can I assign specific jobs to different team members?",
-            answer:
-              "Yes, you can assign specific jobs to different team members. When creating or editing a job, use the 'Assign To' option to select which team members are responsible for that position. This helps organize your hiring process, especially for larger teams.",
-          },
-          {
-            id: "team-5",
-            question: "How do I remove a team member from my account?",
-            answer:
-              "To remove a team member, go to the Team Members page, find their profile, and click 'Remove'. They will immediately lose access to your account. Any jobs or candidates assigned to them will need to be reassigned to another team member.",
-          },
-        ],
-      },
-      {
         id: "analytics",
         name: "Analytics & Reporting",
         questions: [
@@ -177,165 +105,48 @@ const BusinessHelp = () => {
             answer:
               "Yes, you can create custom reports by selecting specific metrics and date ranges in the Analytics section. Reports can be saved for future reference, scheduled for regular delivery to your email, or exported in CSV, PDF, or Excel formats.",
           },
-          {
-            id: "analytics-4",
-            question:
-              "How do I compare performance across different job postings?",
-            answer:
-              "Use the Job Comparison tool in the Analytics section to select multiple job postings and compare their performance side by side. This helps identify which job descriptions, requirements, or benefits are most effective at attracting quality candidates.",
-          },
-          {
-            id: "analytics-5",
-            question:
-              "Are there benchmarks to compare my performance against industry standards?",
-            answer:
-              "Yes, Enterprise and Growth plan subscribers have access to industry benchmarks that show how your metrics compare to similar companies in your industry. This provides context for your performance and helps set realistic goals for improvement.",
-          },
-        ],
-      },
-      {
-        id: "integrations",
-        name: "Integrations & API",
-        questions: [
-          {
-            id: "integrations-1",
-            question: "What third-party tools can I integrate with my account?",
-            answer:
-              "We offer integrations with popular HR tools including Workday, BambooHR, Greenhouse, and Lever. We also integrate with calendar systems (Google Calendar, Outlook), communication tools (Slack, Microsoft Teams), and background check services.",
-          },
-          {
-            id: "integrations-2",
-            question:
-              "How do I set up calendar integration for scheduling interviews?",
-            answer:
-              "To set up calendar integration, go to Settings > Integrations and select your calendar provider (Google Calendar or Outlook). Follow the authentication steps to connect your calendar. Once connected, you can schedule interviews directly from candidate profiles.",
-          },
-          {
-            id: "integrations-3",
-            question: "Is there an API available for custom integrations?",
-            answer:
-              "Yes, we offer a RESTful API that allows you to build custom integrations. The API provides access to jobs, candidates, and analytics data. API access is available on Growth and Enterprise plans. Visit our Developer Portal for documentation and API keys.",
-          },
-          {
-            id: "integrations-4",
-            question: "Can I automatically post jobs to multiple job boards?",
-            answer:
-              "Yes, you can connect your account to multiple job boards including LinkedIn, Indeed, Glassdoor, and ZipRecruiter. When you publish a job, you can select which connected job boards to post to, all from a single interface.",
-          },
-          {
-            id: "integrations-5",
-            question:
-              "How do I integrate with my existing applicant tracking system?",
-            answer:
-              "For ATS integration, go to Settings > Integrations and select your ATS provider from the list. Follow the configuration steps to establish the connection. Once integrated, you can sync jobs and candidates between systems automatically.",
-          },
         ],
       },
     ],
   };
 
-  const toggleQuestion = (questionId) => {
-    setOpenQuestions((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(questionId)) {
-        newSet.delete(questionId);
-      } else {
-        newSet.add(questionId);
-      }
-      return newSet;
-    });
+  const toggleQuestion = (id) => {
+    const newOpenQuestions = new Set(openQuestions);
+    if (newOpenQuestions.has(id)) {
+      newOpenQuestions.delete(id);
+    } else {
+      newOpenQuestions.add(id);
+    }
+    setOpenQuestions(newOpenQuestions);
   };
 
-  const getSearchResults = () => {
-    if (!searchTerm) return [];
-
-    const searchWords = searchTerm
-      .toLowerCase()
-      .split(" ")
-      .filter((word) => word.length > 0);
-    if (searchWords.length === 0) return [];
-
-    const results = faqData.categories.flatMap((category) =>
-      category.questions.map((question) => {
-        // Calculate relevance score for question and answer
-        const questionWords = question.question.toLowerCase();
-        const answerWords = question.answer.toLowerCase();
-
-        let score = 0;
-        let matchedTerms = new Set();
-
-        // Check for exact matches first (highest priority)
-        if (questionWords.includes(searchTerm.toLowerCase())) {
-          score += 100;
-        }
-        if (answerWords.includes(searchTerm.toLowerCase())) {
-          score += 50;
-        }
-
-        // Check for individual word matches
-        searchWords.forEach((word) => {
-          // Match at word boundaries for more accurate results
-          const wordRegex = new RegExp(`\\b${word}\\b`, "i");
-
-          if (wordRegex.test(questionWords)) {
-            score += 30;
-            matchedTerms.add(word);
-          }
-          if (wordRegex.test(answerWords)) {
-            score += 15;
-            matchedTerms.add(word);
-          }
-
-          // Partial word matches (lower priority)
-          if (questionWords.includes(word)) {
-            score += 10;
-            matchedTerms.add(word);
-          }
-          if (answerWords.includes(word)) {
-            score += 5;
-            matchedTerms.add(word);
-          }
-        });
-
-        // Bonus for matching all search terms
-        if (matchedTerms.size === searchWords.length) {
-          score += 50;
-        }
-
-        return {
-          ...question,
-          categoryId: category.id,
-          categoryName: category.name,
-          score,
-        };
-      })
+  // Filter questions based on selected category and search term
+  const filteredQuestions = faqData.categories
+    .filter(
+      (category) =>
+        selectedCategory === null || category.id === selectedCategory
+    )
+    .flatMap((category) => category.questions)
+    .filter((question) =>
+      question.question.toLowerCase().includes(searchTerm.toLowerCase())
     );
-
-    // Filter out results with no matches and sort by relevance
-    return results
-      .filter((result) => result.score > 0)
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 3);
-  };
-
-  const filteredQuestions = getSearchResults();
 
   return (
     <div className="max-w-7xl mx-auto px-4">
       {/* Welcome Section */}
       <div className="py-16 text-center bg-white rounded-b-lg mb-8">
         <h1 className="text-4xl font-bold mb-4 text-gray-900">
-          Business Help Center
+          How can we help you?
         </h1>
         <p className="text-lg text-gray-600 mb-8">
-          Find answers to your questions about managing your business account
+          Search our help center for quick answers to your questions
         </p>
 
         {/* Search Bar */}
         <div className="max-w-2xl mx-auto relative px-4">
           <input
             type="text"
-            placeholder="Search for business solutions..."
+            placeholder="Search for answers..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all"
@@ -348,7 +159,7 @@ const BusinessHelp = () => {
           <div
             className={`transition-all duration-300 ease-in-out overflow-hidden ${
               searchTerm
-                ? "mt-4 max-h-[300px] opacity-100"
+                ? "mt-4 max-h-[200px] opacity-100"
                 : "max-h-0 opacity-0"
             }`}
           >
@@ -382,7 +193,7 @@ const BusinessHelp = () => {
               searchTerm ? "opacity-0 h-0" : "opacity-100 h-auto"
             }`}
           >
-            Start typing to search through our business help center
+            Start typing to search through our frequently asked questions
           </div>
         </div>
       </div>

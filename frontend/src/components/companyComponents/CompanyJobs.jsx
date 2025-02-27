@@ -3,7 +3,7 @@ import { MapPin, Clock, Users } from "lucide-react";
 
 const CompanyJobs = ({ jobs }) => {
   return (
-    <div className="bg-white p-6 rounded-lg shadow">
+    <div className="bg-white p-6 rounded-lg">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-semibold">Open Positions</h2>
         <button className="text-sm text-blue-600 hover:text-blue-700">

@@ -3,7 +3,6 @@ import { useNavigate } from "react-router";
 import {
   Briefcase,
   MapPin,
-  DollarSign,
   Clock,
   Users,
   GraduationCap,
@@ -24,12 +23,6 @@ const CreateJobListing = () => {
     location: "",
     locationType: "", // remote, hybrid, on-site
     employmentType: "", // full-time, part-time, contract
-
-    // Compensation
-    salaryMin: "",
-    salaryMax: "",
-    salaryType: "", // yearly, monthly, hourly
-    benefits: [],
 
     // Requirements
     experience: "",
@@ -96,59 +89,6 @@ const CreateJobListing = () => {
     },
     {
       id: 2,
-      title: "Compensation",
-      description: "Define the compensation package",
-      fields: [
-        {
-          name: "salaryType",
-          label: "Salary Type",
-          type: "select",
-          options: ["Yearly", "Monthly", "Hourly"],
-          icon: <DollarSign className="w-5 h-5 text-gray-400" />,
-          required: true,
-        },
-        {
-          name: "salaryMin",
-          label: "Minimum Salary",
-          type: "number",
-          placeholder: "e.g., 50000",
-          required: true,
-        },
-        {
-          name: "salaryMax",
-          label: "Maximum Salary",
-          type: "number",
-          placeholder: "e.g., 80000",
-          required: true,
-        },
-        {
-          name: "benefits",
-          label: "Benefits",
-          type: "checkbox-grid",
-          options: [
-            { id: "health", label: "Health Insurance", icon: "🏥" },
-            { id: "dental", label: "Dental Insurance", icon: "🦷" },
-            { id: "vision", label: "Vision Insurance", icon: "👁" },
-            { id: "401k", label: "401(k)", icon: "💰" },
-            { id: "remote", label: "Remote Work", icon: "🏠" },
-            { id: "flexible", label: "Flexible Hours", icon: "⏰" },
-            { id: "pto", label: "Paid Time Off", icon: "✈️" },
-            {
-              id: "development",
-              label: "Professional Development",
-              icon: "📚",
-            },
-            { id: "stock", label: "Stock Options", icon: "📈" },
-            { id: "gym", label: "Gym Membership", icon: "💪" },
-            { id: "meals", label: "Free Meals", icon: "🍽" },
-            { id: "childcare", label: "Childcare", icon: "👶" },
-          ],
-          required: true,
-        },
-      ],
-    },
-    {
-      id: 3,
       title: "Requirements",
       description: "Specify candidate requirements",
       fields: [
@@ -197,7 +137,7 @@ const CreateJobListing = () => {
       ],
     },
     {
-      id: 4,
+      id: 3,
       title: "Job Description",
       description: "Provide detailed information about the role",
       fields: [
@@ -228,7 +168,7 @@ const CreateJobListing = () => {
       ],
     },
     {
-      id: 5,
+      id: 4,
       title: "Additional Details",
       description: "Final details about the position",
       fields: [
@@ -256,7 +196,7 @@ const CreateJobListing = () => {
       ],
     },
     {
-      id: 6,
+      id: 5,
       title: "Success!",
       description: "Your job listing has been created",
       isSuccess: true,
@@ -264,17 +204,9 @@ const CreateJobListing = () => {
   ];
 
   const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value, type } = e.target;
 
-    if (type === "checkbox") {
-      const benefit = e.target.value;
-      setFormData((prev) => ({
-        ...prev,
-        benefits: checked
-          ? [...(prev.benefits || []), benefit]
-          : (prev.benefits || []).filter((b) => b !== benefit),
-      }));
-    } else if (type === "select-multiple") {
+    if (type === "select-multiple") {
       const selectedOptions = Array.from(e.target.selectedOptions).map(
         (option) => option.value
       );
@@ -296,7 +228,7 @@ const CreateJobListing = () => {
     e.preventDefault();
     // Handle form submission
     console.log(formData);
-    setCurrentStep(6);
+    setCurrentStep(5);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -334,32 +266,6 @@ const CreateJobListing = () => {
   );
 
   const renderField = (field) => {
-    if (field.type === "checkbox-grid") {
-      return (
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          {field.options.map((option) => (
-            <label
-              key={option.id}
-              className="flex items-center p-3 border rounded-lg hover:border-blue-500 cursor-pointer transition-colors"
-            >
-              <input
-                type="checkbox"
-                name={field.name}
-                value={option.label}
-                checked={formData[field.name]?.includes(option.label) || false}
-                onChange={handleInputChange}
-                className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
-              />
-              <span className="ml-3 flex items-center">
-                <span className="mr-2">{option.icon}</span>
-                {option.label}
-              </span>
-            </label>
-          ))}
-        </div>
-      );
-    }
-
     return (
       <div className="relative">
         {field.icon && (

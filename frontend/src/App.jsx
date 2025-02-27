@@ -1,6 +1,6 @@
 import React from "react";
 import { Routes, Route } from "react-router";
-import Layout from "./util/Layout";
+import Layout from "./pages/Layout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import CustomSignIn from "./pages/auth/CustomSignIn";
 import CustomSignUp from "./pages/auth/CustomSignUp";
@@ -8,35 +8,38 @@ import Profile from "./pages/Profile";
 import SavedJobs from "./pages/SavedJobs";
 import Result from "./pages/Result";
 import Home from "./pages/Home";
-import CompanyProfile from "./pages/CompanyProfile";
+import CompanyProfile from "./pages/business/CompanyProfile";
 import TermsOfService from "./pages/footer/TermsOfService";
 import PrivacyPolicy from "./pages/footer/PrivacyPolicy";
 import CookiePolicy from "./pages/footer/CookiePolicy";
 import Accessibility from "./pages/footer/Accessibility";
 import AdminUsers from "./components/Admin/AdminUsers";
-import AdminLayout from "./util/AdminLayout";
+import AdminLayout from "./pages/admin/AdminLayout";
 import AdminDashboard from "./components/Admin/AdminDashboard";
 import AdminJobs from "./components/Admin/AdminJobs";
 import AdminBusiness from "./components/Admin/AdminBusiness";
 import { UserDataProvider } from "./contexts/UserDataContext";
 import Help from "./pages/Help";
 import Search from "./pages/Search";
-import BusinessUpgrade from "./pages/BusinessUpgrade";
-import BusinessAccountCreation from "./pages/BusinessAccountCreation";
-import BusinessDashboard from "./pages/BusinessDashboard";
-import CreateJobListing from "./pages/CreateJobListing";
-import BusinessRoute from "./components/BusinessRoute";
-import UnauthorizedAccess from "./pages/UnauthorizedAccess";
-import AdminRoute from "./components/AdminRoute";
-import AdminUnathorized from "./pages/AdminUnathorized";
+import BusinessUpgrade from "./pages/business/BusinessUpgrade";
+import BusinessAccountCreation from "./pages/business/BusinessAccountCreation";
+import BusinessDashboard from "./pages/business/BusinessDashboard";
+import CreateJobListing from "./pages/business/CreateJobListing";
+import BusinessRoute from "./components/Business/BusinessRoute";
+import UnauthorizedAccess from "./pages/business/UnauthorizedAccess";
+import AdminRoute from "./components/Admin/AdminRoute";
+import AdminUnathorized from "./pages/admin/AdminUnathorized";
 import Messages from "./pages/Messages";
 import jobs from "./jobs";
-import ManageJobs from "./pages/ManageJobs";
-import Applicants from "./pages/Applicants";
-import ReviewApplicant from "./pages/ReviewApplicant";
-import BusinessProfile from "./pages/BusinessProfile";
-import BusinessHelp from "./pages/BusinessHelp";
-import SwitchToPersonal from "./pages/SwitchToPersonal";
+import ManageJobs from "./pages/business/ManageJobs";
+import Applicants from "./pages/business/Applicants";
+import ReviewApplicant from "./pages/business/ReviewApplicant";
+import BusinessProfile from "./pages/business/BusinessProfile";
+import BusinessHelp from "./pages/business/BusinessHelp";
+import SwitchToPersonal from "./pages/business/SwitchToPersonal";
+import BusinessLayout from "./pages/business/BusinessLayout";
+import JobApplicants from "./pages/business/JobApplicants";
+import EditJob from "./pages/business/EditJob";
 const faqData = {
   categories: [
     {
@@ -229,14 +232,12 @@ const App = () => {
               path="/business-account-creation"
               element={<BusinessAccountCreation />}
             />
-            <Route path="/manage-jobs" element={<ManageJobs />} />
-            <Route path="/applicants" element={<Applicants />} />
           </Route>
         </Route>
 
         {/* Business routes */}
         <Route element={<BusinessRoute />}>
-          <Route element={<Layout />}>
+          <Route element={<BusinessLayout />}>
             <Route path="/business-dashboard" element={<BusinessDashboard />} />
             <Route path="/business-messages" element={<Messages />} />
             <Route path="/create-job-listing" element={<CreateJobListing />} />
@@ -244,6 +245,10 @@ const App = () => {
             <Route path="/business-profile" element={<BusinessProfile />} />
             <Route path="/business-help" element={<BusinessHelp />} />
             <Route path="/switch-to-personal" element={<SwitchToPersonal />} />
+            <Route path="/manage-jobs" element={<ManageJobs />} />
+            <Route path="/applicants" element={<Applicants />} />
+            <Route path="/job-applicants/:id" element={<JobApplicants />} />
+            <Route path="/edit-job/:id" element={<EditJob />} />
           </Route>
         </Route>
 

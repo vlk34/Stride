@@ -5,7 +5,7 @@ const CompanySidebar = ({ company }) => {
   return (
     <div className="space-y-6">
       {/* Company Stats */}
-      <div className="bg-white p-4 rounded-lg shadow">
+      <div className="bg-white p-4 rounded-lg">
         <h3 className="text-lg font-medium mb-4">Company Overview</h3>
         <div className="space-y-4">
           <div className="flex items-start gap-3">

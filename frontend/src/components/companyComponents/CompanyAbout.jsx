@@ -2,7 +2,7 @@ import React from "react";
 
 const CompanyAbout = ({ about, culture, benefits }) => {
   return (
-    <div className="bg-white p-6 rounded-lg shadow">
+    <div className="bg-white p-6 rounded-lg">
       <div className="space-y-6">
         <section>
           <h2 className="text-xl font-semibold mb-4">About</h2>

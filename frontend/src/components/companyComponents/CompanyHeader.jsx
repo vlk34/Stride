@@ -3,7 +3,7 @@ import twitter from "../../../assets/twitter.png";
 
 const CompanyHeader = ({ company }) => {
   return (
-    <div className="w-full bg-white rounded-lg shadow">
+    <div className="w-full bg-white rounded-lg">
       {/* Banner background */}
       <div className="relative h-32 overflow-hidden rounded-t-lg">
         <div className="absolute inset-0 bg-blue-600" />
@@ -13,7 +13,7 @@ const CompanyHeader = ({ company }) => {
       <div className="px-6 -mt-16 pb-6 relative">
         {/* Logo */}
         <div className="inline-block">
-          <div className="w-24 h-24 rounded-lg bg-white p-2 shadow">
+          <div className="w-24 h-24 rounded-lg bg-white p-2 ">
             <img
               src={twitter}
               alt={company.name}

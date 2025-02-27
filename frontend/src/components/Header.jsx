@@ -1,7 +1,7 @@
 import React from "react";
 import { useUser } from "@clerk/clerk-react";
-import BusinessHeader from "./BusinessHeader";
-import AdminHeader from "./AdminHeader";
+import BusinessHeader from "./Business/BusinessHeader";
+import AdminHeader from "./Admin/AdminHeader";
 import RegularHeader from "./RegularHeader";
 
 const Header = () => {

@@ -195,9 +195,6 @@ const AdminUsers = () => {
     <div className="bg-white rounded-lg border border-gray-200 p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold">Manage Users</h2>
-        <button className="flex items-center bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-          <Plus className="w-4 h-4 mr-2" /> Add User
-        </button>
       </div>
 
       {/* Search and Filter Bar */}

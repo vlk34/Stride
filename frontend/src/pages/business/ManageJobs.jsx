@@ -9,11 +9,16 @@ import {
   Edit,
   Trash2,
   AlertCircle,
+  X,
+  AlertTriangle,
 } from "lucide-react";
 import { Link } from "react-router";
 
 const ManageJobs = () => {
   const [activeTab, setActiveTab] = useState("active");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [jobToDelete, setJobToDelete] = useState(null);
+  const [jobToDeleteTitle, setJobToDeleteTitle] = useState("");
 
   // Dummy data - replace with real data
   const jobs = [
@@ -31,6 +36,21 @@ const ManageJobs = () => {
     // ... more jobs
   ];
 
+  const handleDeleteClick = (job) => {
+    setJobToDelete(job.id);
+    setJobToDeleteTitle(job.title);
+    setShowDeleteConfirm(true);
+  };
+
+  const handleDelete = () => {
+    // In a real app, you would send a delete request to your API
+    console.log("Deleting job:", jobToDelete);
+    // Close the modal after deletion
+    setShowDeleteConfirm(false);
+    setJobToDelete(null);
+    setJobToDeleteTitle("");
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* Header */}
@@ -40,7 +60,7 @@ const ManageJobs = () => {
           <p className="text-gray-600">Create and manage your job listings</p>
         </div>
         <Link
-          to="/create-job-listing"
+          to="/search"
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
         >
           Create New Job
@@ -139,13 +159,22 @@ const ManageJobs = () => {
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex justify-end gap-2">
-                      <button className="p-2 text-gray-600 hover:text-blue-600">
+                      <Link
+                        to="/search"
+                        className="p-2 text-gray-600 hover:text-blue-600"
+                      >
                         <Eye className="w-5 h-5" />
-                      </button>
-                      <button className="p-2 text-gray-600 hover:text-blue-600">
+                      </Link>
+                      <Link
+                        to={`/edit-job/${job.id}`}
+                        className="p-2 text-gray-600 hover:text-blue-600"
+                      >
                         <Edit className="w-5 h-5" />
-                      </button>
-                      <button className="p-2 text-gray-600 hover:text-red-600">
+                      </Link>
+                      <button
+                        onClick={() => handleDeleteClick(job)}
+                        className="p-2 text-gray-600 hover:text-red-600"
+                      >
                         <Trash2 className="w-5 h-5" />
                       </button>
                     </div>
@@ -156,6 +185,71 @@ const ManageJobs = () => {
           </table>
         </div>
       </div>
+
+      {/* Enhanced Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-md w-full shadow-2xl overflow-hidden">
+            {/* Modal Header */}
+            <div className="bg-red-50 px-6 py-4 border-b border-red-100 flex justify-between items-center">
+              <div className="flex items-center">
+                <div className="bg-red-100 p-2 rounded-full mr-3">
+                  <AlertTriangle className="w-5 h-5 text-red-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-red-800">
+                  Delete Job Listing
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="text-gray-500 hover:text-gray-700 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="px-6 py-5">
+              <p className="text-gray-700 mb-4">
+                You are about to delete the job listing:
+              </p>
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4">
+                <p className="font-medium text-gray-900">{jobToDeleteTitle}</p>
+              </div>
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4 flex items-start">
+                <AlertCircle className="w-5 h-5 text-yellow-600 mr-3 mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="text-yellow-800 font-medium">Warning</p>
+                  <p className="text-yellow-700 text-sm">
+                    This action cannot be undone. This will permanently delete
+                    the job listing and remove all associated applicant data.
+                  </p>
+                </div>
+              </div>
+              <p className="text-gray-600 text-sm mb-6">
+                Please confirm that you want to proceed with this action.
+              </p>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end gap-3">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium flex items-center"
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                Delete Job
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -18,7 +18,7 @@ import {
   UserCog,
 } from "lucide-react";
 import { useUser, useClerk } from "@clerk/clerk-react";
-import { useUserData } from "../contexts/UserDataContext";
+import { useUserData } from "../../contexts/UserDataContext";
 import { useNavigate } from "react-router";
 
 const AdminHeader = () => {
@@ -46,21 +46,6 @@ const AdminHeader = () => {
       path: "/admin/users",
       icon: <Users className="w-5 h-5" />,
       label: "Users",
-    },
-    {
-      path: "/admin/businesses",
-      icon: <UserCog className="w-5 h-5" />,
-      label: "Businesses",
-    },
-    {
-      path: "/admin/reports",
-      icon: <Flag className="w-5 h-5" />,
-      label: "Reports",
-    },
-    {
-      path: "/admin/data",
-      icon: <Database className="w-5 h-5" />,
-      label: "Data",
     },
   ];
 
@@ -94,11 +79,6 @@ const AdminHeader = () => {
       onClick: () => navigate("/admin-logs"),
     },
     {
-      label: "Help Documentation",
-      icon: <HelpCircle className="w-4 h-4" />,
-      onClick: () => navigate("/admin-help"),
-    },
-    {
       label: "Switch to User View",
       icon: <User className="w-4 h-4" />,
       onClick: () => navigate("/switch-to-user"),
@@ -123,7 +103,7 @@ const AdminHeader = () => {
           <div className="flex items-center px-4">
             {/* Logo and App Name */}
             <Link
-              to="/admin-dashboard"
+              to="/admin/dashboard"
               className="flex items-center space-x-2 mr-8"
             >
               <Compass className="w-6 h-6 text-blue-700" />

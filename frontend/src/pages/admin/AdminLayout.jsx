@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
 import { Outlet, useLocation } from "react-router";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
-import AdminSidebar from "../components/Admin/AdminSidebar";
+import Header from "../../components/Header";
+import Footer from "../../components/Footer";
+import AdminSidebar from "../../components/Admin/AdminSidebar";
 
 const AdminLayout = () => {
   const location = useLocation();
@@ -33,9 +33,6 @@ const AdminLayout = () => {
           </main>
         </div>
       </div>
-
-      {/* Footer at the bottom */}
-      <Footer />
     </div>
   );
 };

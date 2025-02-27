@@ -18,7 +18,7 @@ import {
   Bell,
 } from "lucide-react";
 import { useUser, useClerk } from "@clerk/clerk-react";
-import { useUserData } from "../contexts/UserDataContext";
+import { useUserData } from "../../contexts/UserDataContext";
 import { useNavigate } from "react-router";
 
 const BusinessHeader = () => {
@@ -45,7 +45,12 @@ const BusinessHeader = () => {
     {
       path: "/manage-jobs",
       icon: <Briefcase className="w-5 h-5" />,
-      label: "Manage Jobs",
+      label: "Jobs",
+    },
+    {
+      path: "/applicants",
+      icon: <Users className="w-5 h-5" />,
+      label: "Applicants",
     },
   ];
 

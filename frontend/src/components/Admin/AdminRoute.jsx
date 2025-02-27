@@ -1,7 +1,7 @@
 import { useUser } from "@clerk/clerk-react";
 import { Navigate, Outlet } from "react-router";
 
-const BusinessRoute = () => {
+const AdminRoute = () => {
   const { user, isLoaded } = useUser();
 
   console.log(user?.publicMetadata?.role);
@@ -17,4 +17,4 @@ const BusinessRoute = () => {
   return <Outlet />;
 };
 
-export default BusinessRoute;
+export default AdminRoute;

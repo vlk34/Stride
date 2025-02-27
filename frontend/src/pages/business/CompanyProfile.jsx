@@ -1,8 +1,8 @@
 import React from "react";
-import CompanyHeader from "../components/companyComponents/CompanyHeader";
-import CompanyAbout from "../components/companyComponents/CompanyAbout";
-import CompanyJobs from "../components/companyComponents/CompanyJobs";
-import CompanySidebar from "../components/companyComponents/CompanySidebar";
+import CompanyHeader from "../../components/companyComponents/CompanyHeader";
+import CompanyAbout from "../../components/companyComponents/CompanyAbout";
+import CompanyJobs from "../../components/companyComponents/CompanyJobs";
+import CompanySidebar from "../../components/companyComponents/CompanySidebar";
 
 const CompanyProfile = () => {
   // Example company data
