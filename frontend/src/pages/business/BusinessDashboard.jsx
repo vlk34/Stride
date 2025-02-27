@@ -151,7 +151,7 @@ const BusinessDashboard = () => {
       id: 3,
       name: "Emily Davis",
       role: "Marketing Manager",
-      status: "Interviewing",
+      status: "New",
       applied: "1 day ago",
       photo: "https://randomuser.me/api/portraits/women/67.jpg",
       match_score: 85,
@@ -160,7 +160,7 @@ const BusinessDashboard = () => {
       id: 4,
       name: "Emily Davis",
       role: "Marketing Manager",
-      status: "Interviewing",
+      status: "New",
       applied: "1 day ago",
       photo: "https://randomuser.me/api/portraits/women/67.jpg",
       match_score: 85,
@@ -169,7 +169,7 @@ const BusinessDashboard = () => {
       id: 5,
       name: "Emily Davis",
       role: "Marketing Manager",
-      status: "Interviewing",
+      status: "New",
       applied: "1 day ago",
       photo: "https://randomuser.me/api/portraits/women/67.jpg",
       match_score: 85,
@@ -178,32 +178,10 @@ const BusinessDashboard = () => {
       id: 6,
       name: "Emily Davis",
       role: "Marketing Manager",
-      status: "Interviewing",
+      status: "New",
       applied: "1 day ago",
       photo: "https://randomuser.me/api/portraits/women/67.jpg",
       match_score: 85,
-    },
-  ];
-
-  // Upcoming interviews
-  const upcomingInterviews = [
-    {
-      id: 1,
-      candidate: "James Wilson",
-      role: "DevOps Engineer",
-      date: "Today",
-      time: "2:00 PM",
-      type: "Technical",
-      photo: "https://randomuser.me/api/portraits/men/52.jpg",
-    },
-    {
-      id: 2,
-      candidate: "Olivia Martinez",
-      role: "Senior Frontend Developer",
-      date: "Tomorrow",
-      time: "11:30 AM",
-      type: "Final",
-      photo: "https://randomuser.me/api/portraits/women/28.jpg",
     },
   ];
 
@@ -217,8 +195,8 @@ const BusinessDashboard = () => {
     },
     {
       id: 2,
-      type: "interview",
-      message: "Interview scheduled with Michael Chen",
+      type: "system",
+      message: "Your job post has been approved",
       time: "Yesterday",
     },
     {
@@ -233,7 +211,6 @@ const BusinessDashboard = () => {
   const pipelineData = {
     applied: 115,
     reviewed: 78,
-    interviewing: 42,
     offered: 12,
     hired: 4,
   };
@@ -301,13 +278,6 @@ const BusinessDashboard = () => {
           <h2 className="text-xl font-semibold text-gray-900">
             Hiring Pipeline
           </h2>
-          <Link
-            to="/hiring-pipeline"
-            className="text-blue-600 hover:text-blue-700 text-sm flex items-center"
-          >
-            View Details
-            <ChevronRight className="w-4 h-4 ml-1" />
-          </Link>
         </div>
 
         <div className="space-y-6">
@@ -331,17 +301,6 @@ const BusinessDashboard = () => {
                   {pipelineData.reviewed}
                 </div>
                 <div className="text-xs text-gray-600">Reviewed</div>
-              </div>
-            </div>
-
-            {/* Interviewing */}
-            <div className="flex-1 relative">
-              <div className="h-2 bg-purple-500"></div>
-              <div className="absolute top-4 left-0 text-center w-full">
-                <div className="text-lg font-bold text-gray-900">
-                  {pipelineData.interviewing}
-                </div>
-                <div className="text-xs text-gray-600">Interviewing</div>
               </div>
             </div>
 
@@ -484,7 +443,7 @@ const BusinessDashboard = () => {
                         ? "bg-blue-100 text-blue-700"
                         : applicant.status === "Reviewed"
                         ? "bg-yellow-100 text-yellow-700"
-                        : "bg-green-100 text-green-700"
+                        : "bg-gray-100 text-gray-700"
                     }`}
                   >
                     {applicant.status}
@@ -498,62 +457,8 @@ const BusinessDashboard = () => {
           </div>
         </div>
 
-        {/* Right Column - Upcoming Interviews & Notifications */}
+        {/* Right Column - Notifications */}
         <div className="lg:col-span-1 space-y-8">
-          {/* Upcoming Interviews */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">
-                Upcoming Interviews
-              </h2>
-              <Link
-                to="/interviews"
-                className="text-blue-600 hover:text-blue-700 text-sm flex items-center"
-              >
-                Schedule
-                <ChevronRight className="w-4 h-4 ml-1" />
-              </Link>
-            </div>
-
-            {upcomingInterviews.length > 0 ? (
-              <div className="space-y-4">
-                {upcomingInterviews.map((interview) => (
-                  <div
-                    key={interview.id}
-                    className="flex items-center p-4 rounded-lg border border-gray-100 hover:border-blue-500 transition-colors"
-                  >
-                    <img
-                      src={interview.photo}
-                      alt={interview.candidate}
-                      className="w-10 h-10 rounded-full object-cover mr-3 border border-gray-200"
-                    />
-                    <div className="flex-1">
-                      <h3 className="font-medium text-gray-900">
-                        {interview.candidate}
-                      </h3>
-                      <p className="text-sm text-gray-600">
-                        {interview.role} • {interview.type} Interview
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <div className="font-medium text-gray-900">
-                        {interview.date}
-                      </div>
-                      <div className="text-sm text-gray-600">
-                        {interview.time}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <Calendar className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-500">No upcoming interviews</p>
-              </div>
-            )}
-          </div>
-
           {/* Notifications */}
           <div className="bg-white rounded-xl border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-6">
@@ -578,8 +483,8 @@ const BusinessDashboard = () => {
                   <div className="p-2 rounded-full bg-blue-50 mr-3">
                     {notification.type === "application" ? (
                       <FileText className="w-5 h-5 text-blue-600" />
-                    ) : notification.type === "interview" ? (
-                      <Calendar className="w-5 h-5 text-purple-600" />
+                    ) : notification.type === "system" ? (
+                      <Bell className="w-5 h-5 text-purple-600" />
                     ) : (
                       <MessageSquare className="w-5 h-5 text-green-600" />
                     )}

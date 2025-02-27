@@ -108,7 +108,7 @@ const JobApplicants = () => {
     { id: "all", label: "All" },
     { id: "new", label: "New" },
     { id: "reviewed", label: "Reviewed" },
-    { id: "interviewing", label: "Interviewing" },
+    { id: "shortlisted", label: "Shortlisted" },
     { id: "offered", label: "Offered" },
     { id: "rejected", label: "Rejected" },
   ];

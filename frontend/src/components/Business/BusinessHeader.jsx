@@ -20,6 +20,7 @@ import {
 import { useUser, useClerk } from "@clerk/clerk-react";
 import { useUserData } from "../../contexts/UserDataContext";
 import { useNavigate } from "react-router";
+import NotificationsDropdown from "./NotificationsDropdown";
 
 const BusinessHeader = () => {
   const { user, isLoaded } = useUser();
@@ -154,16 +155,8 @@ const BusinessHeader = () => {
                 </div>
               ) : user ? (
                 <>
-                  {/* Notifications */}
-                  <Link
-                    to="/business-notifications"
-                    className="flex items-center px-3 py-2 rounded-lg hover:bg-gray-50 text-gray-700 hover:text-gray-900 relative mx-2"
-                  >
-                    <Bell className="w-5 h-5" />
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-                      3
-                    </span>
-                  </Link>
+                  {/* Replace the existing notification bell with the dropdown */}
+                  <NotificationsDropdown />
 
                   {/* Messages */}
                   <Link

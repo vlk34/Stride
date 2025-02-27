@@ -190,9 +190,6 @@ const ReviewApplicant = () => {
             <p className="text-gray-600">{applicant.role}</p>
           </div>
           <div className="flex gap-2">
-            <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-              Move to Interview
-            </button>
             <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
               Download CV
             </button>
@@ -380,7 +377,7 @@ const ReviewApplicant = () => {
                 <select className="w-full p-2 border border-gray-200 rounded-lg">
                   <option>New Application</option>
                   <option>Under Review</option>
-                  <option>Interview Scheduled</option>
+                  <option>Shortlisted</option>
                   <option>Offer Made</option>
                   <option>Rejected</option>
                 </select>
@@ -403,9 +400,6 @@ const ReviewApplicant = () => {
               </div>
 
               <div className="pt-4 border-t border-gray-200">
-                <button className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors mb-2">
-                  Schedule Interview
-                </button>
                 <button className="w-full px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors">
                   Send Message
                 </button>

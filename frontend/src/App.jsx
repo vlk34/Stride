@@ -40,6 +40,8 @@ import SwitchToPersonal from "./pages/business/SwitchToPersonal";
 import BusinessLayout from "./pages/business/BusinessLayout";
 import JobApplicants from "./pages/business/JobApplicants";
 import EditJob from "./pages/business/EditJob";
+import AllApplicants from "./pages/business/AllApplicants";
+
 const faqData = {
   categories: [
     {
@@ -249,6 +251,7 @@ const App = () => {
             <Route path="/applicants" element={<Applicants />} />
             <Route path="/job-applicants/:id" element={<JobApplicants />} />
             <Route path="/edit-job/:id" element={<EditJob />} />
+            <Route path="/all-applicants" element={<AllApplicants />} />
           </Route>
         </Route>
 
