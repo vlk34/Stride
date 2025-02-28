@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import JobCard from "../components/searchResult/JobCard";
 import JobInformation from "../components/searchResult/JobInformation";
+import { useParams, useNavigate, useLocation } from "react-router";
 import {
   MapPin,
   Briefcase,
@@ -13,7 +14,9 @@ import {
 } from "lucide-react";
 
 const Result = ({ jobs }) => {
-  const [selectedJob, setSelectedJob] = useState(null);
+  const { jobId } = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
@@ -23,6 +26,26 @@ const Result = ({ jobs }) => {
     experience: "",
   });
   const [filteredJobs, setFilteredJobs] = useState(jobs);
+  const [selectedJob, setSelectedJob] = useState(null);
+
+  // Find selected job based on URL parameter
+  useEffect(() => {
+    if (jobId) {
+      const job = jobs.find((j) => j.id.toString() === jobId);
+      setSelectedJob(job || null);
+    } else {
+      setSelectedJob(null);
+    }
+  }, [jobId, jobs]);
+
+  // Handle job selection and URL update
+  const handleJobSelect = (job) => {
+    if (job) {
+      navigate(`/search/${job.id}`);
+    } else {
+      navigate("/search");
+    }
+  };
 
   // Update filtered jobs whenever search term, filters, or jobs change
   useEffect(() => {
@@ -173,7 +196,7 @@ const Result = ({ jobs }) => {
                   key={job.id}
                   job={job}
                   isSelected={selectedJob?.id === job.id}
-                  onSelect={setSelectedJob}
+                  onSelect={handleJobSelect}
                 />
               ))}
             </div>
@@ -206,7 +229,7 @@ const Result = ({ jobs }) => {
                 key={job.id}
                 job={job}
                 isSelected={selectedJob?.id === job.id}
-                onSelect={setSelectedJob}
+                onSelect={handleJobSelect}
               />
             ))}
           </div>
@@ -216,7 +239,7 @@ const Result = ({ jobs }) => {
             <>
               <div
                 className="fixed inset-0 bg-black/30 transition-opacity z-40"
-                onClick={() => setSelectedJob(null)}
+                onClick={() => handleJobSelect(null)}
               />
 
               <div
@@ -233,7 +256,7 @@ const Result = ({ jobs }) => {
                       {selectedJob.title}
                     </h2>
                     <button
-                      onClick={() => setSelectedJob(null)}
+                      onClick={() => handleJobSelect(null)}
                       className="p-2 hover:bg-gray-100 rounded-full lg:hidden"
                     >
                       <X className="w-5 h-5" />

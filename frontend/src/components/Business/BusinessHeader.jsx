@@ -20,7 +20,6 @@ import {
 import { useUser, useClerk } from "@clerk/clerk-react";
 import { useUserData } from "../../contexts/UserDataContext";
 import { useNavigate } from "react-router";
-import NotificationsDropdown from "./NotificationsDropdown";
 
 const BusinessHeader = () => {
   const { user, isLoaded } = useUser();
@@ -39,17 +38,17 @@ const BusinessHeader = () => {
   // Business menu items
   const menuItems = [
     {
-      path: "/business-dashboard",
+      path: "/business/dashboard",
       icon: <BarChart3 className="w-5 h-5" />,
       label: "Dashboard",
     },
     {
-      path: "/manage-jobs",
+      path: "/business/manage/jobs",
       icon: <Briefcase className="w-5 h-5" />,
       label: "Jobs",
     },
     {
-      path: "/applicants",
+      path: "/business/applicants",
       icon: <Users className="w-5 h-5" />,
       label: "Applicants",
     },
@@ -77,7 +76,7 @@ const BusinessHeader = () => {
     {
       label: "Company Profile",
       icon: <Building2 className="w-4 h-4" />,
-      onClick: () => navigate("/business-profile"),
+      onClick: () => navigate("/business/profile"),
     },
     {
       label: "Account Settings",
@@ -87,12 +86,12 @@ const BusinessHeader = () => {
     {
       label: "Help Center",
       icon: <HelpCircle className="w-4 h-4" />,
-      onClick: () => navigate("/business-help"),
+      onClick: () => navigate("/business/help"),
     },
     {
       label: "Switch to Personal",
       icon: <User className="w-4 h-4" />,
-      onClick: () => navigate("/switch-to-personal"),
+      onClick: () => navigate("/business/switch-to-personal"),
       className: "text-blue-600 hover:bg-blue-50",
     },
     {
@@ -149,12 +148,9 @@ const BusinessHeader = () => {
             >
               {user ? (
                 <>
-                  {/* Replace the existing notification bell with the dropdown */}
-                  <NotificationsDropdown />
-
                   {/* Messages */}
                   <Link
-                    to="/business-messages"
+                    to="/business/messages"
                     className="flex items-center px-3 py-2 rounded-lg hover:bg-gray-50 text-gray-700 hover:text-gray-900 relative mx-2"
                   >
                     <MessageSquare className="w-5 h-5" />
@@ -287,7 +283,7 @@ const BusinessHeader = () => {
                 <>
                   <div className="border-t border-gray-200 pt-2 mt-2">
                     <Link
-                      to="/business-profile"
+                      to="/business/profile"
                       onClick={() => setIsMenuOpen(false)}
                       className="flex items-center space-x-2 px-4 py-3"
                     >
@@ -310,7 +306,7 @@ const BusinessHeader = () => {
                   {/* Additional mobile menu items for business users */}
                   <div className="border-t border-gray-200 pt-2 mt-2">
                     <Link
-                      to="/business-billing"
+                      to="/business/billing"
                       onClick={() => setIsMenuOpen(false)}
                       className="flex items-center space-x-2 px-4 py-3 text-gray-600 hover:bg-gray-50"
                     >
@@ -318,7 +314,7 @@ const BusinessHeader = () => {
                       <span className="font-medium">Billing & Plans</span>
                     </Link>
                     <Link
-                      to="/business-team"
+                      to="/business/team"
                       onClick={() => setIsMenuOpen(false)}
                       className="flex items-center space-x-2 px-4 py-3 text-gray-600 hover:bg-gray-50"
                     >

@@ -185,28 +185,6 @@ const BusinessDashboard = () => {
     },
   ];
 
-  // Notifications
-  const notifications = [
-    {
-      id: 1,
-      type: "application",
-      message: "New application for Senior Frontend Developer",
-      time: "2 hours ago",
-    },
-    {
-      id: 2,
-      type: "system",
-      message: "Your job post has been approved",
-      time: "Yesterday",
-    },
-    {
-      id: 3,
-      type: "message",
-      message: "Emily Davis sent you a message",
-      time: "2 days ago",
-    },
-  ];
-
   // Hiring pipeline data
   const pipelineData = {
     applied: 115,
@@ -341,14 +319,14 @@ const BusinessDashboard = () => {
         </div>
       </div>
 
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      {/* Main Content Grid - With symmetrical cards */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Recent Jobs */}
-        <div className="lg:col-span-1 bg-white rounded-xl border border-gray-200 p-6">
+        <div className="bg-white rounded-xl border border-gray-200 p-6 h-full">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-semibold text-gray-900">Recent Jobs</h2>
             <Link
-              to="/manage-jobs"
+              to="/business/manage/jobs"
               className="text-blue-600 hover:text-blue-700 text-sm flex items-center"
             >
               View All
@@ -356,10 +334,10 @@ const BusinessDashboard = () => {
             </Link>
           </div>
           <div className="space-y-4">
-            {recentJobs.map((job) => (
+            {recentJobs.slice(0, 5).map((job) => (
               <div
                 key={job.id}
-                className="flex items-center justify-between p-4 rounded-lg border border-gray-100 hover:border-blue-500 transition-colors"
+                className="flex items-center justify-between p-4 h-24 rounded-lg border border-gray-100 hover:border-blue-500 transition-colors"
               >
                 <div>
                   <h3 className="font-medium text-gray-900">{job.title}</h3>
@@ -392,7 +370,7 @@ const BusinessDashboard = () => {
                     {job.status}
                   </span>
                   <Link
-                    to={`/job-applicants/${job.id}`}
+                    to={`/business/job-applicants/${job.id}`}
                     className="text-blue-600 hover:text-blue-700 text-sm mt-2"
                   >
                     View Applicants
@@ -404,13 +382,13 @@ const BusinessDashboard = () => {
         </div>
 
         {/* Recent Applicants */}
-        <div className="lg:col-span-1 bg-white rounded-xl border border-gray-200 p-6">
+        <div className="bg-white rounded-xl border border-gray-200 p-6 h-full">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-semibold text-gray-900">
               Recent Applicants
             </h2>
             <Link
-              to="/applicants"
+              to="/business/applicants"
               className="text-blue-600 hover:text-blue-700 text-sm flex items-center"
             >
               View All
@@ -418,27 +396,30 @@ const BusinessDashboard = () => {
             </Link>
           </div>
           <div className="space-y-4">
-            {recentApplicants.map((applicant) => (
+            {recentApplicants.slice(0, 5).map((applicant) => (
               <div
                 key={applicant.id}
-                className="flex items-center p-4 rounded-lg border border-gray-100 hover:border-blue-500 transition-colors"
+                className="flex items-center justify-between p-4 h-24 rounded-lg border border-gray-100 hover:border-blue-500 transition-colors"
               >
-                <img
-                  src={applicant.photo}
-                  alt={applicant.name}
-                  className="w-10 h-10 rounded-full object-cover mr-3 border border-gray-200"
-                />
-                <div className="flex-1">
-                  <h3 className="font-medium text-gray-900">
-                    {applicant.name}
-                  </h3>
-                  <p className="text-sm text-gray-600">
-                    {applicant.role} • Applied {applicant.applied}
-                  </p>
+                <div className="flex items-center">
+                  <img
+                    src={applicant.photo}
+                    alt={applicant.name}
+                    className="w-10 h-10 rounded-full object-cover mr-3 border border-gray-200"
+                  />
+                  <div>
+                    <h3 className="font-medium text-gray-900">
+                      {applicant.name}
+                    </h3>
+                    <p className="text-sm text-gray-600">{applicant.role}</p>
+                    <p className="text-xs text-gray-500">
+                      Applied {applicant.applied}
+                    </p>
+                  </div>
                 </div>
                 <div className="flex flex-col items-end">
                   <span
-                    className={`px-2 py-1 rounded-full text-xs ${
+                    className={`px-3 py-1 rounded-full text-xs ${
                       applicant.status === "New"
                         ? "bg-blue-100 text-blue-700"
                         : applicant.status === "Reviewed"
@@ -448,56 +429,12 @@ const BusinessDashboard = () => {
                   >
                     {applicant.status}
                   </span>
-                  <div className="text-sm font-medium text-purple-700 mt-1">
+                  <div className="text-sm font-medium text-purple-700 mt-2">
                     {applicant.match_score}% match
                   </div>
                 </div>
               </div>
             ))}
-          </div>
-        </div>
-
-        {/* Right Column - Notifications */}
-        <div className="lg:col-span-1 space-y-8">
-          {/* Notifications */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">
-                Notifications
-              </h2>
-              <Link
-                to="/notifications"
-                className="text-blue-600 hover:text-blue-700 text-sm flex items-center"
-              >
-                View All
-                <ChevronRight className="w-4 h-4 ml-1" />
-              </Link>
-            </div>
-
-            <div className="space-y-4">
-              {notifications.map((notification) => (
-                <div
-                  key={notification.id}
-                  className="flex items-start p-3 rounded-lg hover:bg-gray-50 transition-colors"
-                >
-                  <div className="p-2 rounded-full bg-blue-50 mr-3">
-                    {notification.type === "application" ? (
-                      <FileText className="w-5 h-5 text-blue-600" />
-                    ) : notification.type === "system" ? (
-                      <Bell className="w-5 h-5 text-purple-600" />
-                    ) : (
-                      <MessageSquare className="w-5 h-5 text-green-600" />
-                    )}
-                  </div>
-                  <div>
-                    <p className="text-gray-900">{notification.message}</p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {notification.time}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
           </div>
         </div>
       </div>

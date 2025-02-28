@@ -491,7 +491,7 @@ const AllApplicants = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
                       <div className="flex justify-end space-x-2">
                         <Link
-                          to={`/review-applicant/${applicant.id}`}
+                          to={`/business/review-applicant/${applicant.id}`}
                           className="text-blue-600 hover:text-blue-700 font-medium"
                         >
                           Review

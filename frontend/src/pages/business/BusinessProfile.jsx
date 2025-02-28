@@ -99,9 +99,12 @@ const BusinessProfile = () => {
           </div>
 
           <div className="ml-auto">
-            <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+            <Link
+              to="/business/edit-company"
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
               Edit Profile
-            </button>
+            </Link>
           </div>
         </div>
 
@@ -253,7 +256,7 @@ const BusinessProfile = () => {
                         View Details
                       </Link>
                       <Link
-                        to={`/applicants?job=${job.id}`}
+                        to={`/business/job-applicants/${job.id}`}
                         className="text-sm text-gray-600 hover:text-gray-800"
                       >
                         View Applicants

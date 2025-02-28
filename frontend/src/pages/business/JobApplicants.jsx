@@ -147,7 +147,7 @@ const JobApplicants = () => {
       <div className="mb-8">
         <div className="flex items-center gap-2 mb-4">
           <Link
-            to="/applicants"
+            to="/business/applicants"
             className="text-blue-600 hover:text-blue-700 flex items-center"
           >
             <ArrowLeft className="w-5 h-5 mr-1" />
@@ -286,7 +286,7 @@ const JobApplicants = () => {
 
                 <div className="flex gap-2">
                   <Link
-                    to={`/review-applicant/${applicant.id}?jobId=${jobId}`}
+                    to={`/business/review-applicant/${applicant.id}?jobId=${jobId}`}
                     className="flex-1 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
                   >
                     Review Application
@@ -379,7 +379,7 @@ const JobApplicants = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
                         <Link
-                          to={`/review-applicant/${applicant.id}?jobId=${jobId}`}
+                          to={`/business/review-applicant/${applicant.id}?jobId=${jobId}`}
                           className="text-blue-600 hover:text-blue-700 font-medium"
                         >
                           Review

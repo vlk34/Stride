@@ -123,7 +123,7 @@ const EditJob = () => {
 
     // Show success message and redirect
     alert("Job updated successfully!");
-    navigate("/manage-jobs");
+    navigate("/business/manage/jobs");
   };
 
   const handleDelete = () => {
@@ -132,7 +132,7 @@ const EditJob = () => {
 
     // Show success message and redirect
     alert("Job deleted successfully!");
-    navigate("/manage-jobs");
+    navigate("/business/manage/jobs");
   };
 
   if (isLoading) {
@@ -150,7 +150,7 @@ const EditJob = () => {
       {/* Header */}
       <div className="mb-8">
         <Link
-          to="/manage-jobs"
+          to="/business/manage/jobs"
           className="flex items-center text-gray-600 hover:text-blue-600 mb-4"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
@@ -628,7 +628,7 @@ const EditJob = () => {
         {/* Form Actions */}
         <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end gap-3">
           <Link
-            to="/manage-jobs"
+            to="/business/manage/jobs"
             className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
           >
             Cancel

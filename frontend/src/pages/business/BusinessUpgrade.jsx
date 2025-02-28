@@ -155,7 +155,7 @@ const BusinessUpgrade = () => {
       {/* CTA Section */}
       <div className="text-center">
         <Link
-          to="/business-account-creation"
+          to="/business/account-creation"
           className="inline-flex items-center justify-center px-8 py-4 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors"
         >
           Get Started with Business Account

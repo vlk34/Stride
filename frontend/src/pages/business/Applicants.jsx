@@ -174,7 +174,7 @@ const Applicants = () => {
             Recent Applicants
           </h2>
           <Link
-            to="/all-applicants"
+            to="/business/all-applicants"
             className="text-blue-600 hover:text-blue-700 text-sm flex items-center"
           >
             View All
@@ -255,7 +255,7 @@ const Applicants = () => {
           {filteredJobs.map((job) => (
             <Link
               key={job.id}
-              to={`/job-applicants/${job.id}`}
+              to={`/business/job-applicants/${job.id}`}
               className="bg-white rounded-xl border border-gray-200 p-6 hover:border-blue-500 hover:shadow-md transition-all"
             >
               <div className="flex justify-between items-start mb-4">
