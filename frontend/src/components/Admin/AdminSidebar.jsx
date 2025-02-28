@@ -65,7 +65,7 @@ const AdminSidebar = () => {
           </NavLink>
 
           <NavLink
-            to="/admin/businesses"
+            to="/admin/approvals"
             className={({ isActive }) =>
               isActive
                 ? "flex items-center px-3 py-2 rounded bg-blue-50 text-blue-700 font-medium"

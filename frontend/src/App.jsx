@@ -40,6 +40,9 @@ import EditJob from "./pages/business/EditJob";
 import AllApplicants from "./pages/business/AllApplicants";
 import { useUser } from "@clerk/clerk-react";
 import PublicRoute from "./components/PublicRoute";
+import ApprovalsList from "./components/Admin/ApprovalsList";
+import ActivitiesList from "./components/Admin/ActivitiesList";
+import BusinessApplicationReview from "./components/Admin/BusinessApplicationReview";
 
 const faqData = {
   categories: [
@@ -271,7 +274,12 @@ const App = () => {
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/users" element={<AdminUsers />} />
           <Route path="/admin/jobs" element={<AdminJobs jobs={jobs} />} />
-          <Route path="/admin/businesses" element={<AdminBusiness />} />
+          <Route path="/admin/approvals" element={<ApprovalsList />} />
+          <Route path="/admin/activities" element={<ActivitiesList />} />
+          <Route
+            path="/admin/review/business/:id"
+            element={<BusinessApplicationReview />}
+          />
         </Route>
       </Routes>
     </UserDataProvider>
