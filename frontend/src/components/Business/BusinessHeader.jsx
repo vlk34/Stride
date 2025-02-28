@@ -147,13 +147,7 @@ const BusinessHeader = () => {
               className="hidden md:flex items-center ml-auto"
               ref={profileRef}
             >
-              {!isLoaded ? (
-                // Loading skeleton
-                <div className="flex items-center space-x-3 px-4 py-2">
-                  <div className="w-8 h-8 bg-gray-200 rounded-full animate-pulse" />
-                  <div className="w-32 h-4 bg-gray-200 rounded animate-pulse" />
-                </div>
-              ) : user ? (
+              {user ? (
                 <>
                   {/* Replace the existing notification bell with the dropdown */}
                   <NotificationsDropdown />

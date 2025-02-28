@@ -1,12 +1,12 @@
 import React, { useEffect } from "react";
-import { Navigate, Outlet, useLocation } from "react-router";
+import { Outlet, useLocation } from "react-router";
 import { useUser } from "@clerk/clerk-react";
 import LoadingScreen from "./LoadingScreen";
 import Header from "./Header";
 import Footer from "./Footer";
 
-const ProtectedRoute = ({ hasFooter = true }) => {
-  const { isSignedIn, isLoaded } = useUser();
+const PublicRoute = ({ hasFooter = true }) => {
+  const { isLoaded } = useUser();
   const location = useLocation();
 
   useEffect(() => {
@@ -20,19 +20,11 @@ const ProtectedRoute = ({ hasFooter = true }) => {
     <div>
       <Header />
       <div className="min-h-screen">
-        <main>
-          {!isLoaded ? (
-            <LoadingScreen />
-          ) : !isSignedIn ? (
-            <Navigate to="/signin" replace />
-          ) : (
-            <Outlet />
-          )}
-        </main>
+        <main>{!isLoaded ? <LoadingScreen /> : <Outlet />}</main>
       </div>
       {hasFooter && <Footer />}
     </div>
   );
 };
 
-export default ProtectedRoute;
+export default PublicRoute;

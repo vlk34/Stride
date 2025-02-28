@@ -1,6 +1,5 @@
 import React from "react";
-import { Routes, Route } from "react-router";
-import Layout from "./pages/Layout";
+import { Routes, Route, Navigate } from "react-router";
 import ProtectedRoute from "./components/ProtectedRoute";
 import CustomSignIn from "./pages/auth/CustomSignIn";
 import CustomSignUp from "./pages/auth/CustomSignUp";
@@ -14,7 +13,6 @@ import PrivacyPolicy from "./pages/footer/PrivacyPolicy";
 import CookiePolicy from "./pages/footer/CookiePolicy";
 import Accessibility from "./pages/footer/Accessibility";
 import AdminUsers from "./components/Admin/AdminUsers";
-import AdminLayout from "./pages/admin/AdminLayout";
 import AdminDashboard from "./components/Admin/AdminDashboard";
 import AdminJobs from "./components/Admin/AdminJobs";
 import AdminBusiness from "./components/Admin/AdminBusiness";
@@ -37,10 +35,11 @@ import ReviewApplicant from "./pages/business/ReviewApplicant";
 import BusinessProfile from "./pages/business/BusinessProfile";
 import BusinessHelp from "./pages/business/BusinessHelp";
 import SwitchToPersonal from "./pages/business/SwitchToPersonal";
-import BusinessLayout from "./pages/business/BusinessLayout";
 import JobApplicants from "./pages/business/JobApplicants";
 import EditJob from "./pages/business/EditJob";
 import AllApplicants from "./pages/business/AllApplicants";
+import { useUser } from "@clerk/clerk-react";
+import PublicRoute from "./components/PublicRoute";
 
 const faqData = {
   categories: [
@@ -202,6 +201,9 @@ const App = () => {
     ],
   };
 
+  const { user, isLoaded } = useUser();
+  const role = user?.publicMetadata?.role;
+
   return (
     <UserDataProvider>
       <Routes>
@@ -209,61 +211,67 @@ const App = () => {
         <Route path="/signin/*" element={<CustomSignIn />} />
         <Route path="/signup/*" element={<CustomSignUp />} />
 
-        <Route element={<Layout />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/search" element={<Result jobs={jobs} />} />
-          <Route path="/help" element={<Help faqData={faqData} />} />
-          <Route path="/jobs" element={<SavedJobs />} />
-          <Route path="/company/:id" element={<CompanyProfile />} />
+        <Route element={<PublicRoute />}>
+          <Route
+            path="/"
+            element={
+              role === "business" ? (
+                <Navigate to="/business-dashboard" replace />
+              ) : role === "Admin" ? (
+                <Navigate to="/admin/dashboard" replace />
+              ) : (
+                <Home />
+              )
+            }
+          />
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/cookies" element={<CookiePolicy />} />
           <Route path="/accessibility" element={<Accessibility />} />
-          <Route path="/search" element={<Search dummyData={dummyData} />} />
           <Route path="/unauthorized" element={<UnauthorizedAccess />} />
           <Route path="/admin-unauthorized" element={<AdminUnathorized />} />
         </Route>
 
+        <Route element={<PublicRoute hasFooter={false} />}>
+          <Route path="/search" element={<Result jobs={jobs} />} />
+          <Route path="/help" element={<Help faqData={faqData} />} />
+          <Route path="/jobs" element={<SavedJobs />} />
+          <Route path="/company/:id" element={<CompanyProfile />} />
+        </Route>
+
         {/* Protected routes */}
         <Route element={<ProtectedRoute />}>
-          <Route element={<Layout />}>
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/messages" element={<Messages />} />
-            <Route path="/business-upgrade" element={<BusinessUpgrade />} />
-            <Route
-              path="/business-account-creation"
-              element={<BusinessAccountCreation />}
-            />
-          </Route>
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/messages" element={<Messages />} />
+          <Route path="/business-upgrade" element={<BusinessUpgrade />} />
+          <Route
+            path="/business-account-creation"
+            element={<BusinessAccountCreation />}
+          />
         </Route>
 
         {/* Business routes */}
         <Route element={<BusinessRoute />}>
-          <Route element={<BusinessLayout />}>
-            <Route path="/business-dashboard" element={<BusinessDashboard />} />
-            <Route path="/business-messages" element={<Messages />} />
-            <Route path="/create-job-listing" element={<CreateJobListing />} />
-            <Route path="/review-applicant/:id" element={<ReviewApplicant />} />
-            <Route path="/business-profile" element={<BusinessProfile />} />
-            <Route path="/business-help" element={<BusinessHelp />} />
-            <Route path="/switch-to-personal" element={<SwitchToPersonal />} />
-            <Route path="/manage-jobs" element={<ManageJobs />} />
-            <Route path="/applicants" element={<Applicants />} />
-            <Route path="/job-applicants/:id" element={<JobApplicants />} />
-            <Route path="/edit-job/:id" element={<EditJob />} />
-            <Route path="/all-applicants" element={<AllApplicants />} />
-          </Route>
+          <Route path="/business-dashboard" element={<BusinessDashboard />} />
+          <Route path="/business-messages" element={<Messages />} />
+          <Route path="/create-job-listing" element={<CreateJobListing />} />
+          <Route path="/review-applicant/:id" element={<ReviewApplicant />} />
+          <Route path="/business-profile" element={<BusinessProfile />} />
+          <Route path="/business-help" element={<BusinessHelp />} />
+          <Route path="/switch-to-personal" element={<SwitchToPersonal />} />
+          <Route path="/manage-jobs" element={<ManageJobs />} />
+          <Route path="/applicants" element={<Applicants />} />
+          <Route path="/job-applicants/:id" element={<JobApplicants />} />
+          <Route path="/edit-job/:id" element={<EditJob />} />
+          <Route path="/all-applicants" element={<AllApplicants />} />
         </Route>
 
         {/* Admin routes */}
-
         <Route element={<AdminRoute />}>
-          <Route element={<AdminLayout />}>
-            <Route path="/admin/dashboard" element={<AdminDashboard />} />
-            <Route path="/admin/users" element={<AdminUsers />} />
-            <Route path="/admin/jobs" element={<AdminJobs jobs={jobs} />} />
-            <Route path="/admin/businesses" element={<AdminBusiness />} />
-          </Route>
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/users" element={<AdminUsers />} />
+          <Route path="/admin/jobs" element={<AdminJobs jobs={jobs} />} />
+          <Route path="/admin/businesses" element={<AdminBusiness />} />
         </Route>
       </Routes>
     </UserDataProvider>
