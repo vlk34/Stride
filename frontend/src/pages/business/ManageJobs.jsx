@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Briefcase,
   Search,
@@ -19,22 +19,81 @@ const ManageJobs = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [jobToDelete, setJobToDelete] = useState(null);
   const [jobToDeleteTitle, setJobToDeleteTitle] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [jobs, setJobs] = useState([]);
 
-  // Dummy data - replace with real data
-  const jobs = [
-    {
-      id: 1,
-      title: "Senior Frontend Developer",
-      department: "Engineering",
-      location: "Remote",
-      type: "Full-time",
-      applicants: 24,
-      status: "Active",
-      posted: "2 days ago",
-      closing: "2 weeks left",
-    },
-    // ... more jobs
-  ];
+  // Simulate data fetching
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      // Simulate API call with 500ms delay
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      // Dummy data - replace with real data
+      const jobsData = [
+        {
+          id: 1,
+          title: "Senior Frontend Developer",
+          department: "Engineering",
+          location: "Remote",
+          type: "Full-time",
+          applicants: 24,
+          status: "Active",
+          posted: "2 days ago",
+          closing: "2 weeks left",
+        },
+        {
+          id: 2,
+          title: "Product Designer",
+          department: "Design",
+          location: "New York, NY",
+          type: "Full-time",
+          applicants: 18,
+          status: "Active",
+          posted: "3 days ago",
+          closing: "3 weeks left",
+        },
+        {
+          id: 3,
+          title: "Marketing Manager",
+          department: "Marketing",
+          location: "San Francisco, CA",
+          type: "Full-time",
+          applicants: 31,
+          status: "Closed",
+          posted: "1 week ago",
+          closing: "Closed",
+        },
+        {
+          id: 4,
+          title: "DevOps Engineer",
+          department: "Engineering",
+          location: "Remote",
+          type: "Full-time",
+          applicants: 15,
+          status: "Active",
+          posted: "5 days ago",
+          closing: "1 week left",
+        },
+        {
+          id: 5,
+          title: "Customer Success Manager",
+          department: "Customer Support",
+          location: "Chicago, IL",
+          type: "Full-time",
+          applicants: 27,
+          status: "Draft",
+          posted: "Not posted",
+          closing: "N/A",
+        },
+      ];
+
+      setJobs(jobsData);
+      setLoading(false);
+    };
+
+    fetchData();
+  }, []);
 
   const handleDeleteClick = (job) => {
     setJobToDelete(job.id);
@@ -53,7 +112,7 @@ const ManageJobs = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
-      {/* Header */}
+      {/* Header - Static */}
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Manage Jobs</h1>
@@ -67,7 +126,7 @@ const ManageJobs = () => {
         </Link>
       </div>
 
-      {/* Filters and Search */}
+      {/* Filters and Search - Static */}
       <div className="bg-white rounded-xl border border-gray-200 p-4 mb-6">
         <div className="flex flex-col md:flex-row gap-4 mb-4">
           <div className="flex-1">
@@ -77,12 +136,13 @@ const ManageJobs = () => {
                 type="text"
                 placeholder="Search jobs..."
                 className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled={loading}
               />
             </div>
           </div>
         </div>
 
-        {/* Status Tabs */}
+        {/* Status Tabs - Static */}
         <div className="flex gap-2 overflow-x-auto">
           {["active", "draft", "closed", "expired"].map((tab) => (
             <button
@@ -93,6 +153,7 @@ const ManageJobs = () => {
                   ? "bg-blue-100 text-blue-700"
                   : "text-gray-600 hover:bg-gray-100"
               }`}
+              disabled={loading}
             >
               {tab}
             </button>
@@ -124,69 +185,116 @@ const ManageJobs = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {jobs.map((job) => (
-                <tr key={job.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4">
-                    <div>
-                      <h3 className="font-medium text-gray-900">{job.title}</h3>
-                      <p className="text-sm text-gray-600">
-                        {job.department} • {job.location} • {job.type}
-                      </p>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center text-sm text-gray-600">
-                      <Users className="w-4 h-4 mr-2" />
-                      {job.applicants} applicants
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={`px-3 py-1 rounded-full text-sm ${
-                        job.status === "Active"
-                          ? "bg-green-100 text-green-700"
-                          : "bg-gray-100 text-gray-700"
-                      }`}
-                    >
-                      {job.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="text-sm text-gray-600">
-                      <p>Posted {job.posted}</p>
-                      <p className="text-gray-500">{job.closing}</p>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex justify-end gap-2">
-                      <Link
-                        to={`/business/job-applicants/${job.id}`}
-                        className="p-2 text-gray-600 hover:text-blue-600"
-                      >
-                        <Eye className="w-5 h-5" />
-                      </Link>
-                      <Link
-                        to={`/business/edit-job/${job.id}`}
-                        className="p-2 text-gray-600 hover:text-blue-600"
-                      >
-                        <Edit className="w-5 h-5" />
-                      </Link>
-                      <button
-                        onClick={() => handleDeleteClick(job)}
-                        className="p-2 text-gray-600 hover:text-red-600"
-                      >
-                        <Trash2 className="w-5 h-5" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+              {loading
+                ? // Skeleton rows for loading state
+                  Array(5)
+                    .fill()
+                    .map((_, index) => (
+                      <tr key={index} className="hover:bg-gray-50">
+                        <td className="px-6 py-4">
+                          <div>
+                            <div className="h-5 w-48 bg-gray-200 rounded animate-pulse mb-2"></div>
+                            <div className="h-4 w-40 bg-gray-200 rounded animate-pulse"></div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center text-sm text-gray-600">
+                            <Users className="w-4 h-4 mr-2" />
+                            <div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="h-6 w-16 bg-gray-200 rounded-full animate-pulse"></div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="text-sm text-gray-600">
+                            <div className="h-4 w-24 bg-gray-200 rounded animate-pulse mb-1"></div>
+                            <div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <div className="flex justify-end gap-2">
+                            <div className="p-2 text-gray-400">
+                              <Eye className="w-5 h-5" />
+                            </div>
+                            <div className="p-2 text-gray-400">
+                              <Edit className="w-5 h-5" />
+                            </div>
+                            <div className="p-2 text-gray-400">
+                              <Trash2 className="w-5 h-5" />
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                : // Actual job data when loaded
+                  jobs.map((job) => (
+                    <tr key={job.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4">
+                        <div>
+                          <h3 className="font-medium text-gray-900">
+                            {job.title}
+                          </h3>
+                          <p className="text-sm text-gray-600">
+                            {job.department} • {job.location} • {job.type}
+                          </p>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center text-sm text-gray-600">
+                          <Users className="w-4 h-4 mr-2" />
+                          {job.applicants} applicants
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span
+                          className={`px-3 py-1 rounded-full text-sm ${
+                            job.status === "Active"
+                              ? "bg-green-100 text-green-700"
+                              : job.status === "Draft"
+                              ? "bg-yellow-100 text-yellow-700"
+                              : "bg-gray-100 text-gray-700"
+                          }`}
+                        >
+                          {job.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm text-gray-600">
+                          <p>Posted {job.posted}</p>
+                          <p className="text-gray-500">{job.closing}</p>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex justify-end gap-2">
+                          <Link
+                            to={`/business/job-applicants/${job.id}`}
+                            className="p-2 text-gray-600 hover:text-blue-600"
+                          >
+                            <Eye className="w-5 h-5" />
+                          </Link>
+                          <Link
+                            to={`/business/edit-job/${job.id}`}
+                            className="p-2 text-gray-600 hover:text-blue-600"
+                          >
+                            <Edit className="w-5 h-5" />
+                          </Link>
+                          <button
+                            onClick={() => handleDeleteClick(job)}
+                            className="p-2 text-gray-600 hover:text-red-600"
+                          >
+                            <Trash2 className="w-5 h-5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
             </tbody>
           </table>
         </div>
       </div>
 
-      {/* Enhanced Delete Confirmation Modal */}
+      {/* Enhanced Delete Confirmation Modal - No need for skeleton as it's triggered by user */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl max-w-md w-full shadow-2xl overflow-hidden">

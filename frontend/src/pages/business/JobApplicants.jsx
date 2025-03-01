@@ -129,14 +129,193 @@ const JobApplicants = () => {
   if (!jobDetails) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="flex items-center gap-2 mb-4">
-          <Link to="/manage-jobs" className="text-blue-600 hover:text-blue-700">
-            <ArrowLeft className="w-5 h-5" />
-          </Link>
-          <div className="h-6 w-48 bg-gray-200 rounded animate-pulse"></div>
+        {/* Static back button - no skeleton needed */}
+        <div className="mb-8">
+          <div className="flex items-center gap-2 mb-4">
+            <button
+              onClick={() => window.history.back()}
+              className="text-blue-600 hover:text-blue-700 flex items-center"
+            >
+              <ArrowLeft className="w-5 h-5 mr-1" />
+              Back to the previous page
+            </button>
+          </div>
+
+          {/* Job title and details skeleton */}
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <div className="h-8 w-64 bg-gray-200 rounded animate-pulse mb-2"></div>
+              <div className="h-5 w-48 bg-gray-200 rounded animate-pulse"></div>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="text-center">
+                <div className="h-8 w-16 bg-gray-200 rounded animate-pulse mb-1"></div>
+                <div className="text-sm text-gray-600">Applicants</div>
+              </div>
+              <div className="h-10 w-px bg-gray-200"></div>
+              <Link
+                to="/result"
+                className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50"
+              >
+                View Job Post
+              </Link>
+            </div>
+          </div>
         </div>
-        <div className="h-8 w-64 bg-gray-200 rounded animate-pulse mb-8"></div>
-        {/* Loading skeleton for the rest of the content */}
+
+        {/* Search box AND status tabs in the same container */}
+        <div className="bg-white rounded-xl border border-gray-200 p-4 mb-6">
+          <div className="flex flex-col md:flex-row gap-4">
+            {/* Search */}
+            <div className="flex-1">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <input
+                  type="text"
+                  placeholder="Search applicants..."
+                  disabled
+                  className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Status Tabs - INSIDE the white container */}
+          <div className="flex gap-2 mt-4 overflow-x-auto">
+            <button className="px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap bg-blue-100 text-blue-700">
+              All
+            </button>
+            <button className="px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap text-gray-600 hover:bg-gray-100">
+              New
+            </button>
+            <button className="px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap text-gray-600 hover:bg-gray-100">
+              Reviewed
+            </button>
+            <button className="px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap text-gray-600 hover:bg-gray-100">
+              Shortlisted
+            </button>
+            <button className="px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap text-gray-600 hover:bg-gray-100">
+              Offered
+            </button>
+            <button className="px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap text-gray-600 hover:bg-gray-100">
+              Rejected
+            </button>
+          </div>
+        </div>
+
+        {/* Top matches section */}
+        <div className="mb-8">
+          <div className="flex items-center gap-2 mb-4">
+            <Star className="w-5 h-5 text-yellow-500" />
+            <h2 className="text-xl font-semibold text-gray-900">Top Matches</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {[1, 2].map((i) => (
+              <div
+                key={i}
+                className="bg-white rounded-xl border border-gray-200 p-6"
+              >
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <div className="h-5 w-32 bg-gray-200 rounded animate-pulse mb-2"></div>
+                    <div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                  <div className="flex flex-col items-end">
+                    <div className="h-8 w-16 bg-gray-200 rounded animate-pulse mb-1"></div>
+                    <div className="text-xs text-purple-600">match score</div>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {[1, 2, 3].map((j) => (
+                    <div
+                      key={j}
+                      className="h-6 w-16 bg-gray-200 rounded-full animate-pulse"
+                    ></div>
+                  ))}
+                </div>
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center">
+                    <Mail className="w-4 h-4 mr-2 text-gray-400" />
+                    <div className="h-4 w-40 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                  <div className="flex items-center">
+                    <Phone className="w-4 h-4 mr-2 text-gray-400" />
+                    <div className="h-4 w-32 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                  <div className="flex items-center">
+                    <Calendar className="w-4 h-4 mr-2 text-gray-400" />
+                    <div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <div className="flex-1 px-3 py-2 bg-blue-600 text-white rounded-lg text-sm flex justify-center items-center opacity-70">
+                    Review Application
+                  </div>
+                  <button
+                    disabled
+                    className="px-3 py-2 bg-gray-100 text-gray-400 rounded-lg text-sm"
+                  >
+                    <Download className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* All applicants section */}
+        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+          <div className="p-4 border-b border-gray-200">
+            <h2 className="text-lg font-semibold text-gray-900">
+              All Applicants
+            </h2>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    Name
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    Match Score
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    Status
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    Applied
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {[1, 2, 3, 4].map((i) => (
+                  <tr key={i}>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="h-5 w-32 bg-gray-200 rounded animate-pulse mb-1"></div>
+                      <div className="h-4 w-40 bg-gray-200 rounded animate-pulse"></div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="h-5 w-16 bg-gray-200 rounded animate-pulse"></div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="h-6 w-20 bg-gray-200 rounded-full animate-pulse"></div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="h-5 w-24 bg-gray-200 rounded animate-pulse"></div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right">
+                      <div className="h-5 w-16 bg-gray-200 rounded animate-pulse ml-auto"></div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     );
   }
@@ -146,13 +325,13 @@ const JobApplicants = () => {
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-2 mb-4">
-          <Link
-            to="/business/applicants"
+          <button
+            onClick={() => window.history.back()}
             className="text-blue-600 hover:text-blue-700 flex items-center"
           >
             <ArrowLeft className="w-5 h-5 mr-1" />
-            Back to Applicants
-          </Link>
+            Back to the previous page
+          </button>
         </div>
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>

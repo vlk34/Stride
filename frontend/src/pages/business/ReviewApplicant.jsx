@@ -12,16 +12,16 @@ import {
   MessageSquare,
   ThumbsUp,
   AlertCircle,
-  ChevronLeft,
+  ArrowLeft,
 } from "lucide-react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 
 const ReviewApplicant = () => {
   const { id } = useParams();
   const location = useLocation();
   const [activeTab, setActiveTab] = useState("profile");
   const [applicant, setApplicant] = useState(null);
-
+  const navigate = useNavigate();
   // Dummy data - this would normally be fetched based on the id
   const allApplicants = [
     {
@@ -146,27 +146,142 @@ const ReviewApplicant = () => {
     // Add more applicants as needed
   ];
 
+  // Simulate API call with a delay
   useEffect(() => {
-    // First try to get data from location state (passed from Applicants page)
-    if (location.state && location.state.applicantData) {
-      // If we have basic data from the link, merge it with the full data
-      const basicData = location.state.applicantData;
-      const fullData =
-        allApplicants.find((a) => a.id === parseInt(id)) || allApplicants[0];
-
-      // Merge the data, preferring the full data but using basic data as fallback
-      setApplicant({ ...fullData, ...basicData });
-    } else {
-      // If no data was passed, find the applicant by ID from our dummy data
+    // Simulate API call with 500ms delay
+    const timer = setTimeout(() => {
+      // Find the applicant by ID from our dummy data
       const foundApplicant = allApplicants.find((a) => a.id === parseInt(id));
       setApplicant(foundApplicant || allApplicants[0]); // Fallback to first applicant if not found
-    }
-  }, [id, location]);
+    }, 500);
+
+    // Clean up timer
+    return () => clearTimeout(timer);
+  }, [id]);
 
   if (!applicant) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8">
-        Loading applicant data...
+        {/* Header with static back button */}
+        <div className="mb-8">
+          <button
+            onClick={() => window.history.back()}
+            className="flex items-center mb-4 text-blue-600 hover:text-blue-700"
+          >
+            <ArrowLeft className="w-5 h-5 mr-1" />
+            Back to the previous page
+          </button>
+
+          {/* Applicant name and role skeleton */}
+          <div className="flex justify-between items-start">
+            <div>
+              <div className="h-8 w-48 bg-gray-200 rounded animate-pulse mb-2"></div>
+              <div className="h-5 w-32 bg-gray-200 rounded animate-pulse"></div>
+            </div>
+            <div>
+              <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                Download CV
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Static tabs */}
+        <div className="flex gap-4 border-b border-gray-200 mb-6">
+          {["profile", "ai analysis", "notes"].map((tab) => (
+            <button
+              key={tab}
+              className={`px-4 py-2 text-sm font-medium capitalize ${
+                tab === "profile"
+                  ? "text-blue-600 border-b-2 border-blue-600"
+                  : "text-gray-600 hover:text-gray-900"
+              }`}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+
+        {/* Main content skeleton */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left column skeleton */}
+          <div className="lg:col-span-2">
+            {/* Basic info card skeleton */}
+            <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                Basic Information
+              </h2>
+              <div className="grid grid-cols-2 gap-4">
+                {[1, 2, 3, 4].map((i) => (
+                  <div
+                    key={i}
+                    className="h-6 w-full bg-gray-200 rounded animate-pulse"
+                  ></div>
+                ))}
+              </div>
+            </div>
+
+            {/* Skills card skeleton */}
+            <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                Skills
+              </h2>
+              <div className="flex flex-wrap gap-2">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <div
+                    key={i}
+                    className="h-8 w-20 bg-gray-200 rounded-full animate-pulse"
+                  ></div>
+                ))}
+              </div>
+            </div>
+
+            {/* Experience card skeleton */}
+            <div className="bg-white rounded-xl border border-gray-200 p-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                Experience
+              </h2>
+              {[1, 2].map((i) => (
+                <div key={i} className="mb-4">
+                  <div className="h-5 w-40 bg-gray-200 rounded animate-pulse mb-2"></div>
+                  <div className="h-4 w-32 bg-gray-200 rounded animate-pulse mb-2"></div>
+                  <div className="h-4 w-24 bg-gray-200 rounded animate-pulse mb-2"></div>
+                  <div className="h-16 w-full bg-gray-200 rounded animate-pulse"></div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right column skeleton */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-xl border border-gray-200 p-6 sticky top-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                Status
+              </h2>
+              <div className="space-y-4">
+                <div>
+                  <div className="text-sm text-gray-600 mb-1">
+                    Current Stage
+                  </div>
+                  <div className="h-10 w-full bg-gray-200 rounded animate-pulse"></div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-600 mb-1">Applied</div>
+                  <div className="h-6 w-32 bg-gray-200 rounded animate-pulse"></div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-600 mb-1">Match Score</div>
+                  <div className="h-6 w-28 bg-gray-200 rounded animate-pulse"></div>
+                </div>
+                <div className="pt-4 border-t border-gray-200">
+                  <button className="w-full px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors">
+                    Send Message
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -175,13 +290,13 @@ const ReviewApplicant = () => {
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* Header */}
       <div className="mb-8">
-        <Link
-          to="/business/applicants"
-          className="flex items-center text-gray-600 hover:text-gray-900 mb-4"
+        <button
+          onClick={() => window.history.back()}
+          className="flex items-center mb-4 text-blue-600 hover:text-blue-700"
         >
-          <ChevronLeft className="w-5 h-5 mr-1" />
-          Back to Applicants
-        </Link>
+          <ArrowLeft className="w-5 h-5 mr-1" />
+          Back to the previous page
+        </button>
         <div className="flex justify-between items-start">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">
@@ -400,7 +515,12 @@ const ReviewApplicant = () => {
               </div>
 
               <div className="pt-4 border-t border-gray-200">
-                <button className="w-full px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors">
+                <button
+                  onClick={() => {
+                    navigate("/business/messages");
+                  }}
+                  className="w-full px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors"
+                >
                   Send Message
                 </button>
               </div>
