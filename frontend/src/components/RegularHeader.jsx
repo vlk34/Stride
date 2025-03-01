@@ -134,14 +134,6 @@ const RegularHeader = () => {
             >
               {user ? (
                 <>
-                  {/* Notifications */}
-                  <Link
-                    to="/notifications"
-                    className="flex items-center px-3 py-2 rounded-lg hover:bg-gray-50 text-gray-700 hover:text-gray-900 relative mx-2"
-                  >
-                    <Bell className="w-5 h-5" />
-                  </Link>
-
                   {/* Messages */}
                   <Link
                     to="/messages"

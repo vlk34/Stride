@@ -15,7 +15,7 @@ import {
   Coffee,
 } from "lucide-react";
 import { useUserData } from "../../contexts/UserDataContext";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 
 const BusinessProfile = () => {
   const { localUserData } = useUserData();
@@ -79,6 +79,8 @@ const BusinessProfile = () => {
       },
     ],
   };
+
+  const navigate = useNavigate();
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
@@ -392,7 +394,10 @@ const BusinessProfile = () => {
               </div>
             </div>
 
-            <button className="mt-4 w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm">
+            <button
+              onClick={() => navigate("/business/edit-company")}
+              className="mt-4 w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm"
+            >
               Complete Your Profile
             </button>
           </div>

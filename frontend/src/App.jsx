@@ -42,7 +42,8 @@ import ApprovalsList from "./components/Admin/ApprovalsList";
 import ActivitiesList from "./components/Admin/ActivitiesList";
 import BusinessApplicationReview from "./components/Admin/BusinessApplicationReview";
 import EditCompany from "./pages/business/EditCompany";
-
+import JobRecommendations from "./pages/JobRecommendations";
+import BusinessMessages from "./pages/BusinessMessages";
 const faqData = {
   categories: [
     {
@@ -154,8 +155,10 @@ const App = () => {
         location: "San Francisco, CA",
         salary: "$120k - $150k",
         type: "Full-time",
+        workstyle: "Remote",
+        isVerified: true,
         postedAt: "2 days ago",
-        logo: "https://logo.clearbit.com/techcorp.com",
+        companyLogo: "https://logo.clearbit.com/techcorp.com",
       },
       {
         id: 2,
@@ -164,32 +167,79 @@ const App = () => {
         location: "Remote",
         salary: "$90k - $120k",
         type: "Full-time",
+        workstyle: "Remote",
+        isVerified: true,
         postedAt: "1 day ago",
-        logo: "https://logo.clearbit.com/designstudio.com",
+        companyLogo: "https://logo.clearbit.com/designstudio.com",
       },
-      // Add more recommended jobs...
+      {
+        id: 3,
+        title: "Backend Engineer",
+        company: "Cloud Systems",
+        location: "Austin, TX",
+        salary: "$110k - $140k",
+        type: "Full-time",
+        workstyle: "Hybrid",
+        isVerified: false,
+        postedAt: "3 days ago",
+        companyLogo: "https://logo.clearbit.com/cloudsystems.com",
+      },
     ],
     trendingJobs: [
       {
-        id: 3,
+        id: 5,
         title: "AI Engineer",
         company: "AI Solutions Ltd",
         location: "New York, NY",
         salary: "$130k - $160k",
         type: "Full-time",
+        workstyle: "Hybrid",
+        isVerified: true,
         postedAt: "3 days ago",
-        logo: "https://logo.clearbit.com/aisolutions.com",
+        companyLogo: "https://logo.clearbit.com/aisolutions.com",
       },
-      // Add more trending jobs...
+      {
+        id: 6,
+        title: "DevOps Specialist",
+        company: "Infrastructure Inc",
+        location: "Seattle, WA",
+        salary: "$125k - $155k",
+        type: "Full-time",
+        workstyle: "Remote",
+        isVerified: true,
+        postedAt: "1 week ago",
+        companyLogo: "https://logo.clearbit.com/infrastructureinc.com",
+      },
     ],
     recentSearches: [
       {
         id: 1,
         query: "Frontend Developer",
         location: "San Francisco",
-        timestamp: "2024-03-10T10:00:00Z",
+        timestamp: "Today",
+        results: "24 jobs found",
       },
-      // Add more recent searches...
+      {
+        id: 2,
+        query: "UX Designer",
+        location: "Remote",
+        timestamp: "Yesterday",
+        results: "18 jobs found",
+      },
+      {
+        id: 3,
+        query: "Data Scientist",
+        location: "New York",
+        timestamp: "2 days ago",
+        results: "32 jobs found",
+      },
+      {
+        id: 4,
+        query: "Product Manager",
+        location: "Austin",
+        timestamp: "3 days ago",
+        results: "15 jobs found",
+      },
     ],
     matchingCompanies: [
       {
@@ -197,7 +247,7 @@ const App = () => {
         name: "TechCorp Inc.",
         industry: "Technology",
         openPositions: 5,
-        logo: "https://logo.clearbit.com/techcorp.com",
+        companyLogo: "https://logo.clearbit.com/techcorp.com",
       },
       // Add more companies...
     ],
@@ -235,8 +285,11 @@ const App = () => {
         </Route>
 
         <Route element={<PublicRoute hasFooter={false} />}>
-          <Route path="/search" element={<Result jobs={jobs} />} />
-          <Route path="/search/:jobId" element={<Result jobs={jobs} />} />
+          <Route
+            path="/search"
+            element={<JobRecommendations dummyData={dummyData} />}
+          />
+          <Route path="/result" element={<Result jobs={jobs} />} />
           <Route path="/help" element={<Help faqData={faqData} />} />
           <Route path="/jobs" element={<SavedJobs />} />
           <Route path="/company/:id" element={<CompanyProfile />} />
@@ -256,7 +309,7 @@ const App = () => {
         {/* Business routes */}
         <Route element={<BusinessRoute />}>
           <Route path="/business/dashboard" element={<BusinessDashboard />} />
-          <Route path="/business/messages" element={<Messages />} />
+          <Route path="/business/messages" element={<BusinessMessages />} />
           <Route
             path="/business/create-job-listing"
             element={<CreateJobListing />}

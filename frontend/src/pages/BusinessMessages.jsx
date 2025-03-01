@@ -1,73 +1,108 @@
 import React, { useState } from "react";
 import { format } from "date-fns";
 import { Search, Send } from "lucide-react";
-const Messages = () => {
+import photo from "../../assets/photo.jpg";
+
+const BusinessMessages = () => {
   const [selectedChat, setSelectedChat] = useState(null);
   const [newMessage, setNewMessage] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
   // Dummy data - replace with real data from your backend
+  // This shows applicants that the business is messaging
   const conversations = [
     {
       id: 1,
-      company: {
-        name: "Google",
-        logo: "https://logo.clearbit.com/techcorp.com",
+      applicant: {
+        name: "John Smith",
+        avatar: photo,
       },
       jobTitle: "Senior Frontend Developer",
       lastMessage:
-        "Thanks for your application! When are you available for an interview?",
+        "Thank you for considering my application. I'm available for an interview next week.",
       timestamp: new Date(2024, 2, 15),
       unread: true,
       messages: [
         {
           id: 1,
-          sender: "company",
-          text: "Hi! Thanks for applying to the Senior Frontend Developer position.",
+          sender: "business",
+          text: "Hi John! Thanks for applying to the Senior Frontend Developer position.",
           timestamp: new Date(2024, 2, 15, 10, 30),
         },
         {
           id: 2,
-          sender: "company",
+          sender: "business",
           text: "We were impressed with your profile and would like to schedule an interview.",
           timestamp: new Date(2024, 2, 15, 10, 31),
         },
         {
           id: 3,
-          sender: "company",
-          text: "When are you available for an interview?",
-          timestamp: new Date(2024, 2, 15, 10, 31),
+          sender: "applicant",
+          text: "Thank you for considering my application. I'm available for an interview next week.",
+          timestamp: new Date(2024, 2, 15, 10, 45),
         },
       ],
     },
     {
       id: 2,
-      company: {
-        name: "Microsoft",
-        logo: "https://logo.clearbit.com/techcorp.com",
+      applicant: {
+        name: "Sarah Johnson",
+        avatar: photo,
       },
       jobTitle: "Full Stack Engineer",
-      lastMessage: "Your technical assessment results are ready.",
+      lastMessage: "I've completed the technical assessment and submitted it.",
       timestamp: new Date(2024, 2, 14),
       unread: false,
       messages: [
         {
           id: 1,
-          sender: "company",
-          text: "Hello! Thank you for completing the technical assessment.",
+          sender: "business",
+          text: "Hello Sarah! We're excited about your application for the Full Stack Engineer role.",
           timestamp: new Date(2024, 2, 14, 15, 0),
         },
         {
           id: 2,
-          sender: "user",
-          text: "Thank you for the opportunity! I enjoyed working on the assessment.",
+          sender: "business",
+          text: "Please complete this technical assessment by Friday.",
           timestamp: new Date(2024, 2, 14, 15, 5),
         },
         {
           id: 3,
-          sender: "company",
-          text: "Your technical assessment results are ready.",
+          sender: "applicant",
+          text: "I've completed the technical assessment and submitted it.",
           timestamp: new Date(2024, 2, 14, 15, 10),
+        },
+      ],
+    },
+    {
+      id: 3,
+      applicant: {
+        name: "Michael Chen",
+        avatar: photo,
+      },
+      jobTitle: "UX/UI Designer",
+      lastMessage:
+        "Here's my portfolio with additional design samples as requested.",
+      timestamp: new Date(2024, 2, 13),
+      unread: true,
+      messages: [
+        {
+          id: 1,
+          sender: "business",
+          text: "Hi Michael, thank you for your application to the UX/UI Designer position.",
+          timestamp: new Date(2024, 2, 13, 9, 15),
+        },
+        {
+          id: 2,
+          sender: "business",
+          text: "Could you share some additional design samples from your recent work?",
+          timestamp: new Date(2024, 2, 13, 9, 16),
+        },
+        {
+          id: 3,
+          sender: "applicant",
+          text: "Here's my portfolio with additional design samples as requested.",
+          timestamp: new Date(2024, 2, 13, 11, 30),
         },
       ],
     },
@@ -76,7 +111,7 @@ const Messages = () => {
   // Filter conversations based on search query
   const filteredConversations = conversations.filter(
     (chat) =>
-      chat.company.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      chat.applicant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       chat.jobTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
       chat.lastMessage.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -88,7 +123,7 @@ const Messages = () => {
     // Add new message to the selected chat
     const newMessageObj = {
       id: selectedChat.messages.length + 1,
-      sender: "user",
+      sender: "business", // Business is sending the message
       text: newMessage,
       timestamp: new Date(),
     };
@@ -120,7 +155,7 @@ const Messages = () => {
             <div className="relative">
               <input
                 type="text"
-                placeholder="Search conversations..."
+                placeholder="Search applicants..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -139,14 +174,14 @@ const Messages = () => {
                 }`}
               >
                 <img
-                  src={chat.company.logo}
-                  alt={chat.company.name}
+                  src={chat.applicant.avatar}
+                  alt={chat.applicant.name}
                   className="w-12 h-12 rounded-full object-cover"
                 />
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-start">
                     <h3 className="font-medium text-gray-900 truncate">
-                      {chat.company.name}
+                      {chat.applicant.name}
                     </h3>
                     <span className="text-xs text-gray-500">
                       {format(chat.timestamp, "MMM d")}
@@ -174,13 +209,13 @@ const Messages = () => {
             <div className="p-4 border-b border-gray-200">
               <div className="flex items-center space-x-3">
                 <img
-                  src={selectedChat.company.logo}
-                  alt={selectedChat.company.name}
+                  src={selectedChat.applicant.avatar}
+                  alt={selectedChat.applicant.name}
                   className="w-10 h-10 rounded-full object-cover"
                 />
                 <div>
                   <h2 className="font-medium text-gray-900">
-                    {selectedChat.company.name}
+                    {selectedChat.applicant.name}
                   </h2>
                   <p className="text-sm text-gray-600">
                     {selectedChat.jobTitle}
@@ -195,12 +230,14 @@ const Messages = () => {
                 <div
                   key={message.id}
                   className={`flex ${
-                    message.sender === "user" ? "justify-end" : "justify-start"
+                    message.sender === "business"
+                      ? "justify-end"
+                      : "justify-start"
                   }`}
                 >
                   <div
                     className={`max-w-[70%] rounded-lg p-3 ${
-                      message.sender === "user"
+                      message.sender === "business"
                         ? "bg-blue-600 text-white"
                         : "bg-gray-100 text-gray-900"
                     }`}
@@ -208,7 +245,7 @@ const Messages = () => {
                     <p className="text-sm">{message.text}</p>
                     <p
                       className={`text-xs mt-1 ${
-                        message.sender === "user"
+                        message.sender === "business"
                           ? "text-blue-100"
                           : "text-gray-500"
                       }`}
@@ -230,7 +267,7 @@ const Messages = () => {
                   type="text"
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
-                  placeholder="Type a message..."
+                  placeholder="Type a message to applicant..."
                   className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
                 <button
@@ -244,7 +281,7 @@ const Messages = () => {
           </div>
         ) : (
           <div className="flex-1 flex items-center justify-center text-gray-500">
-            Select a conversation to start messaging
+            Select an applicant to start messaging
           </div>
         )}
       </div>
@@ -252,4 +289,4 @@ const Messages = () => {
   );
 };
 
-export default Messages;
+export default BusinessMessages;

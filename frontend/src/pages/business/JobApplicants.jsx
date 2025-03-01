@@ -182,7 +182,7 @@ const JobApplicants = () => {
             </div>
             <div className="h-10 w-px bg-gray-200"></div>
             <Link
-              to="/search"
+              to="/result"
               className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50"
             >
               View Job Post

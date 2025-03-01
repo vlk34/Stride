@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import JobCard from "../components/searchResult/JobCard";
 import JobInformation from "../components/searchResult/JobInformation";
-import { useParams, useNavigate, useLocation } from "react-router";
+import { useLocation } from "react-router";
 import {
   MapPin,
   Briefcase,
@@ -14,8 +14,6 @@ import {
 } from "lucide-react";
 
 const Result = ({ jobs }) => {
-  const { jobId } = useParams();
-  const navigate = useNavigate();
   const location = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
   const [showFilters, setShowFilters] = useState(false);
@@ -28,23 +26,9 @@ const Result = ({ jobs }) => {
   const [filteredJobs, setFilteredJobs] = useState(jobs);
   const [selectedJob, setSelectedJob] = useState(null);
 
-  // Find selected job based on URL parameter
-  useEffect(() => {
-    if (jobId) {
-      const job = jobs.find((j) => j.id.toString() === jobId);
-      setSelectedJob(job || null);
-    } else {
-      setSelectedJob(null);
-    }
-  }, [jobId, jobs]);
-
-  // Handle job selection and URL update
+  // Handle job selection directly without URL navigation
   const handleJobSelect = (job) => {
-    if (job) {
-      navigate(`/search/${job.id}`);
-    } else {
-      navigate("/search");
-    }
+    setSelectedJob(job || null);
   };
 
   // Update filtered jobs whenever search term, filters, or jobs change

@@ -13,11 +13,18 @@ const useAppliedJobs = () => {
 
   // Save a job application
   const applyJob = (jobId, applicationData) => {
+    // Make sure we have the complete job object with all properties
+    const jobData = applicationData.job || {};
+
     const newApplication = {
-      ...applicationData.job, // Include all job details
+      ...jobData,
+      id: jobId,
+      workstyle: jobData.workstyle || "Full-time", // Ensure workstyle exists
+      isVerified: jobData.isVerified || false, // Ensure isVerified exists
       applicationData, // Keep the application form data
       appliedAt: new Date().toISOString(),
     };
+
     const updatedJobs = [...appliedJobs, newApplication];
     setAppliedJobs(updatedJobs);
     localStorage.setItem("appliedJobs", JSON.stringify(updatedJobs));
