@@ -5,6 +5,7 @@ import {
   Building2,
   ChevronRight,
   AlertTriangle,
+  Menu,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 
@@ -156,19 +157,21 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="bg-white p-6 rounded-lg border border-gray-200">
-        <h1 className="text-xl font-bold mb-6">Admin Dashboard</h1>
+    <div className="space-y-4 sm:space-y-6">
+      <div className="bg-white p-4 sm:p-6 rounded-lg border border-gray-200 shadow-sm">
+        <h1 className="text-xl font-bold mb-4 sm:mb-6">Admin Dashboard</h1>
 
-        {/* Stats Section */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        {/* Stats Section - Already responsive but with improved spacing */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-6">
           {stats.map((stat, index) => (
             <div
               key={index}
-              className="bg-gray-50 p-4 rounded-lg border border-gray-200"
+              className="bg-gray-50 p-4 rounded-lg border border-gray-200 transition-all hover:shadow-md"
             >
               <div className="flex items-center mb-2">
-                {stat.icon}
+                <div className="p-2 bg-blue-100 rounded-full">
+                  {stat.icon}
+                </div>
                 <span className="ml-2 text-gray-600">{stat.title}</span>
               </div>
               <div className="text-2xl font-bold">{stat.value}</div>
@@ -176,50 +179,52 @@ const AdminDashboard = () => {
           ))}
         </div>
 
-        {/* Pending Approvals Section */}
+        {/* Pending Approvals Section - Now more responsive */}
         <div className="mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold flex items-center">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
+            <h2 className="text-lg font-semibold flex items-center mb-2 sm:mb-0">
               <AlertTriangle className="w-5 h-5 text-amber-500 mr-2" />
               Pending Business Applications
             </h2>
             <Link
               to="/admin/approvals"
-              className="text-blue-600 text-sm flex items-center"
+              className="text-blue-600 text-sm flex items-center self-end sm:self-auto"
             >
               View All <ChevronRight className="w-4 h-4 ml-1" />
             </Link>
           </div>
-          <div className="border rounded-lg overflow-hidden">
+          
+          {/* Responsive table container */}
+          <div className="border rounded-lg overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-3 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Type
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-3 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Name
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="hidden sm:table-cell px-3 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Submitted
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-3 sm:px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Action
                   </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {pendingApprovals.map((item) => (
-                  <tr key={item.id}>
-                    <td className="px-4 py-3 whitespace-nowrap">{item.type}</td>
-                    <td className="px-4 py-3 whitespace-nowrap">{item.name}</td>
-                    <td className="px-4 py-3 whitespace-nowrap">
+                  <tr key={item.id} className="hover:bg-gray-50">
+                    <td className="px-3 sm:px-4 py-3">{item.type}</td>
+                    <td className="px-3 sm:px-4 py-3 font-medium">{item.name}</td>
+                    <td className="hidden sm:table-cell px-3 sm:px-4 py-3 text-gray-500">
                       {item.submitted}
                     </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-right">
+                    <td className="px-3 sm:px-4 py-3 text-right">
                       <button
                         onClick={() => handleReviewClick(item.id)}
-                        className="text-blue-600 hover:text-blue-800"
+                        className="bg-blue-50 hover:bg-blue-100 text-blue-600 hover:text-blue-800 px-3 py-1 rounded transition-colors"
                       >
                         Review
                       </button>
@@ -229,20 +234,31 @@ const AdminDashboard = () => {
               </tbody>
             </table>
           </div>
+          
+          {/* Mobile-only timestamp display */}
+          <div className="sm:hidden mt-2">
+            {pendingApprovals.map((item) => (
+              <div key={`mobile-${item.id}`} className="text-xs text-gray-500 pl-2 mb-1">
+                {item.name}: {item.submitted}
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Recent Activities Section */}
+        {/* Recent Activities Section - Now more responsive */}
         <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold">Recent Activities</h2>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
+            <h2 className="text-lg font-semibold mb-2 sm:mb-0">Recent Activities</h2>
             <Link
               to="/admin/activities"
-              className="text-blue-600 text-sm flex items-center"
+              className="text-blue-600 text-sm flex items-center self-end sm:self-auto"
             >
               View All <ChevronRight className="w-4 h-4 ml-1" />
             </Link>
           </div>
-          <div className="border rounded-lg overflow-hidden">
+          
+          {/* Activities for larger screens */}
+          <div className="hidden sm:block border rounded-lg overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
@@ -256,7 +272,7 @@ const AdminDashboard = () => {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {recentActivities.map((item) => (
-                  <tr key={item.id}>
+                  <tr key={item.id} className="hover:bg-gray-50">
                     <td className="px-4 py-3">{item.activity}</td>
                     <td className="px-4 py-3 text-right text-gray-500">
                       {item.time}
@@ -265,6 +281,16 @@ const AdminDashboard = () => {
                 ))}
               </tbody>
             </table>
+          </div>
+          
+          {/* Activities for mobile screens */}
+          <div className="sm:hidden space-y-3">
+            {recentActivities.map((item) => (
+              <div key={item.id} className="border p-3 rounded-lg bg-gray-50">
+                <div className="font-medium mb-1">{item.activity}</div>
+                <div className="text-xs text-gray-500">{item.time}</div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
