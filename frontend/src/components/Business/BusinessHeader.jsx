@@ -25,10 +25,11 @@ const BusinessHeader = () => {
   const { user, isLoaded } = useUser();
   const { localUserData } = useUserData();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const location = useLocation();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isMobileProfileOpen, setIsMobileProfileOpen] = useState(false);
   const profileRef = useRef(null);
   const navigate = useNavigate();
+  const location = useLocation();
   const { openUserProfile, signOut } = useClerk();
 
   const displayName = user
@@ -66,9 +67,30 @@ const BusinessHeader = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Reset mobile profile dropdown when menu is closed
+  useEffect(() => {
+    if (!isMenuOpen) {
+      setIsMobileProfileOpen(false);
+    }
+  }, [isMenuOpen]);
+
   const handleLogout = async () => {
     await signOut();
     navigate("/signin");
+  };
+
+  // Toggle hamburger menu
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+    // Always ensure profile dropdown is closed when toggling menu
+    setIsMobileProfileOpen(false);
+  };
+
+  // Handle navigation
+  const handleNavigation = (path) => {
+    navigate(path);
+    setIsMenuOpen(false);
+    setIsMobileProfileOpen(false);
   };
 
   // Profile dropdown items for business users
@@ -238,13 +260,9 @@ const BusinessHeader = () => {
 
             {/* Mobile Menu Button */}
             <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className={`md:hidden ml-auto p-2 transition-colors ${
-                location.pathname.includes("/job/")
-                  ? "text-gray-400 cursor-not-allowed"
-                  : "text-gray-600 hover:text-gray-900"
-              }`}
-              disabled={location.pathname.includes("/job/")}
+              onClick={toggleMenu}
+              className="md:hidden ml-auto p-2 text-gray-600 hover:text-gray-900"
+              aria-label={isMenuOpen ? "Close menu" : "Open menu"}
             >
               {isMenuOpen ? (
                 <X className="w-6 h-6 transition-transform duration-200 ease-in-out transform rotate-180" />
@@ -265,7 +283,7 @@ const BusinessHeader = () => {
                 <Link
                   key={item.path}
                   to={item.path}
-                  onClick={() => setIsMenuOpen(false)}
+                  onClick={() => handleNavigation(item.path)}
                   className={`flex items-center space-x-2 px-4 py-3 rounded-lg transition-all duration-200
                     ${
                       location.pathname === item.path
@@ -278,62 +296,101 @@ const BusinessHeader = () => {
                 </Link>
               ))}
 
-              {/* Mobile Profile Link */}
+              {/* Mobile Profile Section with Collapsible Menu */}
               {user ? (
                 <>
                   <div className="border-t border-gray-200 pt-2 mt-2">
-                    <Link
-                      to="/business/profile"
-                      onClick={() => setIsMenuOpen(false)}
-                      className="flex items-center space-x-2 px-4 py-3"
+                    <button
+                      onClick={() =>
+                        setIsMobileProfileOpen(!isMobileProfileOpen)
+                      }
+                      className="flex items-center justify-between w-full px-4 py-3 text-left rounded-lg hover:bg-gray-50"
                     >
-                      <img
-                        src={localUserData.imageUrl || user?.imageUrl || ""}
-                        alt="Profile"
-                        className="w-8 h-8 rounded-full object-cover border border-gray-200"
-                      />
-                      <div>
-                        <span className="font-medium text-gray-700">
-                          {localUserData.companyName || displayName}
-                        </span>
-                        <div className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full inline-block mt-1">
-                          Business Account
+                      <div className="flex items-center space-x-2">
+                        <img
+                          src={localUserData.imageUrl || user?.imageUrl || ""}
+                          alt="Profile"
+                          className="w-8 h-8 rounded-full object-cover border border-gray-200"
+                        />
+                        <div>
+                          <span className="font-medium text-gray-700 block">
+                            {localUserData.companyName || displayName}
+                          </span>
+                          <div className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full inline-block mt-1.5">
+                            Business Account
+                          </div>
                         </div>
                       </div>
-                    </Link>
-                  </div>
-
-                  {/* Additional mobile menu items for business users */}
-                  <div className="border-t border-gray-200 pt-2 mt-2">
-                    <Link
-                      to="/business/billing"
-                      onClick={() => setIsMenuOpen(false)}
-                      className="flex items-center space-x-2 px-4 py-3 text-gray-600 hover:bg-gray-50"
-                    >
-                      <CreditCard className="w-5 h-5" />
-                      <span className="font-medium">Billing & Plans</span>
-                    </Link>
-                    <Link
-                      to="/business/team"
-                      onClick={() => setIsMenuOpen(false)}
-                      className="flex items-center space-x-2 px-4 py-3 text-gray-600 hover:bg-gray-50"
-                    >
-                      <Users className="w-5 h-5" />
-                      <span className="font-medium">Team Members</span>
-                    </Link>
-                  </div>
-
-                  <div className="border-t border-gray-200 pt-2 mt-2">
-                    <button
-                      onClick={() => {
-                        setIsMenuOpen(false);
-                        handleLogout();
-                      }}
-                      className="flex items-center space-x-2 px-4 py-3 text-red-600 w-full text-left"
-                    >
-                      <LogOut className="w-5 h-5" />
-                      <span className="font-medium">Logout</span>
+                      <ChevronDown
+                        className={`w-5 h-5 text-gray-500 transition-transform duration-200 ${
+                          isMobileProfileOpen ? "rotate-180" : ""
+                        }`}
+                      />
                     </button>
+
+                    {/* Collapsible Profile Menu */}
+                    <div
+                      className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                        isMobileProfileOpen ? "max-h-screen" : "max-h-0"
+                      }`}
+                    >
+                      <div className="pl-4 space-y-1 mt-1">
+                        <Link
+                          to="/business/profile"
+                          onClick={() => handleNavigation("/business/profile")}
+                          className="flex items-center space-x-2 px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg"
+                        >
+                          <Building2 className="w-5 h-5" />
+                          <span className="font-medium">Company Profile</span>
+                        </Link>
+
+                        <button
+                          onClick={() => {
+                            setIsMenuOpen(false);
+                            setIsMobileProfileOpen(false);
+                            openUserProfile();
+                          }}
+                          className="flex items-center space-x-2 px-4 py-3 text-gray-600 hover:bg-gray-50 w-full text-left rounded-lg"
+                        >
+                          <Settings className="w-5 h-5" />
+                          <span className="font-medium">Account Settings</span>
+                        </button>
+
+                        <Link
+                          to="/business/help"
+                          onClick={() => handleNavigation("/business/help")}
+                          className="flex items-center space-x-2 px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg"
+                        >
+                          <HelpCircle className="w-5 h-5" />
+                          <span className="font-medium">Help Center</span>
+                        </Link>
+
+                        <Link
+                          to="/business/switch-to-personal"
+                          onClick={() =>
+                            handleNavigation("/business/switch-to-personal")
+                          }
+                          className="flex items-center space-x-2 px-4 py-3 text-blue-600 hover:bg-blue-50 rounded-lg"
+                        >
+                          <User className="w-5 h-5" />
+                          <span className="font-medium">
+                            Switch to Personal
+                          </span>
+                        </Link>
+
+                        <button
+                          onClick={() => {
+                            setIsMenuOpen(false);
+                            setIsMobileProfileOpen(false);
+                            handleLogout();
+                          }}
+                          className="flex items-center space-x-2 px-4 py-3 text-red-600 w-full text-left hover:bg-red-50 rounded-lg"
+                        >
+                          <LogOut className="w-5 h-5" />
+                          <span className="font-medium">Logout</span>
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </>
               ) : (

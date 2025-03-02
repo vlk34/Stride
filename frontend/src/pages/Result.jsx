@@ -13,7 +13,76 @@ import {
   X,
 } from "lucide-react";
 
-const Result = ({ jobs }) => {
+// Sample job data to use when no jobs are provided
+const sampleJobs = [
+  {
+    id: 1,
+    title: "Senior Frontend Developer",
+    company: "Tech Solutions Inc.",
+    companyLogo: "https://via.placeholder.com/150",
+    location: "Remote",
+    type: "Full-time",
+    workstyle: "Remote",
+    isVerified: true,
+    overview:
+      "We are looking for an experienced Frontend Developer to join our team and help build amazing user experiences.",
+    responsibilities: [
+      "Develop and maintain responsive web applications",
+      "Collaborate with cross-functional teams",
+      "Implement best practices and coding standards",
+      "Mentor junior developers",
+    ],
+    about:
+      "Tech Solutions Inc. is a leading technology company providing innovative solutions to businesses worldwide.",
+    industry: "Technology",
+    experience: "3-5 years",
+  },
+  {
+    id: 2,
+    title: "Product Designer",
+    company: "Creative Designs",
+    companyLogo: "https://via.placeholder.com/150",
+    location: "New York, NY",
+    type: "Full-time",
+    workstyle: "Hybrid",
+    isVerified: true,
+    overview:
+      "Join our design team to create beautiful and functional product experiences.",
+    responsibilities: [
+      "Create user-centered designs",
+      "Develop UI/UX wireframes and prototypes",
+      "Conduct user research and testing",
+      "Collaborate with developers to implement designs",
+    ],
+    about:
+      "Creative Designs is a design agency focused on creating exceptional digital experiences.",
+    industry: "Design",
+    experience: "1-3 years",
+  },
+  {
+    id: 3,
+    title: "Marketing Manager",
+    company: "Global Marketing",
+    companyLogo: "https://via.placeholder.com/150",
+    location: "San Francisco, CA",
+    type: "Full-time",
+    workstyle: "On-site",
+    isVerified: true,
+    overview: "Lead our marketing efforts to drive growth and brand awareness.",
+    responsibilities: [
+      "Develop and implement marketing strategies",
+      "Manage marketing campaigns across multiple channels",
+      "Analyze market trends and competitor activities",
+      "Collaborate with sales and product teams",
+    ],
+    about:
+      "Global Marketing is a marketing agency helping businesses grow through strategic marketing initiatives.",
+    industry: "Marketing",
+    experience: "3-5 years",
+  },
+];
+
+const Result = ({ jobs: propJobs }) => {
   const location = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
   const [showFilters, setShowFilters] = useState(false);
@@ -23,13 +92,30 @@ const Result = ({ jobs }) => {
     industry: "",
     experience: "",
   });
+
+  // Use provided jobs or fall back to sample jobs
+  const [jobs, setJobs] = useState(propJobs || sampleJobs);
   const [filteredJobs, setFilteredJobs] = useState(jobs);
   const [selectedJob, setSelectedJob] = useState(null);
 
-  // Handle job selection directly without URL navigation
-  const handleJobSelect = (job) => {
-    setSelectedJob(job || null);
-  };
+  // Check if we came from dashboard and select first job if needed
+  useEffect(() => {
+    // If we came from dashboard and there are jobs available, select the first one
+    if (
+      location.state?.fromDashboard &&
+      filteredJobs.length > 0 &&
+      !selectedJob
+    ) {
+      setSelectedJob(filteredJobs[0]);
+    }
+  }, [filteredJobs, location.state, selectedJob]);
+
+  // Update jobs if props change
+  useEffect(() => {
+    if (propJobs && propJobs.length > 0) {
+      setJobs(propJobs);
+    }
+  }, [propJobs]);
 
   // Update filtered jobs whenever search term, filters, or jobs change
   useEffect(() => {
@@ -180,7 +266,7 @@ const Result = ({ jobs }) => {
                   key={job.id}
                   job={job}
                   isSelected={selectedJob?.id === job.id}
-                  onSelect={handleJobSelect}
+                  onSelect={setSelectedJob}
                 />
               ))}
             </div>
@@ -213,7 +299,7 @@ const Result = ({ jobs }) => {
                 key={job.id}
                 job={job}
                 isSelected={selectedJob?.id === job.id}
-                onSelect={handleJobSelect}
+                onSelect={setSelectedJob}
               />
             ))}
           </div>
@@ -223,7 +309,7 @@ const Result = ({ jobs }) => {
             <>
               <div
                 className="fixed inset-0 bg-black/30 transition-opacity z-40"
-                onClick={() => handleJobSelect(null)}
+                onClick={() => setSelectedJob(null)}
               />
 
               <div
@@ -240,7 +326,7 @@ const Result = ({ jobs }) => {
                       {selectedJob.title}
                     </h2>
                     <button
-                      onClick={() => handleJobSelect(null)}
+                      onClick={() => setSelectedJob(null)}
                       className="p-2 hover:bg-gray-100 rounded-full lg:hidden"
                     >
                       <X className="w-5 h-5" />

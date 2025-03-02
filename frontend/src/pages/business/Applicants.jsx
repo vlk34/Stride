@@ -256,7 +256,7 @@ const Applicants = () => {
             : data.recentApplicants.map((applicant) => (
                 <div
                   key={applicant.id}
-                  className="flex items-center justify-between p-4 rounded-lg border border-gray-100 hover:border-blue-500 transition-colors"
+                  className="flex items-center justify-between p-4 rounded-lg border border-gray-100 transition-colors"
                 >
                   <div>
                     <h3 className="font-medium text-gray-900">

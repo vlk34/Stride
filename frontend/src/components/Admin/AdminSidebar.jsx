@@ -92,18 +92,6 @@ const AdminSidebar = () => {
             <Activity className="w-5 h-5 mr-3" />
             Activity Log
           </NavLink>
-
-          <NavLink
-            to="/admin/settings"
-            className={({ isActive }) =>
-              isActive
-                ? "flex items-center px-3 py-2 rounded bg-blue-50 text-blue-700 font-medium"
-                : "flex items-center px-3 py-2 rounded hover:bg-gray-100 text-gray-700 transition-colors"
-            }
-          >
-            <Settings className="w-5 h-5 mr-3" />
-            Settings
-          </NavLink>
         </div>
       </nav>
 
