@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { format } from "date-fns";
-import { Search, Send } from "lucide-react";
+import { Search, Send, ArrowLeft, Menu } from "lucide-react";
 import photo from "../../assets/photo.jpg";
 
 const BusinessMessages = () => {
   const [selectedChat, setSelectedChat] = useState(null);
   const [newMessage, setNewMessage] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [showConversations, setShowConversations] = useState(true);
 
   // Dummy data - replace with real data from your backend
   // This shows applicants that the business is messaging
@@ -146,11 +147,27 @@ const BusinessMessages = () => {
     setNewMessage("");
   };
 
+  const handleChatSelect = (chat) => {
+    setSelectedChat(chat);
+    // On mobile, hide the conversation list when a chat is selected
+    if (window.innerWidth < 768) {
+      setShowConversations(false);
+    }
+  };
+
+  const handleBackToList = () => {
+    setShowConversations(true);
+  };
+
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      <div className="bg-white rounded-xl border border-gray-200 h-[calc(100vh-8rem)] flex">
-        {/* Conversations List */}
-        <div className="w-1/3 border-r border-gray-200">
+    <div className="max-w-7xl mx-auto px-4 py-4 sm:py-8">
+      <div className="bg-white rounded-xl border border-gray-200 h-[calc(100vh-6rem)] sm:h-[calc(100vh-8rem)] flex flex-col md:flex-row">
+        {/* Conversations List - Hidden on mobile when chat is selected */}
+        <div
+          className={`${
+            !showConversations && selectedChat ? "hidden md:block" : "block"
+          } w-full md:w-1/3 border-r border-gray-200`}
+        >
           <div className="p-4 border-b border-gray-200">
             <div className="relative">
               <input
@@ -168,7 +185,7 @@ const BusinessMessages = () => {
             {filteredConversations.map((chat) => (
               <button
                 key={chat.id}
-                onClick={() => setSelectedChat(chat)}
+                onClick={() => handleChatSelect(chat)}
                 className={`w-full p-4 text-left hover:bg-gray-50 flex items-start space-x-3 ${
                   selectedChat?.id === chat.id ? "bg-blue-50" : ""
                 }`}
@@ -176,7 +193,7 @@ const BusinessMessages = () => {
                 <img
                   src={chat.applicant.avatar}
                   alt={chat.applicant.name}
-                  className="w-12 h-12 rounded-full object-cover"
+                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover"
                 />
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-start">
@@ -202,88 +219,104 @@ const BusinessMessages = () => {
           </div>
         </div>
 
-        {/* Chat Area */}
-        {selectedChat ? (
-          <div className="flex-1 flex flex-col">
-            {/* Chat Header */}
-            <div className="p-4 border-b border-gray-200">
-              <div className="flex items-center space-x-3">
-                <img
-                  src={selectedChat.applicant.avatar}
-                  alt={selectedChat.applicant.name}
-                  className="w-10 h-10 rounded-full object-cover"
-                />
-                <div>
-                  <h2 className="font-medium text-gray-900">
-                    {selectedChat.applicant.name}
-                  </h2>
-                  <p className="text-sm text-gray-600">
-                    {selectedChat.jobTitle}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {selectedChat.messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex ${
-                    message.sender === "business"
-                      ? "justify-end"
-                      : "justify-start"
-                  }`}
+        {/* Chat Area - Hidden on mobile when conversation list is shown */}
+        <div
+          className={`${
+            showConversations && selectedChat ? "hidden md:flex" : "flex"
+          } flex-1 flex-col`}
+        >
+          {selectedChat ? (
+            <>
+              {/* Chat Header */}
+              <div className="p-4 border-b border-gray-200 flex items-center">
+                {/* Back button - Only visible on mobile */}
+                <button
+                  onClick={handleBackToList}
+                  className="md:hidden mr-2 p-1 rounded-full hover:bg-gray-100"
                 >
-                  <div
-                    className={`max-w-[70%] rounded-lg p-3 ${
-                      message.sender === "business"
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-100 text-gray-900"
-                    }`}
-                  >
-                    <p className="text-sm">{message.text}</p>
-                    <p
-                      className={`text-xs mt-1 ${
-                        message.sender === "business"
-                          ? "text-blue-100"
-                          : "text-gray-500"
-                      }`}
-                    >
-                      {format(message.timestamp, "h:mm a")}
+                  <ArrowLeft className="w-5 h-5 text-gray-600" />
+                </button>
+
+                <div className="flex items-center space-x-3">
+                  <img
+                    src={selectedChat.applicant.avatar}
+                    alt={selectedChat.applicant.name}
+                    className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover"
+                  />
+                  <div>
+                    <h2 className="font-medium text-gray-900">
+                      {selectedChat.applicant.name}
+                    </h2>
+                    <p className="text-xs sm:text-sm text-gray-600">
+                      {selectedChat.jobTitle}
                     </p>
                   </div>
                 </div>
-              ))}
-            </div>
-
-            {/* Message Input */}
-            <form
-              onSubmit={handleSendMessage}
-              className="p-4 border-t border-gray-200"
-            >
-              <div className="flex items-center space-x-2">
-                <input
-                  type="text"
-                  value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
-                  placeholder="Type a message to applicant..."
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  <Send className="w-5 h-5" />
-                </button>
               </div>
-            </form>
-          </div>
-        ) : (
-          <div className="flex-1 flex items-center justify-center text-gray-500">
-            Select an applicant to start messaging
-          </div>
-        )}
+
+              {/* Messages */}
+              <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4">
+                {selectedChat.messages.map((message) => (
+                  <div
+                    key={message.id}
+                    className={`flex ${
+                      message.sender === "business"
+                        ? "justify-end"
+                        : "justify-start"
+                    }`}
+                  >
+                    <div
+                      className={`max-w-[85%] sm:max-w-[70%] rounded-lg p-2 sm:p-3 ${
+                        message.sender === "business"
+                          ? "bg-blue-600 text-white"
+                          : "bg-gray-100 text-gray-900"
+                      }`}
+                    >
+                      <p className="text-sm">{message.text}</p>
+                      <p
+                        className={`text-xs mt-1 ${
+                          message.sender === "business"
+                            ? "text-blue-100"
+                            : "text-gray-500"
+                        }`}
+                      >
+                        {format(message.timestamp, "h:mm a")}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Message Input */}
+              <form
+                onSubmit={handleSendMessage}
+                className="p-3 sm:p-4 border-t border-gray-200"
+              >
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="text"
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                    placeholder="Type a message..."
+                    className="flex-1 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                  <button
+                    type="submit"
+                    className="p-2 sm:px-4 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    <Send className="w-5 h-5" />
+                  </button>
+                </div>
+              </form>
+            </>
+          ) : (
+            <div className="flex-1 flex items-center justify-center text-gray-500 p-4 text-center">
+              <div>
+                <p>Select an applicant to start messaging</p>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -13,6 +13,11 @@ import {
   Award,
   Heart,
   Coffee,
+  X,
+  Plus,
+  Mail,
+  Linkedin,
+  Twitter,
 } from "lucide-react";
 import { useUserData } from "../../contexts/UserDataContext";
 import { Link, useNavigate } from "react-router";
@@ -22,6 +27,15 @@ const BusinessProfile = () => {
   const [activeTab, setActiveTab] = useState("about");
   const [loading, setLoading] = useState(true);
   const [companyData, setCompanyData] = useState(null);
+  const [showAddTeamModal, setShowAddTeamModal] = useState(false);
+  const [newTeamMember, setNewTeamMember] = useState({
+    name: "",
+    role: "",
+    bio: "",
+    photo: "",
+    email: "",
+    linkedin: "",
+  });
 
   // Simulate data fetching
   useEffect(() => {
@@ -87,6 +101,44 @@ const BusinessProfile = () => {
             applicants: 18,
           },
         ],
+        teamMembers: [
+          {
+            id: 1,
+            name: "Sarah Johnson",
+            role: "CEO & Co-founder",
+            bio: "Sarah has 15+ years of experience in tech leadership and previously founded two successful startups.",
+            photo: "https://randomuser.me/api/portraits/women/44.jpg",
+            email: "sarah@acmecorp.com",
+            linkedin: "linkedin.com/in/sarahjohnson",
+          },
+          {
+            id: 2,
+            name: "Michael Chen",
+            role: "CTO",
+            bio: "Michael leads our engineering team and has a background in building scalable systems at major tech companies.",
+            photo: "https://randomuser.me/api/portraits/men/32.jpg",
+            email: "michael@acmecorp.com",
+            linkedin: "linkedin.com/in/michaelchen",
+          },
+          {
+            id: 3,
+            name: "Emily Rodriguez",
+            role: "Head of Product",
+            bio: "Emily oversees product strategy and has a passion for creating intuitive user experiences.",
+            photo: "https://randomuser.me/api/portraits/women/67.jpg",
+            email: "emily@acmecorp.com",
+            linkedin: "linkedin.com/in/emilyrodriguez",
+          },
+          {
+            id: 4,
+            name: "David Kim",
+            role: "Head of Marketing",
+            bio: "David brings 10+ years of experience in growth marketing and brand development.",
+            photo: "https://randomuser.me/api/portraits/men/75.jpg",
+            email: "david@acmecorp.com",
+            linkedin: "linkedin.com/in/davidkim",
+          },
+        ],
       };
 
       setCompanyData(data);
@@ -98,11 +150,27 @@ const BusinessProfile = () => {
 
   const navigate = useNavigate();
 
+  const handleAddTeamMember = () => {
+    // In a real app, you would send this data to your backend
+    console.log("Adding team member:", newTeamMember);
+
+    // Close the modal and reset form
+    setShowAddTeamModal(false);
+    setNewTeamMember({
+      name: "",
+      role: "",
+      bio: "",
+      photo: "",
+      email: "",
+      linkedin: "",
+    });
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* Simplified Header Section */}
       <div className="mb-8 bg-white rounded-xl border border-gray-200 p-6">
-        <div className="flex items-center gap-6">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-6">
           <div className="w-24 h-24 rounded-xl bg-white border border-gray-200 p-2 flex items-center justify-center">
             {loading ? (
               <div className="w-full h-full bg-gray-200 rounded-lg animate-pulse"></div>
@@ -115,7 +183,7 @@ const BusinessProfile = () => {
             )}
           </div>
 
-          <div>
+          <div className="flex-1">
             {loading ? (
               <>
                 <div className="h-7 w-48 bg-gray-200 rounded animate-pulse mb-2"></div>
@@ -129,10 +197,10 @@ const BusinessProfile = () => {
             )}
           </div>
 
-          <div className="ml-auto">
+          <div className="mt-4 sm:mt-0">
             <Link
               to="/business/edit-company"
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="inline-block px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
               Edit Profile
             </Link>
@@ -316,7 +384,7 @@ const BusinessProfile = () => {
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-semibold">Open Positions</h2>
                 <Link
-                  to="/manage-jobs"
+                  to="/business/manage/jobs"
                   className="text-sm text-blue-600 hover:text-blue-700"
                 >
                   Manage Jobs
@@ -392,7 +460,7 @@ const BusinessProfile = () => {
 
                         <div className="mt-3 flex justify-between items-center">
                           <Link
-                            to={`/job/${job.id}`}
+                            to="/result"
                             className="text-blue-600 hover:text-blue-700 text-sm font-medium"
                           >
                             View Details
@@ -421,20 +489,91 @@ const BusinessProfile = () => {
 
           {activeTab === "team" && (
             <div className="bg-white rounded-xl border border-gray-200 p-6">
-              <h2 className="text-xl font-semibold mb-6">Our Team</h2>
-              <p className="text-gray-600 mb-8">
-                Meet the talented people behind our success. Our diverse team
-                brings together expertise from various backgrounds.
-              </p>
-
-              <div className="text-center py-8">
-                <p className="text-gray-500 mb-4">
-                  Team members will appear here once added
-                </p>
-                <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                  Add Team Members
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-semibold">Our Team</h2>
+                <button
+                  onClick={() => setShowAddTeamModal(true)}
+                  className="flex items-center text-sm text-blue-600 hover:text-blue-700"
+                >
+                  <Plus className="w-4 h-4 mr-1" />
+                  Add Team Member
                 </button>
               </div>
+
+              {loading ? (
+                // Team members skeleton
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {Array(4)
+                    .fill()
+                    .map((_, index) => (
+                      <div key={index} className="flex gap-4">
+                        <div className="w-16 h-16 rounded-full bg-gray-200 animate-pulse"></div>
+                        <div className="flex-1">
+                          <div className="h-5 w-32 bg-gray-200 rounded animate-pulse mb-1"></div>
+                          <div className="h-4 w-24 bg-gray-200 rounded animate-pulse mb-2"></div>
+                          <div className="h-4 w-full bg-gray-200 rounded animate-pulse mb-1"></div>
+                          <div className="h-4 w-3/4 bg-gray-200 rounded animate-pulse mb-2"></div>
+                          <div className="flex gap-3">
+                            <div className="h-4 w-8 bg-gray-200 rounded animate-pulse"></div>
+                            <div className="h-4 w-8 bg-gray-200 rounded animate-pulse"></div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              ) : companyData.teamMembers &&
+                companyData.teamMembers.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {companyData.teamMembers.map((member) => (
+                    <div key={member.id} className="flex gap-4">
+                      <img
+                        src={member.photo}
+                        alt={member.name}
+                        className="w-16 h-16 rounded-full object-cover"
+                      />
+                      <div>
+                        <h3 className="font-medium text-gray-900">
+                          {member.name}
+                        </h3>
+                        <p className="text-sm text-blue-600 mb-2">
+                          {member.role}
+                        </p>
+                        <p className="text-sm text-gray-600 mb-2">
+                          {member.bio}
+                        </p>
+                        <div className="flex gap-3">
+                          <a
+                            href={`mailto:${member.email}`}
+                            className="text-gray-500 hover:text-gray-700"
+                          >
+                            <Mail className="w-4 h-4" />
+                          </a>
+                          <a
+                            href={`https://${member.linkedin}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-gray-500 hover:text-blue-600"
+                          >
+                            <Linkedin className="w-4 h-4" />
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-gray-500 mb-4">
+                    Team members will appear here once added
+                  </p>
+                  <button
+                    onClick={() => setShowAddTeamModal(true)}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    Add Team Members
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
@@ -514,9 +653,9 @@ const BusinessProfile = () => {
           <div className="bg-white rounded-xl border border-gray-200 p-6">
             <h3 className="text-lg font-medium mb-4">Profile Completion</h3>
             <div className="w-full bg-gray-200 rounded-full h-2.5 mb-4">
-              <div className="bg-blue-600 h-2.5 rounded-full w-[75%]"></div>
+              <div className="bg-blue-600 h-2.5 rounded-full w-[85%]"></div>
             </div>
-            <p className="text-sm text-gray-600 mb-4">75% complete</p>
+            <p className="text-sm text-gray-600 mb-4">85% complete</p>
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
@@ -535,10 +674,10 @@ const BusinessProfile = () => {
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 border border-gray-300 rounded-full"></div>
+                  <CheckCircle className="w-4 h-4 text-green-500" />
                   <span className="text-sm text-gray-600">Team members</span>
                 </div>
-                <span className="text-xs text-gray-400">Pending</span>
+                <span className="text-xs text-green-500">Complete</span>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -558,6 +697,204 @@ const BusinessProfile = () => {
           </div>
         </div>
       </div>
+
+      {/* Add Team Member Modal */}
+      {showAddTeamModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-md w-full shadow-2xl overflow-hidden">
+            {/* Modal Header */}
+            <div className="bg-blue-50 px-6 py-4 border-b border-blue-100 flex justify-between items-center">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Add Team Member
+              </h3>
+              <button
+                onClick={() => setShowAddTeamModal(false)}
+                className="text-gray-500 hover:text-gray-700 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleAddTeamMember();
+                }}
+              >
+                <div className="space-y-4">
+                  {/* Name Field */}
+                  <div>
+                    <label
+                      htmlFor="name"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Full Name *
+                    </label>
+                    <input
+                      type="text"
+                      id="name"
+                      value={newTeamMember.name}
+                      onChange={(e) =>
+                        setNewTeamMember({
+                          ...newTeamMember,
+                          name: e.target.value,
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Enter full name"
+                      required
+                    />
+                  </div>
+
+                  {/* Role Field */}
+                  <div>
+                    <label
+                      htmlFor="role"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Role/Position *
+                    </label>
+                    <input
+                      type="text"
+                      id="role"
+                      value={newTeamMember.role}
+                      onChange={(e) =>
+                        setNewTeamMember({
+                          ...newTeamMember,
+                          role: e.target.value,
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="e.g. CEO, Marketing Director"
+                      required
+                    />
+                  </div>
+
+                  {/* Bio Field */}
+                  <div>
+                    <label
+                      htmlFor="bio"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Bio
+                    </label>
+                    <textarea
+                      id="bio"
+                      value={newTeamMember.bio}
+                      onChange={(e) =>
+                        setNewTeamMember({
+                          ...newTeamMember,
+                          bio: e.target.value,
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Brief description of experience and background"
+                      rows="3"
+                    />
+                  </div>
+
+                  {/* Photo URL Field */}
+                  <div>
+                    <label
+                      htmlFor="photo"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Photo URL
+                    </label>
+                    <input
+                      type="url"
+                      id="photo"
+                      value={newTeamMember.photo}
+                      onChange={(e) =>
+                        setNewTeamMember({
+                          ...newTeamMember,
+                          photo: e.target.value,
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="https://example.com/photo.jpg"
+                    />
+                    <p className="mt-1 text-xs text-gray-500">
+                      Enter a URL to an existing image or leave blank for a
+                      placeholder
+                    </p>
+                  </div>
+
+                  {/* Email Field */}
+                  <div>
+                    <label
+                      htmlFor="email"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      id="email"
+                      value={newTeamMember.email}
+                      onChange={(e) =>
+                        setNewTeamMember({
+                          ...newTeamMember,
+                          email: e.target.value,
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="email@example.com"
+                    />
+                  </div>
+
+                  {/* LinkedIn Field */}
+                  <div>
+                    <label
+                      htmlFor="linkedin"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      LinkedIn Profile
+                    </label>
+                    <div className="flex items-center">
+                      <span className="text-gray-500 bg-gray-100 px-3 py-2 rounded-l-lg border border-r-0 border-gray-300">
+                        linkedin.com/in/
+                      </span>
+                      <input
+                        type="text"
+                        id="linkedin"
+                        value={newTeamMember.linkedin}
+                        onChange={(e) =>
+                          setNewTeamMember({
+                            ...newTeamMember,
+                            linkedin: `linkedin.com/in/${e.target.value}`,
+                          })
+                        }
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="username"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Form Actions */}
+                <div className="mt-6 flex justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowAddTeamModal(false)}
+                    className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    Add Team Member
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

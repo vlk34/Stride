@@ -13,6 +13,7 @@ import {
   ThumbsUp,
   AlertCircle,
   ArrowLeft,
+  ChevronRight,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 
@@ -161,37 +162,38 @@ const ReviewApplicant = () => {
 
   if (!applicant) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 py-4 sm:py-8">
         {/* Header with static back button */}
-        <div className="mb-8">
+        <div className="mb-6 sm:mb-8">
           <button
             onClick={() => window.history.back()}
             className="flex items-center mb-4 text-blue-600 hover:text-blue-700"
           >
             <ArrowLeft className="w-5 h-5 mr-1" />
-            Back to the previous page
+            <span className="hidden sm:inline">Back to the previous page</span>
+            <span className="sm:hidden">Back</span>
           </button>
 
           {/* Applicant name and role skeleton */}
-          <div className="flex justify-between items-start">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
             <div>
-              <div className="h-8 w-48 bg-gray-200 rounded animate-pulse mb-2"></div>
+              <div className="h-7 sm:h-8 w-48 bg-gray-200 rounded animate-pulse mb-2"></div>
               <div className="h-5 w-32 bg-gray-200 rounded animate-pulse"></div>
             </div>
             <div>
-              <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+              <button className="px-3 sm:px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm">
                 Download CV
               </button>
             </div>
           </div>
         </div>
 
-        {/* Static tabs */}
-        <div className="flex gap-4 border-b border-gray-200 mb-6">
+        {/* Static tabs - Scrollable on mobile */}
+        <div className="flex gap-2 sm:gap-4 border-b border-gray-200 mb-6 overflow-x-auto pb-1">
           {["profile", "ai analysis", "notes"].map((tab) => (
             <button
               key={tab}
-              className={`px-4 py-2 text-sm font-medium capitalize ${
+              className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium capitalize whitespace-nowrap ${
                 tab === "profile"
                   ? "text-blue-600 border-b-2 border-blue-600"
                   : "text-gray-600 hover:text-gray-900"
@@ -203,15 +205,15 @@ const ReviewApplicant = () => {
         </div>
 
         {/* Main content skeleton */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* Left column skeleton */}
           <div className="lg:col-span-2">
             {/* Basic info card skeleton */}
-            <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6 mb-4 sm:mb-6">
+              <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">
                 Basic Information
               </h2>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {[1, 2, 3, 4].map((i) => (
                   <div
                     key={i}
@@ -222,8 +224,8 @@ const ReviewApplicant = () => {
             </div>
 
             {/* Skills card skeleton */}
-            <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6 mb-4 sm:mb-6">
+              <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">
                 Skills
               </h2>
               <div className="flex flex-wrap gap-2">
@@ -237,8 +239,8 @@ const ReviewApplicant = () => {
             </div>
 
             {/* Experience card skeleton */}
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
+              <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">
                 Experience
               </h2>
               {[1, 2].map((i) => (
@@ -252,10 +254,10 @@ const ReviewApplicant = () => {
             </div>
           </div>
 
-          {/* Right column skeleton */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl border border-gray-200 p-6 sticky top-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+          {/* Right column skeleton - Status card */}
+          <div className="lg:col-span-1 order-first lg:order-last mb-4 sm:mb-0">
+            <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6 lg:sticky lg:top-6">
+              <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">
                 Status
               </h2>
               <div className="space-y-4">
@@ -287,38 +289,42 @@ const ReviewApplicant = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
+    <div className="max-w-7xl mx-auto px-4 py-4 sm:py-8">
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-6 sm:mb-8">
         <button
           onClick={() => window.history.back()}
           className="flex items-center mb-4 text-blue-600 hover:text-blue-700"
         >
           <ArrowLeft className="w-5 h-5 mr-1" />
-          Back to the previous page
+          <span className="hidden sm:inline">Back to the previous page</span>
+          <span className="sm:hidden">Back</span>
         </button>
-        <div className="flex justify-between items-start">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
               {applicant.name}
             </h1>
             <p className="text-gray-600">{applicant.role}</p>
           </div>
           <div className="flex gap-2">
-            <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
-              Download CV
+            <button className="px-3 sm:px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm">
+              <span className="hidden sm:inline">Download CV</span>
+              <span className="sm:hidden flex items-center">
+                <Download className="w-4 h-4 mr-1" /> CV
+              </span>
             </button>
           </div>
         </div>
       </div>
 
-      {/* Content Tabs */}
-      <div className="flex gap-4 border-b border-gray-200 mb-6">
+      {/* Content Tabs - Scrollable on mobile */}
+      <div className="flex gap-2 sm:gap-4 border-b border-gray-200 mb-6 overflow-x-auto pb-1">
         {["profile", "ai analysis", "notes"].map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`px-4 py-2 text-sm font-medium capitalize ${
+            className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium capitalize whitespace-nowrap ${
               activeTab === tab
                 ? "text-blue-600 border-b-2 border-blue-600"
                 : "text-gray-600 hover:text-gray-900"
@@ -330,166 +336,17 @@ const ReviewApplicant = () => {
       </div>
 
       {/* Main Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column - Always visible */}
-        <div className="lg:col-span-2">
-          {activeTab === "profile" && (
-            <div className="space-y-6">
-              {/* Basic Info Card */}
-              <div className="bg-white rounded-xl border border-gray-200 p-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                  Basic Information
-                </h2>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="flex items-center text-gray-600">
-                    <Mail className="w-5 h-5 mr-2" />
-                    {applicant.email}
-                  </div>
-                  <div className="flex items-center text-gray-600">
-                    <Phone className="w-5 h-5 mr-2" />
-                    {applicant.phone}
-                  </div>
-                  <div className="flex items-center text-gray-600">
-                    <MapPin className="w-5 h-5 mr-2" />
-                    {applicant.location}
-                  </div>
-                  <div className="flex items-center text-gray-600">
-                    <Briefcase className="w-5 h-5 mr-2" />
-                    {applicant.experience} experience
-                  </div>
-                </div>
-              </div>
-
-              {/* Skills Card */}
-              <div className="bg-white rounded-xl border border-gray-200 p-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                  Skills
-                </h2>
-                <div className="flex flex-wrap gap-2">
-                  {applicant.skills.map((skill, index) => (
-                    <span
-                      key={index}
-                      className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm"
-                    >
-                      {skill}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              {/* Experience Card */}
-              <div className="bg-white rounded-xl border border-gray-200 p-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                  Experience
-                </h2>
-                {applicant.experience_history.map((exp, index) => (
-                  <div key={index} className="mb-4">
-                    <h3 className="font-medium text-gray-900">{exp.role}</h3>
-                    <p className="text-gray-600">{exp.company}</p>
-                    <p className="text-sm text-gray-500">{exp.duration}</p>
-                    <p className="text-gray-600 mt-2">{exp.description}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {activeTab === "ai analysis" && (
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
-              <div className="flex items-center gap-2 mb-6">
-                <Brain className="w-6 h-6 text-purple-600" />
-                <h2 className="text-lg font-semibold text-gray-900">
-                  AI Analysis Report
-                </h2>
-              </div>
-
-              <div className="grid grid-cols-3 gap-4 mb-6">
-                <div className="bg-purple-50 rounded-lg p-4">
-                  <div className="text-2xl font-bold text-purple-700 mb-1">
-                    {applicant.ai_analysis.technical_match}%
-                  </div>
-                  <div className="text-sm text-purple-600">Technical Match</div>
-                </div>
-                <div className="bg-purple-50 rounded-lg p-4">
-                  <div className="text-2xl font-bold text-purple-700 mb-1">
-                    {applicant.ai_analysis.soft_skills}%
-                  </div>
-                  <div className="text-sm text-purple-600">Soft Skills</div>
-                </div>
-                <div className="bg-purple-50 rounded-lg p-4">
-                  <div className="text-2xl font-bold text-purple-700 mb-1">
-                    {applicant.ai_analysis.culture_fit}%
-                  </div>
-                  <div className="text-sm text-purple-600">Culture Fit</div>
-                </div>
-              </div>
-
-              <div className="space-y-6">
-                <div>
-                  <h3 className="font-medium text-gray-900 mb-2">
-                    Key Strengths
-                  </h3>
-                  <ul className="space-y-2">
-                    {applicant.ai_analysis.key_strengths.map(
-                      (strength, index) => (
-                        <li
-                          key={index}
-                          className="flex items-center text-gray-600"
-                        >
-                          <ThumbsUp className="w-4 h-4 text-green-600 mr-2" />
-                          {strength}
-                        </li>
-                      )
-                    )}
-                  </ul>
-                </div>
-
-                <div>
-                  <h3 className="font-medium text-gray-900 mb-2">
-                    Potential Concerns
-                  </h3>
-                  <ul className="space-y-2">
-                    {applicant.ai_analysis.potential_concerns.map(
-                      (concern, index) => (
-                        <li
-                          key={index}
-                          className="flex items-center text-gray-600"
-                        >
-                          <AlertCircle className="w-4 h-4 text-yellow-600 mr-2" />
-                          {concern}
-                        </li>
-                      )
-                    )}
-                  </ul>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === "notes" && (
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                Notes
-              </h2>
-              <textarea
-                className="w-full h-40 p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Add your notes about this candidate..."
-              />
-              <button className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                Save Notes
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* Right Column - Status Card */}
-        <div className="lg:col-span-1">
-          <div className="bg-white rounded-xl border border-gray-200 p-6 sticky top-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Status</h2>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+        {/* Status Card - Shown first on mobile */}
+        <div className="lg:col-span-1 order-first lg:order-last mb-4 sm:mb-0">
+          <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6 lg:sticky lg:top-6">
+            <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">
+              Status
+            </h2>
             <div className="space-y-4">
               <div>
                 <div className="text-sm text-gray-600 mb-1">Current Stage</div>
-                <select className="w-full p-2 border border-gray-200 rounded-lg">
+                <select className="w-full p-2 border border-gray-200 rounded-lg text-sm">
                   <option>New Application</option>
                   <option>Under Review</option>
                   <option>Shortlisted</option>
@@ -500,7 +357,7 @@ const ReviewApplicant = () => {
 
               <div>
                 <div className="text-sm text-gray-600 mb-1">Applied</div>
-                <div className="flex items-center text-gray-900">
+                <div className="flex items-center text-gray-900 text-sm">
                   <Calendar className="w-4 h-4 mr-2" />
                   {applicant.applied}
                 </div>
@@ -508,7 +365,7 @@ const ReviewApplicant = () => {
 
               <div>
                 <div className="text-sm text-gray-600 mb-1">Match Score</div>
-                <div className="flex items-center text-purple-700">
+                <div className="flex items-center text-purple-700 text-sm">
                   <Brain className="w-4 h-4 mr-2" />
                   {applicant.match_score}% match
                 </div>
@@ -526,6 +383,167 @@ const ReviewApplicant = () => {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Left Column - Content area */}
+        <div className="lg:col-span-2">
+          {activeTab === "profile" && (
+            <div className="space-y-4 sm:space-y-6">
+              {/* Basic Info Card */}
+              <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
+                <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">
+                  Basic Information
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex items-center text-sm text-gray-600">
+                    <Mail className="w-4 h-4 sm:w-5 sm:h-5 mr-2 flex-shrink-0" />
+                    <span className="truncate">{applicant.email}</span>
+                  </div>
+                  <div className="flex items-center text-sm text-gray-600">
+                    <Phone className="w-4 h-4 sm:w-5 sm:h-5 mr-2 flex-shrink-0" />
+                    {applicant.phone}
+                  </div>
+                  <div className="flex items-center text-sm text-gray-600">
+                    <MapPin className="w-4 h-4 sm:w-5 sm:h-5 mr-2 flex-shrink-0" />
+                    {applicant.location}
+                  </div>
+                  <div className="flex items-center text-sm text-gray-600">
+                    <Briefcase className="w-4 h-4 sm:w-5 sm:h-5 mr-2 flex-shrink-0" />
+                    {applicant.experience} experience
+                  </div>
+                </div>
+              </div>
+
+              {/* Skills Card */}
+              <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
+                <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">
+                  Skills
+                </h2>
+                <div className="flex flex-wrap gap-2">
+                  {applicant.skills.map((skill, index) => (
+                    <span
+                      key={index}
+                      className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs sm:text-sm"
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Experience Card */}
+              <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
+                <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">
+                  Experience
+                </h2>
+                {applicant.experience_history.map((exp, index) => (
+                  <div key={index} className="mb-4">
+                    <h3 className="font-medium text-gray-900">{exp.role}</h3>
+                    <p className="text-sm text-gray-600">{exp.company}</p>
+                    <p className="text-xs sm:text-sm text-gray-500">
+                      {exp.duration}
+                    </p>
+                    <p className="text-sm text-gray-600 mt-2">
+                      {exp.description}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeTab === "ai analysis" && (
+            <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
+              <div className="flex items-center gap-2 mb-6">
+                <Brain className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" />
+                <h2 className="text-base sm:text-lg font-semibold text-gray-900">
+                  AI Analysis Report
+                </h2>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-6">
+                <div className="bg-purple-50 rounded-lg p-3 sm:p-4">
+                  <div className="text-xl sm:text-2xl font-bold text-purple-700 mb-1">
+                    {applicant.ai_analysis.technical_match}%
+                  </div>
+                  <div className="text-xs sm:text-sm text-purple-600">
+                    Technical Match
+                  </div>
+                </div>
+                <div className="bg-purple-50 rounded-lg p-3 sm:p-4">
+                  <div className="text-xl sm:text-2xl font-bold text-purple-700 mb-1">
+                    {applicant.ai_analysis.soft_skills}%
+                  </div>
+                  <div className="text-xs sm:text-sm text-purple-600">
+                    Soft Skills
+                  </div>
+                </div>
+                <div className="bg-purple-50 rounded-lg p-3 sm:p-4">
+                  <div className="text-xl sm:text-2xl font-bold text-purple-700 mb-1">
+                    {applicant.ai_analysis.culture_fit}%
+                  </div>
+                  <div className="text-xs sm:text-sm text-purple-600">
+                    Culture Fit
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                <div>
+                  <h3 className="font-medium text-gray-900 mb-2">
+                    Key Strengths
+                  </h3>
+                  <ul className="space-y-2">
+                    {applicant.ai_analysis.key_strengths.map(
+                      (strength, index) => (
+                        <li
+                          key={index}
+                          className="flex items-center text-sm text-gray-600"
+                        >
+                          <ThumbsUp className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
+                          {strength}
+                        </li>
+                      )
+                    )}
+                  </ul>
+                </div>
+
+                <div>
+                  <h3 className="font-medium text-gray-900 mb-2">
+                    Potential Concerns
+                  </h3>
+                  <ul className="space-y-2">
+                    {applicant.ai_analysis.potential_concerns.map(
+                      (concern, index) => (
+                        <li
+                          key={index}
+                          className="flex items-center text-sm text-gray-600"
+                        >
+                          <AlertCircle className="w-4 h-4 text-yellow-600 mr-2 flex-shrink-0" />
+                          {concern}
+                        </li>
+                      )
+                    )}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "notes" && (
+            <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
+              <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">
+                Notes
+              </h2>
+              <textarea
+                className="w-full h-32 sm:h-40 p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                placeholder="Add your notes about this candidate..."
+              />
+              <button className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
+                Save Notes
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

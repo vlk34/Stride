@@ -22,12 +22,13 @@ import {
   Filter,
   Download,
 } from "lucide-react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 
 const BusinessDashboard = () => {
   const [timeRange, setTimeRange] = useState("week");
   const [loading, setLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState(null);
+  const navigate = useNavigate();
 
   // Static icons for stats
   const statIcons = [
@@ -79,12 +80,6 @@ const BusinessDashboard = () => {
             trend: "down",
           },
         ],
-        pipelineData: {
-          applied: 115,
-          reviewed: 78,
-          offered: 12,
-          hired: 4,
-        },
         recentJobs: [
           {
             id: 1,
@@ -218,6 +213,16 @@ const BusinessDashboard = () => {
     fetchData();
   }, []);
 
+  // Handle card clicks
+  const handleJobCardClick = (jobId) => {
+    // Navigate to the result page with a flag indicating we came from dashboard
+    navigate("/result", { state: { fromDashboard: true } });
+  };
+
+  const handleApplicantCardClick = (applicantId) => {
+    navigate(`/business/review-applicant/${applicantId}`);
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* Header with Time Range Selector - Keep static */}
@@ -243,16 +248,16 @@ const BusinessDashboard = () => {
       </div>
 
       {/* Stats Grid - Show skeleton only for values */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
         {Array(4)
           .fill()
           .map((_, index) => (
             <div
               key={index}
-              className="bg-white p-6 rounded-xl border border-gray-200"
+              className="bg-white p-4 md:p-6 rounded-xl border border-gray-200"
             >
               <div className="flex items-center justify-between mb-4">
-                <div className="bg-blue-50 p-3 rounded-lg">
+                <div className="bg-blue-50 p-2 md:p-3 rounded-lg">
                   {statIcons[index]}
                 </div>
                 {loading ? (
@@ -277,93 +282,25 @@ const BusinessDashboard = () => {
               {loading ? (
                 <div className="h-8 w-16 bg-gray-200 rounded animate-pulse mb-1"></div>
               ) : (
-                <h3 className="text-2xl font-bold text-gray-900 mb-1">
+                <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-1">
                   {dashboardData.stats[index].value}
                 </h3>
               )}
-              <p className="text-gray-600">{statTitles[index]}</p>
+              <p className="text-sm md:text-base text-gray-600">
+                {statTitles[index]}
+              </p>
             </div>
           ))}
       </div>
 
-      {/* Hiring Pipeline Visualization */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6 mb-8">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-gray-900">
-            Hiring Pipeline
-          </h2>
-        </div>
-
-        <div className="space-y-6">
-          <div className="flex flex-col md:flex-row gap-2 md:gap-0">
-            {/* Pipeline stages with static labels but dynamic values */}
-            {["Applied", "Reviewed", "Offered", "Hired"].map((stage, index) => (
-              <div key={index} className="flex-1 relative">
-                <div
-                  className={`h-2 ${
-                    loading
-                      ? "bg-gray-200"
-                      : index === 0
-                      ? "bg-blue-500"
-                      : index === 1
-                      ? "bg-indigo-500"
-                      : index === 2
-                      ? "bg-green-500"
-                      : "bg-green-700"
-                  } 
-                  ${index === 0 ? "rounded-l-full" : ""} ${
-                    index === 3 ? "rounded-r-full" : ""
-                  }`}
-                ></div>
-                <div className="absolute top-4 left-0 text-center w-full">
-                  {loading ? (
-                    <div className="h-7 w-12 mx-auto bg-gray-200 rounded animate-pulse mb-1"></div>
-                  ) : (
-                    <div className="text-lg font-bold text-gray-900">
-                      {dashboardData.pipelineData[stage.toLowerCase()]}
-                    </div>
-                  )}
-                  <div className="text-xs text-gray-600">{stage}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="pt-12 flex justify-between items-center">
-            {loading ? (
-              <>
-                <div className="w-48 h-5 bg-gray-200 rounded animate-pulse"></div>
-                <div className="w-40 h-5 bg-gray-200 rounded animate-pulse"></div>
-              </>
-            ) : (
-              <>
-                <div className="text-sm text-gray-600">
-                  <span className="font-medium text-green-600">
-                    {Math.round(
-                      (dashboardData.pipelineData.hired /
-                        dashboardData.pipelineData.applied) *
-                        100
-                    )}
-                    %
-                  </span>{" "}
-                  conversion rate from application to hire
-                </div>
-                <div className="text-sm text-gray-600">
-                  Average time to hire:{" "}
-                  <span className="font-medium">18 days</span>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-
       {/* Main Content Grid - With symmetrical cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
         {/* Recent Jobs */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6 h-full">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-gray-900">Recent Jobs</h2>
+        <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6 h-full">
+          <div className="flex items-center justify-between mb-4 md:mb-6">
+            <h2 className="text-lg md:text-xl font-semibold text-gray-900">
+              Recent Jobs
+            </h2>
             <Link
               to="/business/manage/jobs"
               className="text-blue-600 hover:text-blue-700 text-sm flex items-center"
@@ -375,25 +312,25 @@ const BusinessDashboard = () => {
 
           {loading ? (
             // Skeleton for recent jobs - keep icons visible
-            <div className="space-y-4">
+            <div className="space-y-3 md:space-y-4">
               {Array(5)
                 .fill()
                 .map((_, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between p-4 h-24 rounded-lg border border-gray-100"
+                    className="flex items-center justify-between p-3 md:p-4 h-auto min-h-[5rem] md:h-24 rounded-lg border border-gray-100"
                   >
-                    <div>
-                      <div className="h-5 w-40 bg-gray-200 rounded animate-pulse mb-2"></div>
-                      <div className="h-4 w-32 bg-gray-200 rounded animate-pulse mb-2"></div>
+                    <div className="flex-1 min-w-0">
+                      <div className="h-5 w-full max-w-[10rem] bg-gray-200 rounded animate-pulse mb-2"></div>
+                      <div className="h-4 w-full max-w-[8rem] bg-gray-200 rounded animate-pulse mb-2"></div>
                       <div className="flex items-center mt-1">
-                        <Users className="w-4 h-4 text-gray-400 mr-1" />
+                        <Users className="w-4 h-4 text-gray-400 mr-1 flex-shrink-0" />
                         <div className="h-4 w-8 bg-gray-200 rounded animate-pulse"></div>
                       </div>
                     </div>
-                    <div className="flex flex-col items-end">
-                      <div className="h-6 w-20 bg-gray-200 rounded-full animate-pulse mb-2"></div>
-                      <div className="text-blue-600 text-sm mt-2">
+                    <div className="flex flex-col items-end ml-2">
+                      <div className="h-6 w-16 md:w-20 bg-gray-200 rounded-full animate-pulse mb-2"></div>
+                      <div className="text-blue-600 text-xs md:text-sm mt-2 whitespace-nowrap">
                         View Applicants
                       </div>
                     </div>
@@ -402,35 +339,36 @@ const BusinessDashboard = () => {
             </div>
           ) : (
             // Actual jobs when loaded
-            <div className="space-y-4">
+            <div className="space-y-3 md:space-y-4">
               {dashboardData.recentJobs.slice(0, 5).map((job) => (
                 <div
                   key={job.id}
-                  className="flex items-center justify-between p-4 h-24 rounded-lg border border-gray-100 hover:border-blue-500 transition-colors"
+                  onClick={() => handleJobCardClick(job.id)}
+                  className="flex items-center justify-between p-3 md:p-4 h-auto min-h-[5rem] md:h-24 rounded-lg border border-gray-100 hover:border-blue-500 hover:bg-blue-50/30 transition-colors cursor-pointer"
                 >
-                  <div>
-                    <h3 className="font-medium text-gray-900">{job.title}</h3>
-                    <p className="text-sm text-gray-600">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-medium text-gray-900 truncate">
+                      {job.title}
+                    </h3>
+                    <p className="text-sm text-gray-600 truncate">
                       {job.department} • {job.location}
                     </p>
-                    <div className="flex items-center mt-1">
-                      <Users className="w-4 h-4 text-gray-400 mr-1" />
+                    <div className="flex items-center mt-1 flex-wrap">
+                      <Users className="w-4 h-4 text-gray-400 mr-1 flex-shrink-0" />
                       <span className="text-sm text-gray-600 mr-3">
                         {job.applicants}
                       </span>
 
                       {job.newApplicants > 0 && (
-                        <>
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                            +{job.newApplicants} new
-                          </span>
-                        </>
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 mt-1 md:mt-0">
+                          +{job.newApplicants} new
+                        </span>
                       )}
                     </div>
                   </div>
-                  <div className="flex flex-col items-end">
+                  <div className="flex flex-col items-end ml-2">
                     <span
-                      className={`px-3 py-1 rounded-full text-sm ${
+                      className={`px-2 md:px-3 py-1 rounded-full text-xs md:text-sm ${
                         job.status === "Active"
                           ? "bg-green-100 text-green-700"
                           : "bg-gray-100 text-gray-700"
@@ -440,7 +378,8 @@ const BusinessDashboard = () => {
                     </span>
                     <Link
                       to={`/business/job-applicants/${job.id}`}
-                      className="text-blue-600 hover:text-blue-700 text-sm mt-2"
+                      className="text-blue-600 hover:text-blue-700 text-xs md:text-sm mt-2 whitespace-nowrap"
+                      onClick={(e) => e.stopPropagation()} // Prevent card click when clicking this link
                     >
                       View Applicants
                     </Link>
@@ -452,9 +391,9 @@ const BusinessDashboard = () => {
         </div>
 
         {/* Recent Applicants */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6 h-full">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-gray-900">
+        <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6 h-full">
+          <div className="flex items-center justify-between mb-4 md:mb-6">
+            <h2 className="text-lg md:text-xl font-semibold text-gray-900">
               Recent Applicants
             </h2>
             <Link
@@ -468,32 +407,32 @@ const BusinessDashboard = () => {
 
           {loading ? (
             // Skeleton for recent applicants - keep static text
-            <div className="space-y-4">
+            <div className="space-y-3 md:space-y-4">
               {Array(5)
                 .fill()
                 .map((_, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between p-4 h-24 rounded-lg border border-gray-100"
+                    className="flex items-center justify-between p-3 md:p-4 h-auto min-h-[5rem] md:h-24 rounded-lg border border-gray-100"
                   >
-                    <div className="flex items-center">
-                      <div className="w-10 h-10 rounded-full bg-gray-200 animate-pulse mr-3"></div>
-                      <div>
-                        <div className="h-5 w-32 bg-gray-200 rounded animate-pulse mb-1"></div>
-                        <div className="h-4 w-24 bg-gray-200 rounded animate-pulse mb-1"></div>
+                    <div className="flex items-center flex-1 min-w-0">
+                      <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gray-200 animate-pulse mr-2 md:mr-3 flex-shrink-0"></div>
+                      <div className="min-w-0">
+                        <div className="h-5 w-full max-w-[8rem] bg-gray-200 rounded animate-pulse mb-1"></div>
+                        <div className="h-4 w-full max-w-[6rem] bg-gray-200 rounded animate-pulse mb-1"></div>
                         <div className="flex items-center">
-                          <span className="text-xs text-gray-500 mr-1">
+                          <span className="text-xs text-gray-500 mr-1 whitespace-nowrap">
                             Applied
                           </span>
-                          <div className="h-3 w-16 bg-gray-200 rounded animate-pulse"></div>
+                          <div className="h-3 w-12 md:w-16 bg-gray-200 rounded animate-pulse"></div>
                         </div>
                       </div>
                     </div>
-                    <div className="flex flex-col items-end">
-                      <div className="h-6 w-16 bg-gray-200 rounded-full animate-pulse mb-2"></div>
-                      <div className="flex items-center">
-                        <span className="text-sm text-purple-700 mr-1">
-                          <div className="h-4 w-8 bg-gray-200 rounded animate-pulse inline-block align-middle mr-1"></div>
+                    <div className="flex flex-col items-end ml-2">
+                      <div className="h-6 w-14 md:w-16 bg-gray-200 rounded-full animate-pulse mb-2"></div>
+                      <div className="flex items-center whitespace-nowrap">
+                        <div className="h-4 w-6 md:w-8 bg-gray-200 rounded animate-pulse inline-block align-middle mr-1"></div>
+                        <span className="text-xs md:text-sm text-purple-700">
                           % match
                         </span>
                       </div>
@@ -503,31 +442,34 @@ const BusinessDashboard = () => {
             </div>
           ) : (
             // Actual applicants when loaded
-            <div className="space-y-4">
+            <div className="space-y-3 md:space-y-4">
               {dashboardData.recentApplicants.slice(0, 5).map((applicant) => (
                 <div
                   key={applicant.id}
-                  className="flex items-center justify-between p-4 h-24 rounded-lg border border-gray-100 hover:border-blue-500 transition-colors"
+                  onClick={() => handleApplicantCardClick(applicant.id)}
+                  className="flex items-center justify-between p-3 md:p-4 h-auto min-h-[5rem] md:h-24 rounded-lg border border-gray-100 hover:border-blue-500 hover:bg-blue-50/30 transition-colors cursor-pointer"
                 >
-                  <div className="flex items-center">
+                  <div className="flex items-center flex-1 min-w-0">
                     <img
                       src={applicant.photo}
                       alt={applicant.name}
-                      className="w-10 h-10 rounded-full object-cover mr-3 border border-gray-200"
+                      className="w-8 h-8 md:w-10 md:h-10 rounded-full object-cover mr-2 md:mr-3 border border-gray-200 flex-shrink-0"
                     />
-                    <div>
-                      <h3 className="font-medium text-gray-900">
+                    <div className="min-w-0">
+                      <h3 className="font-medium text-gray-900 truncate">
                         {applicant.name}
                       </h3>
-                      <p className="text-sm text-gray-600">{applicant.role}</p>
+                      <p className="text-sm text-gray-600 truncate">
+                        {applicant.role}
+                      </p>
                       <p className="text-xs text-gray-500">
                         Applied {applicant.applied}
                       </p>
                     </div>
                   </div>
-                  <div className="flex flex-col items-end">
+                  <div className="flex flex-col items-end ml-2">
                     <span
-                      className={`px-3 py-1 rounded-full text-xs ${
+                      className={`px-2 md:px-3 py-1 rounded-full text-xs ${
                         applicant.status === "New"
                           ? "bg-blue-100 text-blue-700"
                           : applicant.status === "Reviewed"
@@ -537,7 +479,7 @@ const BusinessDashboard = () => {
                     >
                       {applicant.status}
                     </span>
-                    <div className="text-sm font-medium text-purple-700 mt-2">
+                    <div className="text-xs md:text-sm font-medium text-purple-700 mt-2 whitespace-nowrap">
                       {applicant.match_score}% match
                     </div>
                   </div>

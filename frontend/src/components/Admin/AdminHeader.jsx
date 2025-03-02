@@ -69,20 +69,9 @@ const AdminHeader = () => {
   // Profile dropdown items for admin users
   const profileMenuItems = [
     {
-      label: "Admin Settings",
+      label: "Account Settings",
       icon: <Settings className="w-4 h-4" />,
-      onClick: () => navigate("/admin-settings"),
-    },
-    {
-      label: "System Logs",
-      icon: <FileText className="w-4 h-4" />,
-      onClick: () => navigate("/admin-logs"),
-    },
-    {
-      label: "Switch to User View",
-      icon: <User className="w-4 h-4" />,
-      onClick: () => navigate("/switch-to-user"),
-      className: "text-blue-600 hover:bg-blue-50",
+      onClick: () => openUserProfile(),
     },
     {
       label: "Logout",
@@ -104,7 +93,7 @@ const AdminHeader = () => {
             {/* Logo and App Name */}
             <Link
               to="/admin/dashboard"
-              className="flex items-center space-x-2 mr-8"
+              className="flex items-center space-x-2 mr-4 sm:mr-8"
             >
               <Compass className="w-6 h-6 text-blue-700" />
               <span className="text-xl font-semibold text-gray-900">
@@ -121,7 +110,7 @@ const AdminHeader = () => {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                  className={`flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-colors
                     ${
                       location.pathname === item.path
                         ? "bg-blue-50 text-blue-600"
@@ -151,12 +140,12 @@ const AdminHeader = () => {
                   <div className="relative mx-2">
                     <button
                       onClick={() => setIsProfileOpen(!isProfileOpen)}
-                      className="flex items-center space-x-3 px-4 py-2 rounded-lg hover:bg-gray-50"
+                      className="flex items-center space-x-3 px-3 sm:px-4 py-2 rounded-lg hover:bg-gray-50"
                     >
                       <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
                         <Shield className="w-4 h-4 text-blue-600" />
                       </div>
-                      <span className="text-sm font-medium text-gray-700">
+                      <span className="text-sm font-medium text-gray-700 hidden sm:inline">
                         {displayName}
                       </span>
                       <ChevronDown
@@ -226,6 +215,7 @@ const AdminHeader = () => {
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="md:hidden ml-auto p-2 transition-colors text-gray-600 hover:text-gray-900"
+              aria-label={isMenuOpen ? "Close menu" : "Open menu"}
             >
               {isMenuOpen ? (
                 <X className="w-6 h-6 transition-transform duration-200 ease-in-out transform rotate-180" />
@@ -263,11 +253,7 @@ const AdminHeader = () => {
               {user ? (
                 <>
                   <div className="border-t border-gray-200 pt-2 mt-2">
-                    <Link
-                      to="/admin-settings"
-                      onClick={() => setIsMenuOpen(false)}
-                      className="flex items-center space-x-2 px-4 py-3"
-                    >
+                    <div className="flex items-center space-x-2 px-4 py-3">
                       <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
                         <Shield className="w-4 h-4 text-blue-600" />
                       </div>
@@ -279,11 +265,22 @@ const AdminHeader = () => {
                           Administrator
                         </div>
                       </div>
-                    </Link>
+                    </div>
                   </div>
 
                   {/* Additional mobile menu items for admin users */}
                   <div className="border-t border-gray-200 pt-2 mt-2">
+                    <button
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        openUserProfile();
+                      }}
+                      className="flex items-center space-x-2 px-4 py-3 text-gray-600 hover:bg-gray-50 w-full text-left"
+                    >
+                      <Settings className="w-5 h-5" />
+                      <span className="font-medium">Account Settings</span>
+                    </button>
+
                     <Link
                       to="/admin-logs"
                       onClick={() => setIsMenuOpen(false)}
