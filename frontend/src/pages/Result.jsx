@@ -92,23 +92,43 @@ const Result = ({ jobs: propJobs }) => {
     industry: "",
     experience: "",
   });
+  const [initialSelectionDone, setInitialSelectionDone] = useState(false);
 
   // Use provided jobs or fall back to sample jobs
   const [jobs, setJobs] = useState(propJobs || sampleJobs);
   const [filteredJobs, setFilteredJobs] = useState(jobs);
   const [selectedJob, setSelectedJob] = useState(null);
 
-  // Check if we came from dashboard and select first job if needed
+  // Modified useEffect to handle initial job selection and prevent reopening
   useEffect(() => {
-    // If we came from dashboard and there are jobs available, select the first one
+    // Only select the first job if we haven't done the initial selection yet
     if (
       location.state?.fromDashboard &&
       filteredJobs.length > 0 &&
-      !selectedJob
+      !selectedJob &&
+      !initialSelectionDone
     ) {
       setSelectedJob(filteredJobs[0]);
+      // Mark that we've done the initial selection
+      setInitialSelectionDone(true);
     }
-  }, [filteredJobs, location.state, selectedJob]);
+  }, [filteredJobs, location.state, selectedJob, initialSelectionDone]);
+
+  // Create a wrapper for setSelectedJob that respects user's choice to close
+  const handleSelectJob = (job) => {
+    setSelectedJob(job);
+    // If user explicitly selects a job, we should consider initial selection done
+    if (!initialSelectionDone) {
+      setInitialSelectionDone(true);
+    }
+  };
+
+  // Create a handler for closing the job detail view
+  const handleCloseJobDetail = () => {
+    setSelectedJob(null);
+    // Ensure we don't reopen it automatically
+    setInitialSelectionDone(true);
+  };
 
   // Update jobs if props change
   useEffect(() => {
@@ -266,7 +286,7 @@ const Result = ({ jobs: propJobs }) => {
                   key={job.id}
                   job={job}
                   isSelected={selectedJob?.id === job.id}
-                  onSelect={setSelectedJob}
+                  onSelect={handleSelectJob}
                 />
               ))}
             </div>
@@ -299,7 +319,7 @@ const Result = ({ jobs: propJobs }) => {
                 key={job.id}
                 job={job}
                 isSelected={selectedJob?.id === job.id}
-                onSelect={setSelectedJob}
+                onSelect={handleSelectJob}
               />
             ))}
           </div>
@@ -309,7 +329,7 @@ const Result = ({ jobs: propJobs }) => {
             <>
               <div
                 className="fixed inset-0 bg-black/30 transition-opacity z-40"
-                onClick={() => setSelectedJob(null)}
+                onClick={handleCloseJobDetail}
               />
 
               <div
@@ -326,7 +346,7 @@ const Result = ({ jobs: propJobs }) => {
                       {selectedJob.title}
                     </h2>
                     <button
-                      onClick={() => setSelectedJob(null)}
+                      onClick={handleCloseJobDetail}
                       className="p-2 hover:bg-gray-100 rounded-full lg:hidden"
                     >
                       <X className="w-5 h-5" />
@@ -338,16 +358,18 @@ const Result = ({ jobs: propJobs }) => {
                 </div>
               </div>
 
-              <style jsx>{`
-                @keyframes slideUp {
-                  from {
-                    transform: translateY(100%);
+              <style>
+                {`
+                  @keyframes slideUp {
+                    from {
+                      transform: translateY(100%);
+                    }
+                    to {
+                      transform: translateY(0);
+                    }
                   }
-                  to {
-                    transform: translateY(0);
-                  }
-                }
-              `}</style>
+                `}
+              </style>
             </>
           )}
         </div>

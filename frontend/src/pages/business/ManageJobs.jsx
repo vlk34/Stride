@@ -21,6 +21,8 @@ const ManageJobs = () => {
   const [jobToDeleteTitle, setJobToDeleteTitle] = useState("");
   const [loading, setLoading] = useState(true);
   const [jobs, setJobs] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredJobs, setFilteredJobs] = useState([]);
   const navigate = useNavigate();
 
   // Simulate data fetching
@@ -90,11 +92,39 @@ const ManageJobs = () => {
       ];
 
       setJobs(jobsData);
+      setFilteredJobs(jobsData);
       setLoading(false);
     };
 
     fetchData();
   }, []);
+
+  // Filter jobs based on search term and active tab
+  useEffect(() => {
+    if (jobs.length === 0) return;
+
+    const filtered = jobs.filter((job) => {
+      // First filter by tab (status)
+      const statusMatch =
+        activeTab === "all" || job.status.toLowerCase() === activeTab;
+
+      // Then filter by search term
+      const searchMatch =
+        searchTerm === "" ||
+        job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        job.department.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        job.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        job.type.toLowerCase().includes(searchTerm.toLowerCase());
+
+      return statusMatch && searchMatch;
+    });
+
+    setFilteredJobs(filtered);
+  }, [searchTerm, activeTab, jobs]);
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
 
   const handleDeleteClick = (job) => {
     setJobToDelete(job.id);
@@ -135,7 +165,7 @@ const ManageJobs = () => {
         </Link>
       </div>
 
-      {/* Filters and Search - Static */}
+      {/* Filters and Search - Updated with onChange handler */}
       <div className="bg-white rounded-xl border border-gray-200 p-4 mb-6">
         <div className="flex flex-col md:flex-row gap-4 mb-4">
           <div className="flex-1">
@@ -146,14 +176,16 @@ const ManageJobs = () => {
                 placeholder="Search jobs..."
                 className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 disabled={loading}
+                value={searchTerm}
+                onChange={handleSearchChange}
               />
             </div>
           </div>
         </div>
 
-        {/* Status Tabs - Static */}
+        {/* Status Tabs - Add 'all' tab */}
         <div className="flex gap-2 overflow-x-auto pb-1">
-          {["active", "draft", "closed", "expired"].map((tab) => (
+          {["all", "active", "draft", "closed", "expired"].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -170,7 +202,7 @@ const ManageJobs = () => {
         </div>
       </div>
 
-      {/* Jobs List - Responsive Card View for Mobile, Table for Larger Screens */}
+      {/* Jobs List - Update to use filteredJobs instead of jobs */}
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
         {/* Table Header - Hidden on Mobile */}
         <div className="hidden md:block">
@@ -196,209 +228,236 @@ const ManageJobs = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {loading
-                  ? // Skeleton rows for loading state
-                    Array(5)
-                      .fill()
-                      .map((_, index) => (
-                        <tr key={index} className="hover:bg-gray-50">
-                          <td className="px-6 py-4">
-                            <div>
-                              <div className="h-5 w-48 bg-gray-200 rounded animate-pulse mb-2"></div>
-                              <div className="h-4 w-40 bg-gray-200 rounded animate-pulse"></div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="flex items-center text-sm text-gray-600">
-                              <Users className="w-4 h-4 mr-2" />
-                              <div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="h-6 w-16 bg-gray-200 rounded-full animate-pulse"></div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="text-sm text-gray-600">
-                              <div className="h-4 w-24 bg-gray-200 rounded animate-pulse mb-1"></div>
-                              <div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 text-right">
-                            <div className="flex justify-end gap-2">
-                              <div className="p-2 text-gray-400">
-                                <Eye className="w-5 h-5" />
-                              </div>
-                              <div className="p-2 text-gray-400">
-                                <Edit className="w-5 h-5" />
-                              </div>
-                              <div className="p-2 text-gray-400">
-                                <Trash2 className="w-5 h-5" />
-                              </div>
-                            </div>
-                          </td>
-                        </tr>
-                      ))
-                  : // Actual job data when loaded
-                    jobs.map((job) => (
-                      <tr key={job.id} className="hover:bg-gray-50">
+                {loading ? (
+                  // Skeleton rows for loading state
+                  Array(5)
+                    .fill()
+                    .map((_, index) => (
+                      <tr key={index} className="hover:bg-gray-50">
                         <td className="px-6 py-4">
                           <div>
-                            <h3 className="font-medium text-gray-900">
-                              {job.title}
-                            </h3>
-                            <p className="text-sm text-gray-600">
-                              {job.department} • {job.location} • {job.type}
-                            </p>
+                            <div className="h-5 w-48 bg-gray-200 rounded animate-pulse mb-2"></div>
+                            <div className="h-4 w-40 bg-gray-200 rounded animate-pulse"></div>
                           </div>
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center text-sm text-gray-600">
                             <Users className="w-4 h-4 mr-2" />
-                            {job.applicants} applicants
+                            <div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div>
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <span
-                            className={`px-3 py-1 rounded-full text-sm ${
-                              job.status === "Active"
-                                ? "bg-green-100 text-green-700"
-                                : job.status === "Draft"
-                                ? "bg-yellow-100 text-yellow-700"
-                                : "bg-gray-100 text-gray-700"
-                            }`}
-                          >
-                            {job.status}
-                          </span>
+                          <div className="h-6 w-16 bg-gray-200 rounded-full animate-pulse"></div>
                         </td>
                         <td className="px-6 py-4">
                           <div className="text-sm text-gray-600">
-                            <p>Posted {job.posted}</p>
-                            <p className="text-gray-500">{job.closing}</p>
+                            <div className="h-4 w-24 bg-gray-200 rounded animate-pulse mb-1"></div>
+                            <div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div>
                           </div>
                         </td>
                         <td className="px-6 py-4 text-right">
                           <div className="flex justify-end gap-2">
-                            <button
-                              onClick={() => handleViewJobClick(job.id)}
-                              className="p-2 text-gray-600 hover:text-blue-600"
-                            >
+                            <div className="p-2 text-gray-400">
                               <Eye className="w-5 h-5" />
-                            </button>
-                            <Link
-                              to={`/business/edit-job/${job.id}`}
-                              className="p-2 text-gray-600 hover:text-blue-600"
-                            >
+                            </div>
+                            <div className="p-2 text-gray-400">
                               <Edit className="w-5 h-5" />
-                            </Link>
-                            <button
-                              onClick={() => handleDeleteClick(job)}
-                              className="p-2 text-gray-600 hover:text-red-600"
-                            >
+                            </div>
+                            <div className="p-2 text-gray-400">
                               <Trash2 className="w-5 h-5" />
-                            </button>
+                            </div>
                           </div>
                         </td>
                       </tr>
-                    ))}
+                    ))
+                ) : // Actual job data when loaded - use filteredJobs instead of jobs
+                filteredJobs.length > 0 ? (
+                  filteredJobs.map((job) => (
+                    <tr key={job.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4">
+                        <div>
+                          <h3 className="font-medium text-gray-900">
+                            {job.title}
+                          </h3>
+                          <p className="text-sm text-gray-600">
+                            {job.department} • {job.location} • {job.type}
+                          </p>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center text-sm text-gray-600">
+                          <Users className="w-4 h-4 mr-2" />
+                          {job.applicants} applicants
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span
+                          className={`px-3 py-1 rounded-full text-sm ${
+                            job.status === "Active"
+                              ? "bg-green-100 text-green-700"
+                              : job.status === "Draft"
+                              ? "bg-yellow-100 text-yellow-700"
+                              : "bg-gray-100 text-gray-700"
+                          }`}
+                        >
+                          {job.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm text-gray-600">
+                          <p>Posted {job.posted}</p>
+                          <p className="text-gray-500">{job.closing}</p>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex justify-end gap-2">
+                          <button
+                            onClick={() => handleViewJobClick(job.id)}
+                            className="p-2 text-gray-600 hover:text-blue-600"
+                          >
+                            <Eye className="w-5 h-5" />
+                          </button>
+                          <Link
+                            to={`/business/edit-job/${job.id}`}
+                            className="p-2 text-gray-600 hover:text-blue-600"
+                          >
+                            <Edit className="w-5 h-5" />
+                          </Link>
+                          <button
+                            onClick={() => handleDeleteClick(job)}
+                            className="p-2 text-gray-600 hover:text-red-600"
+                          >
+                            <Trash2 className="w-5 h-5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td
+                      colSpan="5"
+                      className="px-6 py-8 text-center text-gray-500"
+                    >
+                      <div className="flex flex-col items-center">
+                        <Search className="w-8 h-8 mb-2 text-gray-400" />
+                        <p className="text-lg font-medium">No jobs found</p>
+                        <p className="text-sm">
+                          Try adjusting your search or filter criteria
+                        </p>
+                      </div>
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
         </div>
 
-        {/* Mobile Card View */}
+        {/* Mobile Card View - Update to use filteredJobs */}
         <div className="md:hidden divide-y divide-gray-200">
-          {loading
-            ? // Skeleton cards for loading state on mobile
-              Array(5)
-                .fill()
-                .map((_, index) => (
-                  <div key={index} className="p-4">
-                    <div className="h-5 w-full max-w-[200px] bg-gray-200 rounded animate-pulse mb-2"></div>
-                    <div className="h-4 w-full max-w-[150px] bg-gray-200 rounded animate-pulse mb-3"></div>
-
-                    <div className="flex justify-between items-center mb-3">
-                      <div className="flex items-center">
-                        <Users className="w-4 h-4 mr-2 text-gray-400" />
-                        <div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div>
-                      </div>
-                      <div className="h-6 w-16 bg-gray-200 rounded-full animate-pulse"></div>
-                    </div>
-
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <div className="h-4 w-24 bg-gray-200 rounded animate-pulse mb-1"></div>
-                        <div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div>
-                      </div>
-                      <div className="flex gap-2">
-                        <div className="p-2 text-gray-400">
-                          <Eye className="w-5 h-5" />
-                        </div>
-                        <div className="p-2 text-gray-400">
-                          <Edit className="w-5 h-5" />
-                        </div>
-                        <div className="p-2 text-gray-400">
-                          <Trash2 className="w-5 h-5" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))
-            : // Actual job cards for mobile
-              jobs.map((job) => (
-                <div key={job.id} className="p-4 hover:bg-gray-50">
-                  <h3 className="font-medium text-gray-900 mb-1">
-                    {job.title}
-                  </h3>
-                  <p className="text-sm text-gray-600 mb-3">
-                    {job.department} • {job.location} • {job.type}
-                  </p>
+          {loading ? (
+            // Skeleton cards for loading state on mobile
+            Array(5)
+              .fill()
+              .map((_, index) => (
+                <div key={index} className="p-4">
+                  <div className="h-5 w-full max-w-[200px] bg-gray-200 rounded animate-pulse mb-2"></div>
+                  <div className="h-4 w-full max-w-[150px] bg-gray-200 rounded animate-pulse mb-3"></div>
 
                   <div className="flex justify-between items-center mb-3">
-                    <div className="flex items-center text-sm text-gray-600">
-                      <Users className="w-4 h-4 mr-2" />
-                      {job.applicants} applicants
+                    <div className="flex items-center">
+                      <Users className="w-4 h-4 mr-2 text-gray-400" />
+                      <div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div>
                     </div>
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs ${
-                        job.status === "Active"
-                          ? "bg-green-100 text-green-700"
-                          : job.status === "Draft"
-                          ? "bg-yellow-100 text-yellow-700"
-                          : "bg-gray-100 text-gray-700"
-                      }`}
-                    >
-                      {job.status}
-                    </span>
+                    <div className="h-6 w-16 bg-gray-200 rounded-full animate-pulse"></div>
                   </div>
 
                   <div className="flex justify-between items-center">
-                    <div className="text-xs text-gray-600">
-                      <p>Posted {job.posted}</p>
-                      <p className="text-gray-500">{job.closing}</p>
+                    <div>
+                      <div className="h-4 w-24 bg-gray-200 rounded animate-pulse mb-1"></div>
+                      <div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div>
                     </div>
-                    <div className="flex gap-1">
-                      <button
-                        onClick={() => handleViewJobClick(job.id)}
-                        className="p-2 text-gray-600 hover:text-blue-600"
-                      >
+                    <div className="flex gap-2">
+                      <div className="p-2 text-gray-400">
                         <Eye className="w-5 h-5" />
-                      </button>
-                      <Link
-                        to={`/business/edit-job/${job.id}`}
-                        className="p-2 text-gray-600 hover:text-blue-600"
-                      >
+                      </div>
+                      <div className="p-2 text-gray-400">
                         <Edit className="w-5 h-5" />
-                      </Link>
-                      <button
-                        onClick={() => handleDeleteClick(job)}
-                        className="p-2 text-gray-600 hover:text-red-600"
-                      >
+                      </div>
+                      <div className="p-2 text-gray-400">
                         <Trash2 className="w-5 h-5" />
-                      </button>
+                      </div>
                     </div>
                   </div>
                 </div>
-              ))}
+              ))
+          ) : // Actual job cards for mobile - use filteredJobs
+          filteredJobs.length > 0 ? (
+            filteredJobs.map((job) => (
+              <div key={job.id} className="p-4 hover:bg-gray-50">
+                <h3 className="font-medium text-gray-900 mb-1">{job.title}</h3>
+                <p className="text-sm text-gray-600 mb-3">
+                  {job.department} • {job.location} • {job.type}
+                </p>
+
+                <div className="flex justify-between items-center mb-3">
+                  <div className="flex items-center text-sm text-gray-600">
+                    <Users className="w-4 h-4 mr-2" />
+                    {job.applicants} applicants
+                  </div>
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs ${
+                      job.status === "Active"
+                        ? "bg-green-100 text-green-700"
+                        : job.status === "Draft"
+                        ? "bg-yellow-100 text-yellow-700"
+                        : "bg-gray-100 text-gray-700"
+                    }`}
+                  >
+                    {job.status}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <div className="text-xs text-gray-600">
+                    <p>Posted {job.posted}</p>
+                    <p className="text-gray-500">{job.closing}</p>
+                  </div>
+                  <div className="flex gap-1">
+                    <button
+                      onClick={() => handleViewJobClick(job.id)}
+                      className="p-2 text-gray-600 hover:text-blue-600"
+                    >
+                      <Eye className="w-5 h-5" />
+                    </button>
+                    <Link
+                      to={`/business/edit-job/${job.id}`}
+                      className="p-2 text-gray-600 hover:text-blue-600"
+                    >
+                      <Edit className="w-5 h-5" />
+                    </Link>
+                    <button
+                      onClick={() => handleDeleteClick(job)}
+                      className="p-2 text-gray-600 hover:text-red-600"
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="p-8 text-center text-gray-500">
+              <div className="flex flex-col items-center">
+                <Search className="w-8 h-8 mb-2 text-gray-400" />
+                <p className="text-lg font-medium">No jobs found</p>
+                <p className="text-sm">
+                  Try adjusting your search or filter criteria
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

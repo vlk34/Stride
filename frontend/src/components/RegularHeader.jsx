@@ -25,6 +25,7 @@ const RegularHeader = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isMobileProfileOpen, setIsMobileProfileOpen] = useState(false);
   const profileRef = useRef(null);
   const navigate = useNavigate();
   const { openUserProfile, signOut } = useClerk();
@@ -55,9 +56,30 @@ const RegularHeader = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Reset mobile profile dropdown when menu is closed
+  useEffect(() => {
+    if (!isMenuOpen) {
+      setIsMobileProfileOpen(false);
+    }
+  }, [isMenuOpen]);
+
   const handleLogout = async () => {
     await signOut();
     navigate("/signin");
+  };
+
+  // Toggle hamburger menu
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+    // Always ensure profile dropdown is closed when toggling menu
+    setIsMobileProfileOpen(false);
+  };
+
+  // Handle navigation
+  const handleNavigation = (path) => {
+    navigate(path);
+    setIsMenuOpen(false);
+    setIsMobileProfileOpen(false);
   };
 
   // Profile dropdown items
@@ -218,7 +240,7 @@ const RegularHeader = () => {
 
             {/* Mobile Menu Button */}
             <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              onClick={toggleMenu}
               className={`md:hidden ml-auto p-2 transition-colors ${
                 location.pathname.includes("/job/")
                   ? "text-gray-400 cursor-not-allowed"
@@ -245,7 +267,7 @@ const RegularHeader = () => {
                 <Link
                   key={item.path}
                   to={item.path}
-                  onClick={() => setIsMenuOpen(false)}
+                  onClick={() => handleNavigation(item.path)}
                   className={`flex items-center space-x-2 px-4 py-3 rounded-lg transition-all duration-200
                     ${
                       location.pathname === item.path
@@ -258,39 +280,96 @@ const RegularHeader = () => {
                 </Link>
               ))}
 
-              {/* Mobile Profile Link */}
+              {/* Mobile Profile Section with Collapsible Menu */}
               {user ? (
                 <>
                   <div className="border-t border-gray-200 pt-2 mt-2">
-                    <Link
-                      to="/profile"
-                      onClick={() => setIsMenuOpen(false)}
-                      className="flex items-center space-x-2 px-4 py-3"
-                    >
-                      <img
-                        src={localUserData.imageUrl || user?.imageUrl || ""}
-                        alt="Profile"
-                        className="w-8 h-8 rounded-full object-cover border border-gray-200"
-                      />
-                      <div>
-                        <span className="font-medium text-gray-700">
-                          {displayName}
-                        </span>
-                      </div>
-                    </Link>
-                  </div>
-
-                  <div className="border-t border-gray-200 pt-2 mt-2">
                     <button
-                      onClick={() => {
-                        setIsMenuOpen(false);
-                        handleLogout();
-                      }}
-                      className="flex items-center space-x-2 px-4 py-3 text-red-600 w-full text-left"
+                      onClick={() =>
+                        setIsMobileProfileOpen(!isMobileProfileOpen)
+                      }
+                      className="flex items-center justify-between w-full px-4 py-3 text-left rounded-lg hover:bg-gray-50"
                     >
-                      <LogOut className="w-5 h-5" />
-                      <span className="font-medium">Logout</span>
+                      <div className="flex items-center space-x-2">
+                        <img
+                          src={localUserData.imageUrl || user?.imageUrl || ""}
+                          alt="Profile"
+                          className="w-8 h-8 rounded-full object-cover border border-gray-200"
+                        />
+                        <div>
+                          <span className="font-medium text-gray-700 block">
+                            {displayName}
+                          </span>
+                        </div>
+                      </div>
+                      <ChevronDown
+                        className={`w-5 h-5 text-gray-500 transition-transform duration-200 ${
+                          isMobileProfileOpen ? "rotate-180" : ""
+                        }`}
+                      />
                     </button>
+
+                    {/* Collapsible Profile Menu */}
+                    <div
+                      className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                        isMobileProfileOpen ? "max-h-screen" : "max-h-0"
+                      }`}
+                    >
+                      <div className="pl-4 space-y-1 mt-1">
+                        <Link
+                          to="/profile"
+                          onClick={() => handleNavigation("/profile")}
+                          className="flex items-center space-x-2 px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg"
+                        >
+                          <User className="w-5 h-5" />
+                          <span className="font-medium">Go to my account</span>
+                        </Link>
+
+                        <button
+                          onClick={() => {
+                            setIsMenuOpen(false);
+                            setIsMobileProfileOpen(false);
+                            openUserProfile();
+                          }}
+                          className="flex items-center space-x-2 px-4 py-3 text-gray-600 hover:bg-gray-50 w-full text-left rounded-lg"
+                        >
+                          <Settings className="w-5 h-5" />
+                          <span className="font-medium">Settings</span>
+                        </button>
+
+                        <Link
+                          to="/help"
+                          onClick={() => handleNavigation("/help")}
+                          className="flex items-center space-x-2 px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg"
+                        >
+                          <HelpCircle className="w-5 h-5" />
+                          <span className="font-medium">Help</span>
+                        </Link>
+
+                        <Link
+                          to="/business/upgrade"
+                          onClick={() => handleNavigation("/business/upgrade")}
+                          className="flex items-center space-x-2 px-4 py-3 text-blue-600 hover:bg-blue-50 rounded-lg"
+                        >
+                          <Building2 className="w-5 h-5" />
+                          <span className="font-medium">
+                            Upgrade to Business
+                          </span>
+                        </Link>
+
+                        <button
+                          onClick={() => {
+                            setIsMenuOpen(false);
+                            setIsMobileProfileOpen(false);
+                            handleLogout();
+                          }}
+                          className="flex items-center space-x-2 px-4 py-3 text-red-600 w-full text-left hover:bg-red-50 rounded-lg"
+                        >
+                          <LogOut className="w-5 h-5" />
+                          <span className="font-medium">Logout</span>
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </>
               ) : (

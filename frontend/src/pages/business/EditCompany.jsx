@@ -19,6 +19,8 @@ import {
   Award,
   Coffee,
   Calendar,
+  FileText,
+  Share,
 } from "lucide-react";
 
 const EditCompany = () => {
@@ -191,28 +193,77 @@ const EditCompany = () => {
         </div>
       )}
 
-      {/* Tabs */}
-      <div className="border-b border-gray-200 mb-6">
-        <div className="flex gap-8">
-          {[
-            { id: "basic", label: "Basic Info" },
-            { id: "contact", label: "Contact & Location" },
-            { id: "details", label: "Company Details" },
-            { id: "culture", label: "Culture & Benefits" },
-            { id: "social", label: "Social Media" },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`pb-4 px-1 font-medium ${
-                activeTab === tab.id
-                  ? "text-blue-600 border-b-2 border-blue-600"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
+      {/* Option 2: Icon-based tabs for mobile */}
+      <div className="mb-6">
+        {/* Mobile icon tabs */}
+        <div className="md:hidden border-b border-gray-200">
+          <div className="flex justify-between">
+            {[
+              {
+                id: "basic",
+                label: "Basic",
+                icon: <Building2 className="w-5 h-5" />,
+              },
+              {
+                id: "contact",
+                label: "Contact",
+                icon: <MapPin className="w-5 h-5" />,
+              },
+              {
+                id: "details",
+                label: "Details",
+                icon: <FileText className="w-5 h-5" />,
+              },
+              {
+                id: "culture",
+                label: "Culture",
+                icon: <Heart className="w-5 h-5" />,
+              },
+              {
+                id: "social",
+                label: "Social",
+                icon: <Share className="w-5 h-5" />,
+              },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex flex-col items-center py-2 px-1 ${
+                  activeTab === tab.id
+                    ? "text-blue-600 border-b-2 border-blue-600"
+                    : "text-gray-500 hover:text-gray-700"
+                }`}
+              >
+                {tab.icon}
+                <span className="text-xs mt-1">{tab.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Desktop tabs */}
+        <div className="hidden md:block border-b border-gray-200">
+          <div className="flex gap-8">
+            {[
+              { id: "basic", label: "Basic Info" },
+              { id: "contact", label: "Contact & Location" },
+              { id: "details", label: "Company Details" },
+              { id: "culture", label: "Culture & Benefits" },
+              { id: "social", label: "Social Media" },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`pb-4 px-1 font-medium ${
+                  activeTab === tab.id
+                    ? "text-blue-600 border-b-2 border-blue-600"
+                    : "text-gray-500 hover:text-gray-700"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 

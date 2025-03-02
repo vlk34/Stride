@@ -256,7 +256,7 @@ const CreateJobListing = () => {
         candidates.
       </p>
       <button
-        onClick={() => navigate("/business-dashboard")}
+        onClick={() => navigate("/business/dashboard")}
         className="inline-flex items-center justify-center px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors"
       >
         View Dashboard

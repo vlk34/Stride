@@ -43,16 +43,18 @@ const ApplicationModal = ({ isOpen, onClose, onSubmit, job }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg w-full max-w-md p-6 relative">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg w-full max-w-md p-4 sm:p-6 relative">
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 text-gray-400 hover:text-gray-600"
+          className="absolute right-3 sm:right-4 top-3 sm:top-4 text-gray-400 hover:text-gray-600"
         >
           <X className="w-5 h-5" />
         </button>
 
-        <h2 className="text-xl font-semibold mb-1">Apply for {job.title}</h2>
+        <h2 className="text-xl font-semibold mb-1 pr-6">
+          Apply for {job.title}
+        </h2>
         <p className="text-gray-600 text-sm mb-4">{job.company}</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">

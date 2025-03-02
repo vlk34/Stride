@@ -96,8 +96,10 @@ const PreferencesModal = ({ onClose }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
-        <div className="sticky top-0 bg-white p-6 border-b border-gray-200 flex justify-between items-center">
-          <h2 className="text-2xl font-bold text-gray-900">Job Preferences</h2>
+        <div className="sticky top-0 bg-white p-4 sm:p-6 border-b border-gray-200 flex justify-between items-center">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
+            Job Preferences
+          </h2>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700"
@@ -106,7 +108,7 @@ const PreferencesModal = ({ onClose }) => {
           </button>
         </div>
 
-        <div className="p-6 space-y-8">
+        <div className="p-4 sm:p-6 space-y-6 sm:space-y-8">
           {/* Job Types */}
           <div>
             <div className="flex items-center gap-2 mb-4">
@@ -258,16 +260,16 @@ const PreferencesModal = ({ onClose }) => {
           </div>
         </div>
 
-        <div className="sticky bottom-0 bg-white p-6 border-t border-gray-200 flex justify-end gap-4">
+        <div className="sticky bottom-0 bg-white p-4 sm:p-6 border-t border-gray-200 flex justify-end gap-3 sm:gap-4">
           <button
             onClick={onClose}
-            className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50"
+            className="px-4 sm:px-6 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50"
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 flex items-center gap-2"
+            className="px-4 sm:px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 flex items-center gap-2"
           >
             <Save className="w-4 h-4" />
             Save Preferences
