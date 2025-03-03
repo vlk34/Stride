@@ -14,6 +14,8 @@ import {
   Building2,
   MessageSquare,
   Bell,
+  Briefcase,
+  Sparkles,
 } from "lucide-react";
 import { useUser, useClerk } from "@clerk/clerk-react";
 import { useUserData } from "../contexts/UserDataContext";
@@ -42,6 +44,11 @@ const RegularHeader = () => {
       label: "Search Jobs",
     },
     { path: "/jobs", icon: <Bookmark className="w-5 h-5" />, label: "My Jobs" },
+    {
+      path: "/job-match",
+      icon: <Sparkles className="w-5 h-5" />,
+      label: "Job Match",
+    },
   ];
 
   // Close dropdown when clicking outside

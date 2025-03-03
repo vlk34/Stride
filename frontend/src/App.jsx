@@ -44,6 +44,8 @@ import BusinessApplicationReview from "./components/Admin/BusinessApplicationRev
 import EditCompany from "./pages/business/EditCompany";
 import JobRecommendations from "./pages/JobRecommendations";
 import BusinessMessages from "./pages/BusinessMessages";
+import JobMatch from "./pages/JobMatch";
+import RecommendedJobs from "./pages/RecommendedJobs";
 const faqData = {
   categories: [
     {
@@ -282,6 +284,8 @@ const App = () => {
           <Route path="/accessibility" element={<Accessibility />} />
           <Route path="/unauthorized" element={<UnauthorizedAccess />} />
           <Route path="/admin-unauthorized" element={<AdminUnathorized />} />
+          <Route path="/job-match" element={<JobMatch />} />
+          <Route path="/recommended-jobs" element={<RecommendedJobs />} />
         </Route>
 
         <Route element={<PublicRoute hasFooter={false} />}>
