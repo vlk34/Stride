@@ -139,7 +139,7 @@ const BusinessUpgrade = () => {
       </div>
 
       {/* Trust Section */}
-      <div className="text-center mb-16">
+      <div className="text-center mb-16 pt-3">
         <div className="inline-flex items-center gap-2 bg-blue-50 px-4 py-2 rounded-full mb-4">
           <Shield className="w-5 h-5 text-blue-600" />
           <span className="text-blue-600 font-medium">
@@ -153,19 +153,14 @@ const BusinessUpgrade = () => {
       </div>
 
       {/* CTA Section */}
-      <div className="text-center">
+      <div className="text-center pb-2">
         <Link
           to="/business/account-creation"
           className="inline-flex items-center justify-center px-8 py-4 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors"
         >
           Get Started with Business Account
         </Link>
-        <p className="mt-4 text-sm text-gray-500">
-          Have questions?{" "}
-          <Link to="/contact" className="text-blue-600 hover:text-blue-700">
-            Contact our sales team
-          </Link>
-        </p>
+        
       </div>
     </div>
   );

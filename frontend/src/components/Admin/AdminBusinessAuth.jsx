@@ -15,14 +15,9 @@ const UnauthorizedAccess = () => {
           Unauthorized Access
         </h1>
         <p className="text-gray-600 mb-8">
-          How did we get here? This is protected area. You need to have a Admin account to access this page.
+          You need to have a Business account to access this page. You cannot access this page with your Admin account.
         </p>
-        <Link
-          to="/"
-          className="inline-flex items-center justify-center px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors"
-        >
-            Retrun to Home Page
-        </Link>
+        
       </div>
     </div>
   );

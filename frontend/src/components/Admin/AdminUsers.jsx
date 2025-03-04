@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { Search, Edit, Trash2, Plus, Filter, MoreVertical } from "lucide-react";
 
-// Modal component for editing a user
+// Modal component for editing a user - keep this unchanged
 const EditUserModal = ({ user, onClose, onSubmit }) => {
+  // Keep this component unchanged as we still need status field in the edit modal
   const [editedUser, setEditedUser] = useState({
     name: user.name,
     email: user.email,
@@ -10,6 +11,7 @@ const EditUserModal = ({ user, onClose, onSubmit }) => {
     status: user.status,
   });
 
+  // Rest of the EditUserModal stays the same
   const handleChange = (e) => {
     const { name, value } = e.target;
     setEditedUser((prev) => ({ ...prev, [name]: value }));
@@ -105,7 +107,7 @@ const EditUserModal = ({ user, onClose, onSubmit }) => {
 };
 
 const AdminUsers = () => {
-  // Example data remains the same
+  // All state variables stay the same
   const initialUsers = [
     {
       id: 1,
@@ -155,7 +157,7 @@ const AdminUsers = () => {
   const [userToEdit, setUserToEdit] = useState(null);
   const [activeActionMenu, setActiveActionMenu] = useState(null);
 
-  // Filter users based on search query and role filter
+  // All handlers remain unchanged
   const filteredUsers = users.filter(
     (user) =>
       (user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -204,7 +206,7 @@ const AdminUsers = () => {
         <h2 className="text-lg sm:text-xl font-bold">Manage Users</h2>
       </div>
 
-      {/* Search and Filter - More responsive approach */}
+      {/* Search and Filter remain unchanged */}
       <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -231,7 +233,7 @@ const AdminUsers = () => {
         </div>
       </div>
 
-      {/* Custom styles for breakpoints */}
+      {/* Custom styles for breakpoints - unchanged */}
       <style jsx>{`
         @media (min-width: 1200px) {
           .custom-lg-visible {
@@ -251,9 +253,9 @@ const AdminUsers = () => {
         }
       `}</style>
 
-      {/* Responsive Table with progressive disclosure */}
+      {/* Responsive Table with status column removed */}
       <div className="border rounded-lg overflow-hidden">
-        {/* Large screen full table - now uses custom breakpoint */}
+        {/* Large screen full table - status column removed */}
         <div className="hidden lg:hidden custom-lg-visible">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
@@ -269,9 +271,6 @@ const AdminUsers = () => {
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Role
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Last Login
@@ -301,19 +300,6 @@ const AdminUsers = () => {
                     </span>
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap">
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        user.status === "Active"
-                          ? "bg-green-100 text-green-800"
-                          : user.status === "Suspended"
-                          ? "bg-red-100 text-red-800"
-                          : "bg-yellow-100 text-yellow-800"
-                      }`}
-                    >
-                      {user.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 whitespace-nowrap">
                     {user.lastLogin}
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap text-right">
@@ -338,21 +324,18 @@ const AdminUsers = () => {
           </table>
         </div>
         
-        {/* Medium screen simplified table - now uses custom breakpoint */}
+        {/* Medium screen simplified table - status column removed */}
         <div className="hidden md:block lg:block custom-md-visible">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-2/5">
+                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-2/4">
                   Name
                 </th>
-                <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/5">
+                <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
                   Role
                 </th>
-                <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/5">
-                  Status
-                </th>
-                <th className="px-2 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-1/5">
+                <th className="px-2 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
                   Actions
                 </th>
               </tr>
@@ -364,6 +347,7 @@ const AdminUsers = () => {
                     <div>
                       <div className="font-medium truncate">{user.name}</div>
                       <div className="text-sm text-gray-500 truncate">{user.email}</div>
+                      <div className="text-xs text-gray-500 mt-1">{user.lastLogin}</div>
                     </div>
                   </td>
                   <td className="px-2 py-3">
@@ -378,22 +362,6 @@ const AdminUsers = () => {
                     >
                       {user.role}
                     </span>
-                  </td>
-                  <td className="px-2 py-3">
-                    <div>
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          user.status === "Active"
-                            ? "bg-green-100 text-green-800"
-                            : user.status === "Suspended"
-                            ? "bg-red-100 text-red-800"
-                            : "bg-yellow-100 text-yellow-800"
-                        }`}
-                      >
-                        {user.status}
-                      </span>
-                      <div className="text-xs text-gray-500 mt-1">{user.lastLogin}</div>
-                    </div>
                   </td>
                   <td className="px-2 py-3 text-right">
                     <div className="flex justify-end">
@@ -419,7 +387,7 @@ const AdminUsers = () => {
           </table>
         </div>
 
-        {/* Small screen card layout */}
+        {/* Small screen card layout - status badge removed */}
         <div className="md:hidden">
           <div className="divide-y divide-gray-200">
             {filteredUsers.map((user) => (
@@ -432,7 +400,7 @@ const AdminUsers = () => {
                     <MoreVertical className="w-5 h-5 text-gray-500" />
                   </button>
                   
-                  {/* Mobile Action Menu */}
+                  {/* Mobile Action Menu - unchanged */}
                   {activeActionMenu === user.id && (
                     <div className="absolute right-0 mt-1 bg-white shadow-lg rounded-lg py-1 w-32 z-10">
                       <button
@@ -468,17 +436,6 @@ const AdminUsers = () => {
                   >
                     {user.role}
                   </span>
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      user.status === "Active"
-                        ? "bg-green-100 text-green-800"
-                        : user.status === "Suspended"
-                        ? "bg-red-100 text-red-800"
-                        : "bg-yellow-100 text-yellow-800"
-                    }`}
-                  >
-                    {user.status}
-                  </span>
                 </div>
                 <div className="text-xs text-gray-500">{user.lastLogin}</div>
               </div>
@@ -487,7 +444,7 @@ const AdminUsers = () => {
         </div>
       </div>
 
-      {/* Edit Modal */}
+      {/* Edit Modal - unchanged */}
       {userToEdit && (
         <EditUserModal
           user={userToEdit}

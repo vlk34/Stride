@@ -105,7 +105,7 @@ const AdminHeader = () => {
             </Link>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-1 flex-1">
+            {/* <div className="hidden md:flex items-center space-x-1 flex-1">
               {menuItems.map((item) => (
                 <Link
                   key={item.path}
@@ -121,7 +121,7 @@ const AdminHeader = () => {
                   <span>{item.label}</span>
                 </Link>
               ))}
-            </div>
+            </div> */}
 
             {/* Profile Section - Desktop */}
             <div

@@ -46,6 +46,8 @@ import JobRecommendations from "./pages/JobRecommendations";
 import BusinessMessages from "./pages/BusinessMessages";
 import JobMatch from "./pages/JobMatch";
 import RecommendedJobs from "./pages/RecommendedJobs";
+import AdminBusinessAuth from "./components/Admin/AdminBusinessAuth";
+
 const faqData = {
   categories: [
     {
@@ -286,6 +288,7 @@ const App = () => {
           <Route path="/admin-unauthorized" element={<AdminUnathorized />} />
           <Route path="/job-match" element={<JobMatch />} />
           <Route path="/recommended-jobs" element={<RecommendedJobs />} />
+          
         </Route>
 
         <Route element={<PublicRoute hasFooter={false} />}>
@@ -346,6 +349,7 @@ const App = () => {
           <Route path="/admin/jobs" element={<AdminJobs jobs={jobs} />} />
           <Route path="/admin/approvals" element={<ApprovalsList />} />
           <Route path="/admin/activities" element={<ActivitiesList />} />
+          <Route path="admin/business-unauthorized" element={<AdminBusinessAuth />} />
           <Route
             path="/admin/review/business/:id"
             element={<BusinessApplicationReview />}

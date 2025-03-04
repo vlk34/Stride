@@ -16,18 +16,33 @@ const BusinessRoute = () => {
     });
   }, [location.pathname]);
 
+  if (!isLoaded) {
+    return (
+      <div>
+        <Header />
+        <div className="min-h-screen">
+          <LoadingScreen />
+        </div>
+      </div>
+    );
+  }
+
+  // Redirect admins to the admin business section
+  if (role === "Admin") {
+    return <Navigate to="/admin/business-unauthorized" replace />;
+  }
+
+  // Redirect unauthorized users
+  if (role !== "business") {
+    return <Navigate to="/unauthorized" replace />;
+  }
+
   return (
     <div>
       <Header />
       <div className="min-h-screen">
         <main>
-          {!isLoaded ? (
-            <LoadingScreen />
-          ) : role !== "business" ? (
-            <Navigate to="/unauthorized" replace />
-          ) : (
-            <Outlet />
-          )}
+          <Outlet />
         </main>
       </div>
     </div>
