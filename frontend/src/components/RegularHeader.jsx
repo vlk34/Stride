@@ -109,7 +109,7 @@ const RegularHeader = () => {
     {
       label: "Upgrade to Business",
       icon: <Building2 className="w-4 h-4" />,
-      onClick: () => navigate("/business-upgrade"),
+      onClick: () => navigate("/business/upgrade"),
       className: "text-blue-600 hover:bg-blue-50",
     },
     {
