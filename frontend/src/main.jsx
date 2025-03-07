@@ -21,7 +21,7 @@ createRoot(document.getElementById("root")).render(
         <BrowserRouter>
           <App />
         </BrowserRouter>
-        <ReactQueryDevtools initialIsOpen={true} />
+        {/* <ReactQueryDevtools initialIsOpen={true} /> */}
       </QueryClientProvider>
     </ClerkProvider>
   </StrictMode>

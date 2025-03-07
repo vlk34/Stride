@@ -1,95 +1,96 @@
 import React from "react";
-import photo from "../../../assets/photo.jpg";
-
-const PeopleCard = ({
-  name,
-  avatar,
-  isPremium,
-  mutualConnections,
-  mutualConnectionNames,
-}) => {
-  return (
-    <div className="flex items-center justify-between py-3">
-      <div className="flex items-center gap-3">
-        <img src={photo} alt={name} className="w-10 h-10 rounded-full" />
-
-        <div className="flex flex-col">
-          <div className="flex items-center gap-2">
-            <span className="font-medium">{name}</span>
-            {isPremium && (
-              <span className="px-2 py-0.5 text-xs bg-orange-100 text-orange-700 rounded">
-                Premium
-              </span>
-            )}
-          </div>
-          <div className="text-sm text-gray-500 pr-2">
-            {mutualConnectionNames.map((name, index) => (
-              <React.Fragment key={index}>
-                {index > 0 && index === mutualConnectionNames.length - 1 && (
-                  <span className="mx-1">and</span>
-                )}
-                {index > 0 && index < mutualConnectionNames.length - 1 && (
-                  <span>, </span>
-                )}
-                <span>{name}</span>
-              </React.Fragment>
-            ))}
-            <span className="mx-1">also</span>
-            <span>{mutualConnections} mutual connections</span>
-          </div>
-        </div>
-      </div>
-
-      <button className="px-2 py-1.5 text-sm text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50">
-        Follow
-      </button>
-    </div>
-  );
-};
+import { Briefcase, BookOpen, Award } from "lucide-react";
+import { useNavigate } from "react-router";
 
 function ProfileSidebar() {
-  const people = [
+  const navigate = useNavigate();
+
+  // Sample job recommendations
+  const recommendedJobs = [
     {
-      name: "Christoper Nolan",
-      avatar: "/api/placeholder/40/40",
-      isPremium: true,
-      mutualConnectionNames: ["Ally Van", "Jeniffer Chan"],
-      mutualConnections: 23,
+      title: "Senior Frontend Developer",
+      company: "TechCorp",
+      location: "Remote",
+      postedDays: 2,
     },
     {
-      name: "Jessica Milla",
-      avatar: "/api/placeholder/40/40",
-      isPremium: false,
-      mutualConnectionNames: ["Ekin Ay"],
-      mutualConnections: 23,
+      title: "UX Designer",
+      company: "DesignHub",
+      location: "San Francisco",
+      postedDays: 3,
     },
     {
-      name: "Cecilia Vangeline",
-      avatar: "/api/placeholder/40/40",
-      isPremium: false,
-      mutualConnectionNames: ["Ally Van", "Jeniffer Chan", "Enes Malik"],
-      mutualConnections: 23,
+      title: "Product Manager",
+      company: "InnovateTech",
+      location: "New York",
+      postedDays: 1,
+    },
+    {
+      title: "Full Stack Engineer",
+      company: "CodeWorks",
+      location: "Austin",
+      postedDays: 5,
     },
   ];
 
   return (
     <div className="space-y-6">
-      {/* People you may know section */}
-      <div className="bg-white rounded-lg p-4 border border-gray-200">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-medium">People you may know</h3>
-          <button className="text-gray-400">•••</button>
+      {/* Profile Completion */}
+      <div className="bg-white rounded-lg p-5 border border-gray-200">
+        <div className="flex justify-between items-center mb-3">
+          <h3 className="text-lg font-medium">Profile Completion</h3>
+          <span className="text-blue-600 font-semibold">75%</span>
         </div>
 
-        <div className="divide-y">
-          {people.map((person, index) => (
-            <PeopleCard key={index} {...person} />
+        <div className="w-full bg-gray-200 rounded-full h-2.5 mb-4">
+          <div className="bg-blue-600 h-2.5 rounded-full w-3/4"></div>
+        </div>
+
+        <div className="space-y-3">
+          <div className="flex items-center gap-2 text-sm">
+            <Award className="w-4 h-4 text-green-500" />
+            <span className="text-gray-600">Add your skills</span>
+          </div>
+          <div className="flex items-center gap-2 text-sm">
+            <BookOpen className="w-4 h-4 text-green-500" />
+            <span className="text-gray-600">Complete education details</span>
+          </div>
+          <div className="flex items-center gap-2 text-sm">
+            <Briefcase className="w-4 h-4 text-gray-400" />
+            <span className="text-gray-600">Add work experience</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Job Recommendations */}
+      <div className="bg-white rounded-lg p-5 border border-gray-200">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-medium">Recommended Jobs</h3>
+          <button
+            onClick={() => navigate("/recommended-jobs")}
+            className="text-blue-600 text-sm font-medium hover:underline"
+          >
+            View all
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          {recommendedJobs.map((job, index) => (
+            <div
+              key={index}
+              className="border-b border-gray-100 pb-3 last:border-0 last:pb-0 hover:bg-gray-50 p-2 rounded-lg cursor-pointer"
+              onClick={() => navigate("/result")}
+            >
+              <h4 className="font-medium text-gray-900">{job.title}</h4>
+              <div className="text-sm text-gray-600 mt-1">
+                {job.company} • {job.location}
+              </div>
+              <div className="text-xs text-gray-500 mt-1">
+                Posted {job.postedDays} days ago
+              </div>
+            </div>
           ))}
         </div>
-
-        <button className="w-full text-blue-600 mt-4 text-sm font-medium">
-          See more people
-        </button>
       </div>
     </div>
   );

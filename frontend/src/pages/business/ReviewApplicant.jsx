@@ -262,12 +262,6 @@ const ReviewApplicant = () => {
               </h2>
               <div className="space-y-4">
                 <div>
-                  <div className="text-sm text-gray-600 mb-1">
-                    Current Stage
-                  </div>
-                  <div className="h-10 w-full bg-gray-200 rounded animate-pulse"></div>
-                </div>
-                <div>
                   <div className="text-sm text-gray-600 mb-1">Applied</div>
                   <div className="h-6 w-32 bg-gray-200 rounded animate-pulse"></div>
                 </div>
@@ -344,17 +338,6 @@ const ReviewApplicant = () => {
               Status
             </h2>
             <div className="space-y-4">
-              <div>
-                <div className="text-sm text-gray-600 mb-1">Current Stage</div>
-                <select className="w-full p-2 border border-gray-200 rounded-lg text-sm">
-                  <option>New Application</option>
-                  <option>Under Review</option>
-                  <option>Shortlisted</option>
-                  <option>Offer Made</option>
-                  <option>Rejected</option>
-                </select>
-              </div>
-
               <div>
                 <div className="text-sm text-gray-600 mb-1">Applied</div>
                 <div className="flex items-center text-gray-900 text-sm">

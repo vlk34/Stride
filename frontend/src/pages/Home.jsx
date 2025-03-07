@@ -368,9 +368,9 @@ const whyStridePoints = [
       "Our intelligent system learns from your preferences and provides increasingly relevant job suggestions over time.",
   },
   {
-    title: "Real-Time Updates",
+    title: "Job Match Feature",
     description:
-      "Get instant notifications for new positions matching your criteria. Never miss out on your dream opportunity.",
+      "Describe your ideal role in your own words and our AI will instantly find the most relevant opportunities that match your unique profile.",
   },
 ];
 
