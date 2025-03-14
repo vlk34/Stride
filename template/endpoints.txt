@@ -1,0 +1,383 @@
+GET /search?q=jobname&workstyle=remote&jobtype=full&industry=technology&experience=5
+response body:
+[
+    {
+    "job_id": 999,
+    "job_name": "example",
+    "company": "example",
+    "logo": "url",
+    "description": "lorem ipsum"
+    },
+    {
+    "job_id": 999,
+    "job_name": "example",
+    "company": "example",
+    "logo": "url",
+    "description": "lorem ipsum"
+    },
+    {
+    "job_id": 999,
+    "job_name": "example",
+    "company": "example",
+    "logo": "url",
+    "description": "lorem ipsum"
+    }
+]
+
+GET /recommended
+Authorization: Bearer session_jwt_here
+response body:
+[
+    {
+    "job_id": 999,
+    "job_name": "example",
+    "company": "example",
+    "logo": "url",
+    "description": "lorem ipsum"
+    },
+    {
+    "job_id": 999,
+    "job_name": "example",
+    "company": "example",
+    "logo": "url",
+    "description": "lorem ipsum"
+    },
+    {
+    "job_id": 999,
+    "job_name": "example",
+    "company": "example",
+    "logo": "url",
+    "description": "lorem ipsum"
+    }
+]
+
+POST /save
+Authorization: Bearer session_jwt_here
+request body:
+{
+    "job_id": 999
+}
+
+POST /unsave
+Authorization: Bearer session_jwt_here
+request body:
+{
+    "job_id": 999
+}
+
+GET /saved
+Authorization: Bearer session_jwt_here
+response body:
+[
+    {
+    "job_id": 999,
+    "job_name": "example",
+    "company": "example",
+    "logo": "url",
+    "description": "lorem ipsum"
+    },
+    {
+    "job_id": 999,
+    "job_name": "example",
+    "company": "example",
+    "logo": "url",
+    "description": "lorem ipsum"
+    },
+    {
+    "job_id": 999,
+    "job_name": "example",
+    "company": "example",
+    "logo": "url",
+    "description": "lorem ipsum"
+    }
+]
+
+POST /apply
+Authorization: Bearer session_jwt_here
+request body:
+{
+    "job_id": 999
+}
+
+GET /applied
+Authorization: Bearer session_jwt_here
+response body:
+[
+    {
+    "job_id": 999,
+    "job_name": "example",
+    "company": "example",
+    "logo": "url",
+    "description": "lorem ipsum"
+    },
+    {
+    "job_id": 999,
+    "job_name": "example",
+    "company": "example",
+    "logo": "url",
+    "description": "lorem ipsum"
+    },
+    {
+    "job_id": 999,
+    "job_name": "example",
+    "company": "example",
+    "logo": "url",
+    "description": "lorem ipsum"
+    }
+]
+
+POST /upgrade
+Authorization: Bearer session_jwt_here
+request body:
+{
+    "company": "example",
+    "industry": "Technology",
+    "size": "51-200",
+    "founded": 2000,
+    "email": "example@example.com",
+    "phone": "+1 (555) 000-0000",
+    "website": "https://www.example.com",
+    "address": "example street",
+    "city": "",
+    "state": "",
+    "country": "",
+    "postal_code": "",
+    "description": "",
+    "mission": "",
+    "benefits": ""
+}
+
+POST /descend
+Authorization: Bearer session_jwt_here
+request body:
+{
+    "company": "example"
+}
+
+GET /stats
+Authorization: Bearer session_jwt_here
+response body:
+{
+    "total_jobs": 999,
+    "total_applicants": 999,
+    "profile_views": 999,
+    "response_rate": 999
+}
+
+GET /jobs
+Authorization: Bearer session_jwt_here
+response body:
+[
+    {
+    "job_id": 999,
+    "job_name": "example",
+    "company": "example",
+    "logo": "url",
+    "description": "lorem ipsum"
+    },
+    {
+    "job_id": 999,
+    "job_name": "example",
+    "company": "example",
+    "logo": "url",
+    "description": "lorem ipsum"
+    },
+    {
+    "job_id": 999,
+    "job_name": "example",
+    "company": "example",
+    "logo": "url",
+    "description": "lorem ipsum"
+    }
+]
+
+GET /applicants?job=999
+Authorization: Bearer session_jwt_here
+response body:
+[
+    {
+    "user_id": "user_asdqwe",
+    "name": "Sarah Johnson",
+    "email": "example",
+    "phone": "example",
+    "location": "url",
+    "experience_time": "lorem ipsum",
+    "skills": ["asd", "qwe"],
+    "experience": "lorem ipsum",
+    "notes": "from applicants"
+    },
+    {
+    "user_id": "user_asdqwe",
+    "name": "Sarah Johnson",
+    "email": "example",
+    "phone": "example",
+    "location": "url",
+    "experience_time": "lorem ipsum",
+    "skills": ["asd", "qwe"],
+    "experience": "lorem ipsum",
+    "notes": "from applicants"
+    },
+    {
+    "user_id": "user_asdqwe",
+    "name": "Sarah Johnson",
+    "email": "example",
+    "phone": "example",
+    "location": "url",
+    "experience_time": "lorem ipsum",
+    "skills": ["asd", "qwe"],
+    "experience": "lorem ipsum",
+    "notes": "from applicants"
+    }
+]
+
+POST /create
+Authorization: Bearer session_jwt_here
+request body:
+{
+    "job_title": "example",
+    "department": "Technology",
+    "location": "example street",
+    "workstyle": "remote",
+    "job_type": "full",
+    "experience": "5",
+    "education": "phd",
+    "skills": ["asd", "qwe"],
+    "languages": ["asd", "qwe"]
+    "description": "",
+    "responsibilities": "",
+    "qualifications": "",
+    "deadline": "date",
+    "start": "date",
+    "openings": 99
+}
+
+GET /details?job=999
+Authorization: Bearer session_jwt_here
+response body:
+{
+    "job_title": "example",
+    "department": "Technology",
+    "location": "example street",
+    "workstyle": "remote",
+    "job_type": "full",
+    "experience": "5",
+    "education": "phd",
+    "skills": ["asd", "qwe"],
+    "languages": ["asd", "qwe"]
+    "description": "",
+    "responsibilities": "",
+    "qualifications": "",
+    "deadline": "date",
+    "start": "date",
+    "openings": 99
+}
+
+PUT /update
+Authorization: Bearer session_jwt_here
+request body:
+{
+    "job_id": 999,
+    "job_title": "example",
+    "department": "Technology",
+    "location": "example street",
+    "workstyle": "remote",
+    "job_type": "full",
+    "experience": "5",
+    "education": "phd",
+    "skills": ["asd", "qwe"],
+    "languages": ["asd", "qwe"]
+    "description": "",
+    "responsibilities": "",
+    "qualifications": "",
+    "deadline": "date",
+    "start": "date",
+    "openings": 99
+}
+
+DELETE /delete
+Authorization: Bearer session_jwt_here
+request body:
+{
+    "job_id": 999
+}
+
+GET /adminstats
+Authorization: Bearer session_jwt_here
+response body:
+{
+    "total_users": 999,
+    "total_jobs": 999,
+    "business_applications": 999
+}
+
+GET /users
+Authorization: Bearer session_jwt_here
+response body:
+[
+    {
+    "user_id": "user_asdqwe",
+    "name": "Sarah Johnson",
+    "email": "example",
+    "phone": "example",
+    "location": "url",
+    "experience_time": "lorem ipsum",
+    "skills": ["asd", "qwe"],
+    "experience": "lorem ipsum",
+    "notes": "from applicants"
+    },
+    {
+    "user_id": "user_asdqwe",
+    "name": "Sarah Johnson",
+    "email": "example",
+    "phone": "example",
+    "location": "url",
+    "experience_time": "lorem ipsum",
+    "skills": ["asd", "qwe"],
+    "experience": "lorem ipsum",
+    "notes": "from applicants"
+    },
+    {
+    "user_id": "user_asdqwe",
+    "name": "Sarah Johnson",
+    "email": "example",
+    "phone": "example",
+    "location": "url",
+    "experience_time": "lorem ipsum",
+    "skills": ["asd", "qwe"],
+    "experience": "lorem ipsum",
+    "notes": "from applicants"
+    }
+]
+
+GET /applications
+Authorization: Bearer session_jwt_here
+response body:
+[
+    {
+    "company": "example",
+    "industry": "Technology",
+    "applicant_name",
+    "applicant_email",
+    "status",
+    "date": "date"
+    },
+    {
+    "company": "example",
+    "industry": "Technology",
+    "applicant_name",
+    "applicant_email",
+    "status",
+    "date": "date"
+    }
+]
+
+PATCH /updateuser
+Authorization: Bearer session_jwt_here
+request body:
+{
+    "user_id": "user_asdqwe",
+    "name": "",
+    "email": "",
+    "role": "",
+    "status": ""
+}
