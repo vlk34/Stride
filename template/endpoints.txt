@@ -5,21 +5,21 @@ response body:
     "job_id": 999,
     "job_name": "example",
     "company": "example",
-    "logo": "url",
+    "logo": 999,
     "description": "lorem ipsum"
     },
     {
     "job_id": 999,
     "job_name": "example",
     "company": "example",
-    "logo": "url",
+    "logo": 999,
     "description": "lorem ipsum"
     },
     {
     "job_id": 999,
     "job_name": "example",
     "company": "example",
-    "logo": "url",
+    "logo": 999,
     "description": "lorem ipsum"
     }
 ]
@@ -32,21 +32,21 @@ response body:
     "job_id": 999,
     "job_name": "example",
     "company": "example",
-    "logo": "url",
+    "logo": 999,
     "description": "lorem ipsum"
     },
     {
     "job_id": 999,
     "job_name": "example",
     "company": "example",
-    "logo": "url",
+    "logo": 999,
     "description": "lorem ipsum"
     },
     {
     "job_id": 999,
     "job_name": "example",
     "company": "example",
-    "logo": "url",
+    "logo": 999,
     "description": "lorem ipsum"
     }
 ]
@@ -73,21 +73,21 @@ response body:
     "job_id": 999,
     "job_name": "example",
     "company": "example",
-    "logo": "url",
+    "logo": 999,
     "description": "lorem ipsum"
     },
     {
     "job_id": 999,
     "job_name": "example",
     "company": "example",
-    "logo": "url",
+    "logo": 999,
     "description": "lorem ipsum"
     },
     {
     "job_id": 999,
     "job_name": "example",
     "company": "example",
-    "logo": "url",
+    "logo": 999,
     "description": "lorem ipsum"
     }
 ]
@@ -107,21 +107,21 @@ response body:
     "job_id": 999,
     "job_name": "example",
     "company": "example",
-    "logo": "url",
+    "logo": 999,
     "description": "lorem ipsum"
     },
     {
     "job_id": 999,
     "job_name": "example",
     "company": "example",
-    "logo": "url",
+    "logo": 999,
     "description": "lorem ipsum"
     },
     {
     "job_id": 999,
     "job_name": "example",
     "company": "example",
-    "logo": "url",
+    "logo": 999,
     "description": "lorem ipsum"
     }
 ]
@@ -172,21 +172,21 @@ response body:
     "job_id": 999,
     "job_name": "example",
     "company": "example",
-    "logo": "url",
+    "logo": 999,
     "description": "lorem ipsum"
     },
     {
     "job_id": 999,
     "job_name": "example",
     "company": "example",
-    "logo": "url",
+    "logo": 999,
     "description": "lorem ipsum"
     },
     {
     "job_id": 999,
     "job_name": "example",
     "company": "example",
-    "logo": "url",
+    "logo": 999,
     "description": "lorem ipsum"
     }
 ]
@@ -381,3 +381,9 @@ request body:
     "role": "",
     "status": ""
 }
+
+GET /images/{id}
+Authorization: Bearer session_jwt_here
+response body:
+image bytes
+(content-type header)
