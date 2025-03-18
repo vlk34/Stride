@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 
 const JobRecommendations = ({ dummyData }) => {
-  const { user } = useUser();
+  const { user, isSignedIn } = useUser();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -22,18 +22,23 @@ const JobRecommendations = ({ dummyData }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate API call to get personalized recommendations
-    const fetchRecommendations = async () => {
-      setLoading(true);
-      // In a real app, this would be an API call with user skills/preferences
-      setTimeout(() => {
-        setRecommendations(dummyData?.recommendedJobs?.slice(0, 4) || []);
-        setLoading(false);
-      }, 800);
-    };
+    // Only fetch recommendations if user is signed in
+    if (isSignedIn) {
+      // Simulate API call to get personalized recommendations
+      const fetchRecommendations = async () => {
+        setLoading(true);
+        // In a real app, this would be an API call with user skills/preferences
+        setTimeout(() => {
+          setRecommendations(dummyData?.recommendedJobs?.slice(0, 4) || []);
+          setLoading(false);
+        }, 800);
+      };
 
-    fetchRecommendations();
-  }, [dummyData]);
+      fetchRecommendations();
+    } else {
+      setLoading(false);
+    }
+  }, [dummyData, isSignedIn]);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -49,10 +54,14 @@ const JobRecommendations = ({ dummyData }) => {
       {/* Header Section */}
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Welcome back, {user?.firstName || "there"}!
+          {isSignedIn
+            ? `Welcome back, ${user?.firstName || "there"}!`
+            : "Welcome to Stride!"}
         </h1>
         <p className="text-gray-600">
-          Here are some job opportunities that match your profile
+          {isSignedIn
+            ? "Here are some job opportunities that match your profile"
+            : "Sign in to get personalized job recommendations"}
         </p>
       </div>
 
@@ -82,62 +91,82 @@ const JobRecommendations = ({ dummyData }) => {
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Sidebar */}
         <div className="lg:w-1/4">
-          {/* Preferences and Saved Jobs Buttons */}
-          <div className="bg-white rounded-lg border border-gray-200 p-4 mb-6">
-            <div className="space-y-3">
-              <button
-                onClick={toggleModal}
-                className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-blue-50 text-blue-700 rounded-lg font-medium hover:bg-blue-100 transition-colors"
-              >
-                <Sliders className="w-5 h-5" />
-                <span>Job Preferences</span>
-              </button>
+          {isSignedIn ? (
+            <>
+              {/* Preferences and Saved Jobs Buttons */}
+              <div className="bg-white rounded-lg border border-gray-200 p-4 mb-6">
+                <div className="space-y-3">
+                  <button
+                    onClick={toggleModal}
+                    className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-blue-50 text-blue-700 rounded-lg font-medium hover:bg-blue-100 transition-colors"
+                  >
+                    <Sliders className="w-5 h-5" />
+                    <span>Job Preferences</span>
+                  </button>
 
+                  <Link
+                    to="/jobs"
+                    className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="w-5 h-5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    <span>Saved Jobs</span>
+                  </Link>
+                </div>
+              </div>
+
+              {/* Current Preferences Summary */}
+              <div className="bg-white rounded-lg border border-gray-200 p-4 mb-6">
+                <h3 className="font-semibold text-gray-900 mb-3">
+                  Your Preferences
+                </h3>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Job Types</span>
+                    <span className="font-medium text-gray-900">
+                      Full-time, Remote
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Location</span>
+                    <span className="font-medium text-gray-900">
+                      Remote, Hybrid
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Experience</span>
+                    <span className="font-medium text-gray-900">Mid-level</span>
+                  </div>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+              <h3 className="font-semibold text-gray-900 mb-3">
+                Sign in to access
+              </h3>
+              <p className="text-gray-600 mb-4">
+                Create an account or sign in to view your job preferences and
+                saved jobs.
+              </p>
               <Link
-                to="/jobs"
+                to="/signin"
                 className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="w-5 h-5"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
-                </svg>
-                <span>Saved Jobs</span>
+                Sign In
               </Link>
             </div>
-          </div>
-
-          {/* Current Preferences Summary */}
-          <div className="bg-white rounded-lg border border-gray-200 p-4 mb-6">
-            <h3 className="font-semibold text-gray-900 mb-3">
-              Your Preferences
-            </h3>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600">Job Types</span>
-                <span className="font-medium text-gray-900">
-                  Full-time, Remote
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600">Location</span>
-                <span className="font-medium text-gray-900">
-                  Remote, Hybrid
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600">Experience</span>
-                <span className="font-medium text-gray-900">Mid-level</span>
-              </div>
-            </div>
-          </div>
+          )}
         </div>
 
         {/* Main Content */}
@@ -153,15 +182,30 @@ const JobRecommendations = ({ dummyData }) => {
                   Recommended for You
                 </h2>
               </div>
-              <Link
-                to="/result"
-                className="text-blue-600 font-medium flex items-center gap-1 hover:underline"
-              >
-                View all <ArrowRight className="w-4 h-4" />
-              </Link>
+              {isSignedIn && (
+                <Link
+                  to="/result"
+                  className="text-blue-600 font-medium flex items-center gap-1 hover:underline"
+                >
+                  View all <ArrowRight className="w-4 h-4" />
+                </Link>
+              )}
             </div>
 
-            {loading ? (
+            {!isSignedIn ? (
+              <div className="py-12 text-center">
+                <p className="text-gray-600 mb-4">
+                  Sign in to view personalized job recommendations based on your
+                  skills and preferences.
+                </p>
+                <Link
+                  to="/signin"
+                  className="inline-flex items-center justify-center gap-2 py-2.5 px-6 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                >
+                  Sign In
+                </Link>
+              </div>
+            ) : loading ? (
               <div className="flex justify-center items-center py-12">
                 <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-600"></div>
               </div>
@@ -190,29 +234,37 @@ const JobRecommendations = ({ dummyData }) => {
                 Recent Searches
               </h2>
             </div>
-            <div className="space-y-3">
-              {dummyData?.recentSearches?.slice(0, 4).map((search) => (
-                <Link
-                  key={search.id}
-                  to={`/result`}
-                  className="block bg-white p-4 rounded-xl border border-gray-200 hover:border-blue-500 transition-colors group"
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium text-gray-900 group-hover:text-blue-600">
-                        {search.query}
-                      </p>
-                      <div className="flex items-center gap-2 text-sm text-gray-500">
-                        <span>{search.location}</span>
-                        <span>•</span>
-                        <span>{search.timestamp}</span>
+            {!isSignedIn ? (
+              <div className="py-8 text-center">
+                <p className="text-gray-600">
+                  Sign in to view and track your recent job searches.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {dummyData?.recentSearches?.slice(0, 4).map((search) => (
+                  <Link
+                    key={search.id}
+                    to={`/result`}
+                    className="block bg-white p-4 rounded-xl border border-gray-200 hover:border-blue-500 transition-colors group"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium text-gray-900 group-hover:text-blue-600">
+                          {search.query}
+                        </p>
+                        <div className="flex items-center gap-2 text-sm text-gray-500">
+                          <span>{search.location}</span>
+                          <span>•</span>
+                          <span>{search.timestamp}</span>
+                        </div>
                       </div>
+                      <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-blue-600" />
                     </div>
-                    <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-blue-600" />
-                  </div>
-                </Link>
-              ))}
-            </div>
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Top Companies */}
@@ -225,31 +277,39 @@ const JobRecommendations = ({ dummyData }) => {
                 Top Companies Hiring
               </h2>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {dummyData?.matchingCompanies?.slice(0, 3).map((company) => (
-                <Link
-                  key={company.id}
-                  to={`/search?company=${company.name}`}
-                  className="block bg-white p-4 rounded-xl border border-gray-200 hover:border-blue-500 transition-colors group"
-                >
-                  <div className="flex items-center gap-3">
-                    <img
-                      src={company.companyLogo}
-                      alt={company.name}
-                      className="w-12 h-12 rounded-lg"
-                    />
-                    <div>
-                      <p className="font-medium text-gray-900 group-hover:text-blue-600">
-                        {company.name}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        {company.openPositions} open roles
-                      </p>
+            {!isSignedIn ? (
+              <div className="py-8 text-center">
+                <p className="text-gray-600">
+                  Sign in to see top companies matching your profile.
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {dummyData?.matchingCompanies?.slice(0, 3).map((company) => (
+                  <Link
+                    key={company.id}
+                    to={`/search?company=${company.name}`}
+                    className="block bg-white p-4 rounded-xl border border-gray-200 hover:border-blue-500 transition-colors group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={company.companyLogo}
+                        alt={company.name}
+                        className="w-12 h-12 rounded-lg"
+                      />
+                      <div>
+                        <p className="font-medium text-gray-900 group-hover:text-blue-600">
+                          {company.name}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          {company.openPositions} open roles
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
