@@ -51,7 +51,7 @@ CREATE TABLE saved (
     save_id SERIAL PRIMARY KEY,
     user_id VARCHAR(255) NOT NULL,
     job_id INTEGER NOT NULL,
-    FOREIGN KEY (job_id) REFERENCES jobs(job_id)
+    FOREIGN KEY (job_id) REFERENCES jobs(job_id) ON DELETE CASCADE
 );
 
 CREATE TABLE applications (
@@ -59,7 +59,7 @@ CREATE TABLE applications (
     user_id VARCHAR(255) NOT NULL,
     job_id INTEGER NOT NULL,
     application_date TIMESTAMP DEFAULT NOW(),
-    FOREIGN KEY (job_id) REFERENCES jobs(job_id)
+    FOREIGN KEY (job_id) REFERENCES jobs(job_id) ON DELETE CASCADE
 );
 
 CREATE TABLE business_applications (
