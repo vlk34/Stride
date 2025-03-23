@@ -384,6 +384,13 @@ request body:
     "status": ""
 }
 
+POST /upgradeuser
+Authorization: Bearer session_jwt_here
+request body:
+{
+    "user_id": "user_asdqwe"
+}
+
 GET /images/{id}
 Authorization: Bearer session_jwt_here
 response body:
