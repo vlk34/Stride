@@ -3,10 +3,8 @@ package com.group28.Stride.util;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpRequest;
-import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.stream.Collectors;
 import jakarta.servlet.http.HttpServletRequest;
 
 public class HttpConverter {
@@ -18,7 +16,7 @@ public class HttpConverter {
     public static HttpRequest convert(HttpServletRequest servletRequest) throws IOException {
         HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
                 .uri(URI.create(servletRequest.getRequestURL().toString()))
-                .method(servletRequest.getMethod(), getBodyPublisher(servletRequest));
+                .method(servletRequest.getMethod(), HttpRequest.BodyPublishers.noBody());
 
         // Copy headers except restricted ones
         Enumeration<String> headerNames = servletRequest.getHeaderNames();
@@ -30,14 +28,5 @@ public class HttpConverter {
         }
 
         return requestBuilder.build();
-    }
-
-    private static HttpRequest.BodyPublisher getBodyPublisher(HttpServletRequest servletRequest) throws IOException {
-        if ("GET".equalsIgnoreCase(servletRequest.getMethod())) {
-            return HttpRequest.BodyPublishers.noBody();
-        }
-
-        String body = servletRequest.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
-        return HttpRequest.BodyPublishers.ofString(body, StandardCharsets.UTF_8);
     }
 }

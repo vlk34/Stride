@@ -23,20 +23,6 @@ public class Database {
         }
     }
 
-    public static void basicQuery(String query) {
-        try {
-            Statement statement = connection.createStatement();
-            ResultSet res = statement.executeQuery(query);
-            while (res.next()) {
-                System.out.println(res.getString("title"));
-            }
-            res.close();
-            statement.close();
-        } catch (SQLException ex) {
-            System.out.println("Database Error");
-        }
-    }
-
     public static List<Map<String, Object>> jobQuery(String q, String workstyle, String jobtype, String industry) {
         try {
             PreparedStatement statement = connection.prepareStatement("SELECT job_id, title, job_description FROM jobs WHERE title ILIKE ? AND workstyle = ? AND job_type = ? AND department = ?");
@@ -59,6 +45,18 @@ public class Database {
         } catch (SQLException ex) {
             ex.printStackTrace();
             return null;
+        }
+    }
+
+    public static void saveJob(String user_id, int job_id) {
+        try {
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO saved (user_id, job_id) VALUES (?, ?)");
+            statement.setString(1, user_id);
+            statement.setInt(2, job_id);
+            statement.executeUpdate();
+            statement.close();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
         }
     }
 }
