@@ -1,10 +1,10 @@
-CREATE TABLE images (
+CREATE TABLE IF NOT EXISTS images (
     id SERIAL PRIMARY KEY,
     img BYTEA NOT NULL,
     content VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE companies (
+CREATE TABLE IF NOT EXISTS companies (
     company_id SERIAL PRIMARY KEY,
 	user_id VARCHAR(255) UNIQUE NOT NULL,
     company_name VARCHAR(255) NOT NULL,
@@ -27,7 +27,7 @@ CREATE TABLE companies (
     FOREIGN KEY (logo) REFERENCES images(id)
 );
 
-CREATE TABLE jobs (
+CREATE TABLE IF NOT EXISTS jobs (
     job_id SERIAL PRIMARY KEY,
     company_id INTEGER NOT NULL,
     title VARCHAR(255) NOT NULL,
@@ -48,29 +48,31 @@ CREATE TABLE jobs (
     FOREIGN KEY (company_id) REFERENCES companies(company_id) ON DELETE CASCADE
 );
 
-CREATE TABLE saved (
+CREATE TABLE IF NOT EXISTS saved (
     save_id SERIAL PRIMARY KEY,
     user_id VARCHAR(255) NOT NULL,
     job_id INTEGER NOT NULL,
+    CONSTRAINT unique_user_job UNIQUE (user_id, job_id),
     FOREIGN KEY (job_id) REFERENCES jobs(job_id) ON DELETE CASCADE
 );
 
-CREATE TABLE applications (
+CREATE TABLE IF NOT EXISTS applications (
     application_id SERIAL PRIMARY KEY,
     user_id VARCHAR(255) NOT NULL,
     job_id INTEGER NOT NULL,
     application_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT unique_user_job UNIQUE (user_id, job_id),
     FOREIGN KEY (job_id) REFERENCES jobs(job_id) ON DELETE CASCADE
 );
 
-CREATE TABLE business_applications (
+CREATE TABLE IF NOT EXISTS business_applications (
     application_id SERIAL PRIMARY KEY,
     user_id VARCHAR(255) NOT NULL,
     company_id INTEGER NOT NULL,
     FOREIGN KEY (company_id) REFERENCES companies(company_id) ON DELETE CASCADE
 );
 
-CREATE TABLE notifications (
+CREATE TABLE IF NOT EXISTS notifications (
     notification_id SERIAL PRIMARY KEY,
     user_id VARCHAR(255) NOT NULL,
     title VARCHAR(255) NOT NULL,
@@ -79,7 +81,7 @@ CREATE TABLE notifications (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE messages (
+CREATE TABLE IF NOT EXISTS messages (
     message_id SERIAL PRIMARY KEY,
     sender_id VARCHAR(255) NOT NULL,
     receiver_id VARCHAR(255) NOT NULL,
