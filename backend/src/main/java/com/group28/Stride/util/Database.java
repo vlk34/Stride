@@ -4,11 +4,15 @@ import io.github.cdimascio.dotenv.Dotenv;
 import java.sql.*;
 
 public class Database {
-    public static void basicQuery(String query) {
-        Dotenv dotenv = Dotenv.configure()
+    private static final Dotenv dotenv;
+
+    static {
+        dotenv = Dotenv.configure()
                 .directory("backend")
                 .load();
+    }
 
+    public static void basicQuery(String query) {
         try {
             Connection connection = DriverManager.getConnection(String.format("jdbc:postgresql://%s:%s/%s", dotenv.get("DB_HOST"), dotenv.get("DB_PORT"), dotenv.get("DB_NAME")), dotenv.get("DB_USER"), dotenv.get("DB_PASSWORD"));
             Statement statement = connection.createStatement();
@@ -22,5 +26,9 @@ public class Database {
         } catch (SQLException ex) {
             System.out.println("Database Error");
         }
+    }
+
+    public static void jobQuery(String q, String workstyle, String jobtype, String industry) {
+
     }
 }
