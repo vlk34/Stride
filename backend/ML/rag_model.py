@@ -8,6 +8,7 @@ import os
 from langchain.chat_models import init_chat_model
 from langchain.chains import create_sql_query_chain
 from langchain_community.utilities import SQLDatabase
+from langchain_community.tools.sql_database.tool import QuerySQLDatabaseTool
 
 
 
@@ -71,6 +72,7 @@ for doc in docs:
     examples.append(example)
 
 print(examples)
+print("-------------------\n")
 
 example_prompt = PromptTemplate.from_template("User input: {input}\nSQL query: {query}")
 
@@ -92,7 +94,13 @@ TABLE jobs (
 prompt = FewShotPromptTemplate(
     examples=examples,
     example_prompt=example_prompt,
-    prefix="You are a PostgreSQL expert. Given an input question, create a syntactically correct PostgreSQL query to run. Unless otherwise specified, do not return more than {top_k} rows.\n\nHere is the relevant table info: {table_info}\n\nBelow are a number of examples of questions and their corresponding SQL queries.",
+    prefix=(
+        "You are a PostgreSQL expert. Given an input question, create a syntactically correct "
+        "PostgreSQL query to run. Unless otherwise specified, do not return more than {top_k} rows.\n\n"
+        "Here is the relevant table info: {table_info}\n\n"
+        "Below are a number of examples of questions and their corresponding SQL queries."
+        "Return the sql query noting else as text, nothing else."
+    ),
     suffix="User input: {input}\nSQL query: ",
     input_variables=["input", "top_k", "table_info"],
 )
@@ -101,9 +109,17 @@ print(prompt.format(input=input, top_k=5, table_info=table_info))
 
 chain = create_sql_query_chain(llm, db, prompt)
 
-result = chain.invoke({"question": input})
+sql_query = chain.invoke({"question": input})
+
+print(sql_query)
+
+
+def execute_query(query: str):
+
+    execute_query_tool = QuerySQLDatabaseTool(db=db)
+    return {"result": execute_query_tool.invoke(query)}
+
+result = execute_query({"query": sql_query})
+
 
 print(result)
-
-
-
