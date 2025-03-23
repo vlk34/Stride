@@ -25,11 +25,31 @@ public class Database {
 
     public static List<Map<String, Object>> jobQuery(String q, String workstyle, String jobtype, String industry) {
         try {
-            PreparedStatement statement = connection.prepareStatement("SELECT job_id, title, job_description FROM jobs WHERE title ILIKE ? AND workstyle = ? AND job_type = ? AND department = ?");
-            statement.setString(1, "%" + q + "%");
-            statement.setString(2, workstyle);
-            statement.setString(3, jobtype);
-            statement.setString(4, industry);
+            String query = "SELECT job_id, title, job_description FROM jobs WHERE 1=1";
+            List<String> params = new ArrayList<>();
+
+            if (q != null && !q.isEmpty()) {
+                query += " AND title ILIKE ?";
+                params.add("%" + q + "%");
+            }
+            if (workstyle != null && !workstyle.isEmpty()) {
+                query += " AND workstyle = ?";
+                params.add(workstyle);
+            }
+            if (jobtype != null && !jobtype.isEmpty()) {
+                query += " AND job_type = ?";
+                params.add(jobtype);
+            }
+            if (industry != null && !industry.isEmpty()) {
+                query += " AND department = ?";
+                params.add(industry);
+            }
+
+            PreparedStatement statement = connection.prepareStatement(query);
+
+            for (int i = 0; i < params.size(); i++)
+                statement.setString(i + 1, params.get(i));
+
             ResultSet res = statement.executeQuery();
             List<Map<String, Object>> list = new ArrayList<>();
             while (res.next()) {

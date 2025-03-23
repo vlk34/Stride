@@ -16,10 +16,10 @@ public class UserController {
     @CrossOrigin
     @GetMapping("/search")
     public List<Map<String, Object>> search(
-            @RequestParam String q,
-            @RequestParam String workstyle,
-            @RequestParam String jobtype,
-            @RequestParam String industry
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) String workstyle,
+            @RequestParam(required = false) String jobtype,
+            @RequestParam(required = false) String industry
     ) {
         return Database.jobQuery(q, workstyle, jobtype, industry);
     }
