@@ -58,4 +58,26 @@ public class UserController {
 
         return Database.saved(user_id);
     }
+
+    @CrossOrigin
+    @PostMapping("/apply")
+    public ResponseEntity<String> apply(@RequestBody Map<String, Object> body, HttpServletRequest request) throws IOException {
+        String user_id = Authentication.getClaims(request).getSubject();
+        if (user_id == null)
+            return new ResponseEntity<>("Not authenticated", HttpStatus.UNAUTHORIZED);
+
+        Database.applyJob(user_id, (int) body.get("job_id"));
+
+        return new ResponseEntity<>("Successful", HttpStatus.OK);
+    }
+
+    @CrossOrigin
+    @PostMapping("/applied")
+    public List<Map<String, Object>> applied(HttpServletRequest request) throws IOException {
+        String user_id = Authentication.getClaims(request).getSubject();
+        if (user_id == null)
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+
+        return Database.applied(user_id);
+    }
 }

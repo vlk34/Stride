@@ -132,4 +132,57 @@ public class Database {
             return null;
         }
     }
+
+    public static void applyJob(String user_id, int job_id) {
+        try {
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO applications (user_id, job_id) VALUES (?, ?)");
+            statement.setString(1, user_id);
+            statement.setInt(2, job_id);
+            statement.executeUpdate();
+            statement.close();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public static List<Map<String, Object>> applied(String user_id) {
+        try {
+            PreparedStatement statement = connection.prepareStatement("SELECT user_id, job_id FROM applied WHERE user_id = ?");
+            statement.setString(1, user_id);
+            ResultSet res = statement.executeQuery();
+            List<Map<String, Object>> list = new ArrayList<>();
+            while (res.next()) {
+                Map<String, Object> map = new HashMap<>();
+                int job_id = res.getInt("job_id");
+                map.put("job_id", job_id);
+                PreparedStatement job_statement = connection.prepareStatement("SELECT title, company_id, job_description FROM jobs WHERE job_id = ?");
+                job_statement.setInt(1, job_id);
+                ResultSet job_res = job_statement.executeQuery();
+                int company_id = 0;
+                if (job_res.next()) {
+                    company_id = job_res.getInt("company_id");
+                    map.put("title", job_res.getString("title"));
+                    map.put("description", job_res.getString("job_description"));
+                }
+                job_res.close();
+                job_statement.close();
+                PreparedStatement company_statement = connection.prepareStatement("SELECT company_name, logo FROM companies WHERE company_id = ?");
+                company_statement.setInt(1, company_id);
+                ResultSet company_res = company_statement.executeQuery();
+                if (company_res.next()) {
+                    map.put("company", company_res.getString("company_name"));
+                    map.put("logo", company_res.getInt("logo"));
+                }
+                company_res.close();
+                company_statement.close();
+                list.add(map);
+            }
+            res.close();
+            statement.close();
+            return list;
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            return null;
+        }
+    }
 }
