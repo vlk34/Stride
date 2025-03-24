@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.util.List;
@@ -34,5 +35,27 @@ public class UserController {
         Database.saveJob(user_id, (int) body.get("job_id"));
 
         return new ResponseEntity<>("Successful", HttpStatus.OK);
+    }
+
+    @CrossOrigin
+    @PostMapping("/unsave")
+    public ResponseEntity<String> unsave(@RequestBody Map<String, Object> body, HttpServletRequest request) throws IOException {
+        String user_id = Authentication.getClaims(request).getSubject();
+        if (user_id == null)
+            return new ResponseEntity<>("Not authenticated", HttpStatus.UNAUTHORIZED);
+
+        Database.unsaveJob(user_id, (int) body.get("job_id"));
+
+        return new ResponseEntity<>("Successful", HttpStatus.OK);
+    }
+
+    @CrossOrigin
+    @PostMapping("/saved")
+    public List<Map<String, Object>> saved(HttpServletRequest request) throws IOException {
+        String user_id = Authentication.getClaims(request).getSubject();
+        if (user_id == null)
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+
+        return Database.saved(user_id);
     }
 }
