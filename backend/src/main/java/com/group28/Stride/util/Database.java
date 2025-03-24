@@ -102,26 +102,26 @@ public class Database {
                 Map<String, Object> map = new HashMap<>();
                 int job_id = res.getInt("job_id");
                 map.put("job_id", job_id);
-                PreparedStatement statement2 = connection.prepareStatement("SELECT title, company_id, job_description FROM jobs WHERE job_id = ?");
-                statement2.setInt(1, job_id);
-                ResultSet res2 = statement2.executeQuery();
+                PreparedStatement job_statement = connection.prepareStatement("SELECT title, company_id, job_description FROM jobs WHERE job_id = ?");
+                job_statement.setInt(1, job_id);
+                ResultSet job_res = job_statement.executeQuery();
                 int company_id = 0;
-                if (res2.next()) {
-                    company_id = res2.getInt("company_id");
-                    map.put("title", res2.getString("title"));
-                    map.put("description", res2.getString("job_description"));
+                if (job_res.next()) {
+                    company_id = job_res.getInt("company_id");
+                    map.put("title", job_res.getString("title"));
+                    map.put("description", job_res.getString("job_description"));
                 }
-                res2.close();
-                statement2.close();
-                PreparedStatement statement3 = connection.prepareStatement("SELECT company_name, logo FROM companies WHERE company_id = ?");
-                statement3.setInt(1, company_id);
-                ResultSet res3 = statement3.executeQuery();
-                if (res3.next()) {
-                    map.put("company", res3.getString("company_name"));
-                    map.put("logo", res3.getInt("logo"));
+                job_res.close();
+                job_statement.close();
+                PreparedStatement company_statement = connection.prepareStatement("SELECT company_name, logo FROM companies WHERE company_id = ?");
+                company_statement.setInt(1, company_id);
+                ResultSet company_res = company_statement.executeQuery();
+                if (company_res.next()) {
+                    map.put("company", company_res.getString("company_name"));
+                    map.put("logo", company_res.getInt("logo"));
                 }
-                res3.close();
-                statement3.close();
+                company_res.close();
+                company_statement.close();
                 list.add(map);
             }
             res.close();
