@@ -67,8 +67,8 @@ CREATE TABLE IF NOT EXISTS applications (
 
 CREATE TABLE IF NOT EXISTS business_applications (
     application_id SERIAL PRIMARY KEY,
-    user_id VARCHAR(255) NOT NULL,
-    company_id INTEGER NOT NULL,
+    user_id VARCHAR(255) UNIQUE NOT NULL,
+    company_id INTEGER UNIQUE NOT NULL,
     FOREIGN KEY (company_id) REFERENCES companies(company_id) ON DELETE CASCADE
 );
 
