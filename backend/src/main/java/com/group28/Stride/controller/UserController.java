@@ -50,7 +50,7 @@ public class UserController {
     }
 
     @CrossOrigin
-    @PostMapping("/saved")
+    @GetMapping("/saved")
     public List<Map<String, Object>> saved(HttpServletRequest request) throws IOException {
         String user_id = Authentication.getClaims(request).getSubject();
         if (user_id == null)
@@ -72,7 +72,7 @@ public class UserController {
     }
 
     @CrossOrigin
-    @PostMapping("/applied")
+    @GetMapping("/applied")
     public List<Map<String, Object>> applied(HttpServletRequest request) throws IOException {
         String user_id = Authentication.getClaims(request).getSubject();
         if (user_id == null)
