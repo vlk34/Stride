@@ -90,7 +90,7 @@ public class UserController {
             return new ResponseEntity<>("Not authenticated", HttpStatus.UNAUTHORIZED);
         String role = (String) Authentication.getClaims(request).get("metadata", HashMap.class).get("role");
 
-        if (role == null || (!role.equalsIgnoreCase("business") && !role.equalsIgnoreCase("admin"))) {
+        if (role == null || !(role.equalsIgnoreCase("business") || role.equalsIgnoreCase("admin"))) {
             Database.upgrade(user_id, body);
             return new ResponseEntity<>("Successful", HttpStatus.OK);
         } else {
