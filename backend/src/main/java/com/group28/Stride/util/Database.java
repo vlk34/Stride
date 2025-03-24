@@ -185,4 +185,42 @@ public class Database {
             return null;
         }
     }
+
+    public static void upgrade(String user_id, Map<String, Object> body) {
+        try {
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO companies (user_id, company_name, company_location, industry, company_size, logo, founded, email, about, phone, website, company_country, company_city, company_state, postal_code, mission, benefits) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING company_id");
+            statement.setString(1, user_id);
+            statement.setString(2, body.get("company").toString());
+            statement.setString(3, body.get("address").toString());
+            statement.setString(4, body.get("industry").toString());
+            statement.setString(5, body.get("size").toString());
+            statement.setInt(6, (int) body.get("logo"));
+            statement.setInt(7, (int) body.get("founded"));
+            statement.setString(8, body.get("email").toString());
+            statement.setString(9, body.get("description").toString());
+            statement.setString(10, body.get("phone").toString());
+            statement.setString(11, body.get("website").toString());
+            statement.setString(12, body.get("country").toString());
+            statement.setString(13, body.get("city").toString());
+            statement.setString(14, body.get("state").toString());
+            statement.setString(15, body.get("postal_code").toString());
+            statement.setString(16, body.get("mission").toString());
+            statement.setString(17, body.get("benefits").toString());
+            ResultSet res = statement.executeQuery();
+            int company_id = 0;
+            if (res.next()) {
+                company_id = res.getInt("company_id");
+            }
+            res.close();
+            statement.close();
+
+            PreparedStatement statement2 = connection.prepareStatement("INSERT INTO business_applications (user_id, company_id) VALUES (?, ?)");
+            statement2.setString(1, user_id);
+            statement2.setInt(2, company_id);
+            statement2.executeUpdate();
+            statement2.close();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
 }

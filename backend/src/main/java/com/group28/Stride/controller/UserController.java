@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -79,5 +80,21 @@ public class UserController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
 
         return Database.applied(user_id);
+    }
+
+    @CrossOrigin
+    @PostMapping("/upgrade")
+    public ResponseEntity<String> upgrade(@RequestBody Map<String, Object> body, HttpServletRequest request) throws IOException {
+        String user_id = Authentication.getClaims(request).getSubject();
+        if (user_id == null)
+            return new ResponseEntity<>("Not authenticated", HttpStatus.UNAUTHORIZED);
+        String role = (String) Authentication.getClaims(request).get("metadata", HashMap.class).get("role");
+
+        if (role == null || (!role.equalsIgnoreCase("business") && !role.equalsIgnoreCase("admin"))) {
+            Database.upgrade(user_id, body);
+            return new ResponseEntity<>("Successful", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("Already upgraded", HttpStatus.CONFLICT);
+        }
     }
 }
