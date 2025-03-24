@@ -25,7 +25,7 @@ public class Database {
 
     public static List<Map<String, Object>> jobQuery(String q, String workstyle, String jobtype, String industry) {
         try {
-            String query = "SELECT job_id, title, job_description FROM jobs WHERE 1=1";
+            String query = "SELECT job_id, company_id, title, job_description FROM jobs WHERE 1=1";
             List<String> params = new ArrayList<>();
 
             if (q != null && !q.isEmpty()) {
@@ -57,6 +57,15 @@ public class Database {
                 map.put("job_id", res.getInt("job_id"));
                 map.put("title", res.getString("title"));
                 map.put("job_description", res.getString("job_description"));
+                PreparedStatement company_statement = connection.prepareStatement("SELECT company_name, logo FROM companies WHERE company_id = ?");
+                company_statement.setInt(1, res.getInt("company_id"));
+                ResultSet company_res = company_statement.executeQuery();
+                if (company_res.next()) {
+                    map.put("company", company_res.getString("company_name"));
+                    map.put("logo", company_res.getInt("logo"));
+                }
+                company_res.close();
+                company_statement.close();
                 list.add(map);
             }
             res.close();
