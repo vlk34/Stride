@@ -11,6 +11,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -43,5 +44,18 @@ public class BusinessController {
         Database.createJob(user_id, body);
 
         return new ResponseEntity<>("Successful", HttpStatus.OK);
+    }
+
+    @GetMapping("/jobs")
+    public List<Map<String, Object>> jobs(HttpServletRequest request) throws IOException {
+        Claims user_claims = Authentication.getClaims(request);
+        if (user_claims == null)
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+        String user_id = user_claims.getSubject();
+        String role = (String) user_claims.get("metadata", HashMap.class).get("role");
+        if (!"business".equalsIgnoreCase(role))
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+
+        return Database.jobs(user_id);
     }
 }

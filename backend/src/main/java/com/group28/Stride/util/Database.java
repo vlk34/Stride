@@ -353,4 +353,42 @@ public class Database {
             ex.printStackTrace();
         }
     }
+
+    public static List<Map<String, Object>> jobs(String user_id) {
+        try {
+            PreparedStatement statement = connection.prepareStatement("SELECT company_id, company_name, logo FROM companies WHERE user_id = ?");
+            statement.setString(1, user_id);
+            ResultSet res = statement.executeQuery();
+            int company_id = 0;
+            int logo = 0;
+            String company_name = "";
+            if (res.next()) {
+                company_id = res.getInt("company_id");
+                logo = res.getInt("logo");
+                company_name = res.getString("company_name");
+            }
+            res.close();
+            statement.close();
+
+            List<Map<String, Object>> list = new ArrayList<>();
+            PreparedStatement job_statement = connection.prepareStatement("SELECT job_id, title, job_description FROM jobs WHERE company_id = ?");
+            job_statement.setInt(1, company_id);
+            ResultSet job_res = job_statement.executeQuery();
+            while (job_res.next()) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("company", company_name);
+                map.put("logo", logo);
+                map.put("job_id", job_res.getInt("job_id"));
+                map.put("title", job_res.getString("title"));
+                map.put("description", job_res.getString("job_description"));
+                list.add(map);
+            }
+            job_res.close();
+            job_statement.close();
+            return list;
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
 }

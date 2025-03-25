@@ -3,21 +3,21 @@ response body:
 [
     {
     "job_id": 999,
-    "job_name": "example",
+    "title": "example",
     "company": "example",
     "logo": 999,
     "description": "lorem ipsum"
     },
     {
     "job_id": 999,
-    "job_name": "example",
+    "title": "example",
     "company": "example",
     "logo": 999,
     "description": "lorem ipsum"
     },
     {
     "job_id": 999,
-    "job_name": "example",
+    "title": "example",
     "company": "example",
     "logo": 999,
     "description": "lorem ipsum"
@@ -30,21 +30,21 @@ response body:
 [
     {
     "job_id": 999,
-    "job_name": "example",
+    "title": "example",
     "company": "example",
     "logo": 999,
     "description": "lorem ipsum"
     },
     {
     "job_id": 999,
-    "job_name": "example",
+    "title": "example",
     "company": "example",
     "logo": 999,
     "description": "lorem ipsum"
     },
     {
     "job_id": 999,
-    "job_name": "example",
+    "title": "example",
     "company": "example",
     "logo": 999,
     "description": "lorem ipsum"
@@ -71,21 +71,21 @@ response body:
 [
     {
     "job_id": 999,
-    "job_name": "example",
+    "title": "example",
     "company": "example",
     "logo": 999,
     "description": "lorem ipsum"
     },
     {
     "job_id": 999,
-    "job_name": "example",
+    "title": "example",
     "company": "example",
     "logo": 999,
     "description": "lorem ipsum"
     },
     {
     "job_id": 999,
-    "job_name": "example",
+    "title": "example",
     "company": "example",
     "logo": 999,
     "description": "lorem ipsum"
@@ -105,21 +105,21 @@ response body:
 [
     {
     "job_id": 999,
-    "job_name": "example",
+    "title": "example",
     "company": "example",
     "logo": 999,
     "description": "lorem ipsum"
     },
     {
     "job_id": 999,
-    "job_name": "example",
+    "title": "example",
     "company": "example",
     "logo": 999,
     "description": "lorem ipsum"
     },
     {
     "job_id": 999,
-    "job_name": "example",
+    "title": "example",
     "company": "example",
     "logo": 999,
     "description": "lorem ipsum"
@@ -171,21 +171,21 @@ response body:
 [
     {
     "job_id": 999,
-    "job_name": "example",
+    "title": "example",
     "company": "example",
     "logo": 999,
     "description": "lorem ipsum"
     },
     {
     "job_id": 999,
-    "job_name": "example",
+    "title": "example",
     "company": "example",
     "logo": 999,
     "description": "lorem ipsum"
     },
     {
     "job_id": 999,
-    "job_name": "example",
+    "title": "example",
     "company": "example",
     "logo": 999,
     "description": "lorem ipsum"
