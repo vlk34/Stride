@@ -31,7 +31,7 @@ public class BusinessController {
 
     @CrossOrigin
     @PostMapping("/create")
-    public ResponseEntity<String> upgrade(@RequestBody Map<String, Object> body, HttpServletRequest request) throws IOException {
+    public ResponseEntity<String> create(@RequestBody Map<String, Object> body, HttpServletRequest request) throws IOException {
         Claims user_claims = Authentication.getClaims(request);
         if (user_claims == null)
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
