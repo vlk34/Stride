@@ -114,7 +114,7 @@ public class UserController {
         String user_id = user_claims.getSubject();
         String role = (String) user_claims.get("metadata", HashMap.class).get("role");
 
-        if (role == null || !(role.equalsIgnoreCase("business") || role.equalsIgnoreCase("admin"))) {
+        if (!("business".equalsIgnoreCase(role) || "admin".equalsIgnoreCase(role))) {
             Database.upgrade(user_id, body);
             return new ResponseEntity<>("Successful", HttpStatus.OK);
         } else {

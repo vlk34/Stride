@@ -23,7 +23,7 @@ public class BusinessController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
         String user_id = user_claims.getSubject();
         String role = (String) user_claims.get("metadata", HashMap.class).get("role");
-        if (!role.equalsIgnoreCase("business"))
+        if (!"business".equalsIgnoreCase(role))
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
 
         return Database.stats(user_id);
@@ -37,7 +37,7 @@ public class BusinessController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
         String user_id = user_claims.getSubject();
         String role = (String) user_claims.get("metadata", HashMap.class).get("role");
-        if (!role.equalsIgnoreCase("business"))
+        if (!"business".equalsIgnoreCase(role))
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
 
         Database.createJob(user_id, body);
