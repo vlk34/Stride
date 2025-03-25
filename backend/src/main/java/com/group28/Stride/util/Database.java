@@ -333,13 +333,13 @@ public class Database {
 
             PreparedStatement statement = connection.prepareStatement("INSERT INTO jobs (company_id, title, department, job_location, job_type, workstyle, skills, languages, experience, education, responsibilities, qualifications, job_description, closes_at, openings) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             statement.setInt(1, company_id);
-            statement.setString(2, body.get("job_title").toString());
+            statement.setString(2, body.get("title").toString());
             statement.setString(3, body.get("department").toString());
             statement.setString(4, body.get("location").toString());
             statement.setString(5, body.get("job_type").toString());
             statement.setString(6, body.get("workstyle").toString());
-            statement.setArray(7, (Array) body.get("skills"));
-            statement.setArray(8, (Array) body.get("languages"));
+            statement.setArray(7, connection.createArrayOf("TEXT", ((List<String>) body.get("skills")).toArray()));
+            statement.setArray(8, connection.createArrayOf("TEXT", ((List<String>) body.get("languages")).toArray()));
             statement.setString(9, body.get("experience").toString());
             statement.setString(10, body.get("education").toString());
             statement.setString(11, body.get("responsibilities").toString());
