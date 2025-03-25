@@ -274,4 +274,48 @@ public class Database {
             ex.printStackTrace();
         }
     }
+
+    public static Map<String, Integer> stats(String user_id) {
+        try {
+            PreparedStatement statement = connection.prepareStatement("SELECT company_id FROM companies WHERE user_id = ?");
+            statement.setString(1, user_id);
+            ResultSet res = statement.executeQuery();
+            int company_id = 0;
+            if (res.next()) {
+                company_id = res.getInt("company_id");
+            }
+            res.close();
+            statement.close();
+
+            int total_jobs = 0;
+            int total_applicants = 0;
+            PreparedStatement job_statement = connection.prepareStatement("SELECT job_id FROM jobs WHERE company_id = ?");
+            job_statement.setInt(1, company_id);
+            ResultSet job_res = job_statement.executeQuery();
+            while (job_res.next()) {
+                total_jobs += 1;
+
+                PreparedStatement applicant_statement = connection.prepareStatement("SELECT COUNT(1) FROM applications WHERE job_id = ?");
+                applicant_statement.setInt(1, job_res.getInt("job_id"));
+                ResultSet applicant_res = applicant_statement.executeQuery();
+                if (applicant_res.next()) {
+                    total_applicants += applicant_res.getInt(1);
+                }
+                applicant_res.close();
+                applicant_statement.close();
+            }
+            job_res.close();
+            job_statement.close();
+
+            Map<String, Integer> map = new HashMap<>();
+            map.put("total_jobs", total_jobs);
+            map.put("total_applicants", total_applicants);
+            map.put("profile_views", 5);
+            map.put("response_rate", 1);
+            return map;
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
 }
