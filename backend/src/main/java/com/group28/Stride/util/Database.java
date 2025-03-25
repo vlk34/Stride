@@ -1,6 +1,9 @@
 package com.group28.Stride.util;
 
 import io.github.cdimascio.dotenv.Dotenv;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,6 +24,45 @@ public class Database {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static Map<String, Object> getImage(int id) {
+        try {
+            PreparedStatement statement = connection.prepareStatement("SELECT img, content FROM images WHERE id = ?");
+            statement.setInt(1, id);
+            ResultSet res = statement.executeQuery();
+            Map<String, Object> img = new HashMap<>();
+            if (res.next()) {
+                img.put("data", res.getBytes("img"));
+                img.put("content", res.getString("content"));
+            }
+            res.close();
+            statement.close();
+            return img;
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
+    public static Map<String, Integer> saveImage(MultipartFile file) {
+        try {
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO images (img, content) VALUES (?, ?) RETURNING id");
+            statement.setBytes(1, file.getBytes());
+            statement.setString(2, file.getContentType());
+            ResultSet res = statement.executeQuery();
+            Map<String, Integer> map = new HashMap<>();
+            if (res.next()) {
+                map.put("id", res.getInt("id"));
+            }
+            res.close();
+            statement.close();
+            statement.close();
+            return map;
+        } catch (SQLException | IOException ex) {
+            ex.printStackTrace();
+        }
+        return null;
     }
 
     public static List<Map<String, Object>> jobQuery(String q, String workstyle, String jobtype, String industry) {
