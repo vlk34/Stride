@@ -5,9 +5,8 @@ import com.group28.Stride.util.Database;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
@@ -28,5 +27,21 @@ public class BusinessController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
 
         return Database.stats(user_id);
+    }
+
+    @CrossOrigin
+    @PostMapping("/create")
+    public ResponseEntity<String> upgrade(@RequestBody Map<String, Object> body, HttpServletRequest request) throws IOException {
+        Claims user_claims = Authentication.getClaims(request);
+        if (user_claims == null)
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+        String user_id = user_claims.getSubject();
+        String role = (String) user_claims.get("metadata", HashMap.class).get("role");
+        if (!role.equalsIgnoreCase("business"))
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+
+        Database.createJob(user_id, body);
+
+        return new ResponseEntity<>("Successful", HttpStatus.OK);
     }
 }

@@ -318,4 +318,39 @@ public class Database {
         }
         return null;
     }
+
+    public static void createJob(String user_id, Map<String, Object> body) {
+        try {
+            PreparedStatement company_statement = connection.prepareStatement("SELECT company_id FROM companies WHERE user_id = ?");
+            company_statement.setString(1, user_id);
+            ResultSet company_res = company_statement.executeQuery();
+            int company_id = 0;
+            if (company_res.next()) {
+                company_id = company_res.getInt("company_id");
+            }
+            company_res.close();
+            company_statement.close();
+
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO jobs (company_id, title, department, job_location, job_type, workstyle, skills, languages, experience, education, responsibilities, qualifications, job_description, closes_at, openings) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            statement.setInt(1, company_id);
+            statement.setString(2, body.get("job_title").toString());
+            statement.setString(3, body.get("department").toString());
+            statement.setString(4, body.get("location").toString());
+            statement.setString(5, body.get("job_type").toString());
+            statement.setString(6, body.get("workstyle").toString());
+            statement.setArray(7, (Array) body.get("skills"));
+            statement.setArray(8, (Array) body.get("languages"));
+            statement.setString(9, body.get("experience").toString());
+            statement.setString(10, body.get("education").toString());
+            statement.setString(11, body.get("responsibilities").toString());
+            statement.setString(12, body.get("qualifications").toString());
+            statement.setString(13, body.get("description").toString());
+            statement.setTimestamp(14, Timestamp.valueOf(body.get("deadline").toString()));
+            statement.setInt(15, (int) body.get("openings"));
+            statement.executeUpdate();
+            statement.close();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
 }

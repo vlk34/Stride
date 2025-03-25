@@ -248,7 +248,6 @@ request body:
     "responsibilities": "",
     "qualifications": "",
     "deadline": "date",
-    "start": "date",
     "openings": 99
 }
 
