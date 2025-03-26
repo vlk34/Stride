@@ -62,6 +62,22 @@ public class BusinessController {
         return new ResponseEntity<>("Successful", HttpStatus.OK);
     }
 
+    @CrossOrigin
+    @PostMapping("/delete")
+    public ResponseEntity<String> delete(@RequestBody Map<String, Object> body, HttpServletRequest request) throws IOException {
+        Claims user_claims = Authentication.getClaims(request);
+        if (user_claims == null)
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+        String user_id = user_claims.getSubject();
+        String role = (String) user_claims.get("metadata", HashMap.class).get("role");
+        if (!"business".equalsIgnoreCase(role))
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+
+        Database.deleteJob(user_id, (int) body.get("job_id"));
+
+        return new ResponseEntity<>("Successful", HttpStatus.OK);
+    }
+
     @GetMapping("/jobs")
     public List<Map<String, Object>> jobs(HttpServletRequest request) throws IOException {
         Claims user_claims = Authentication.getClaims(request);

@@ -398,6 +398,43 @@ public class Database {
             statement.setTimestamp(13, Timestamp.valueOf(body.get("deadline").toString()));
             statement.setInt(14, (int) body.get("openings"));
             statement.setInt(15, (int) body.get("job_id"));
+            statement.executeUpdate();
+            statement.close();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public static void deleteJob(String user_id, Integer job_id) {
+        try {
+            PreparedStatement company_statement = connection.prepareStatement("SELECT company_id FROM companies WHERE user_id = ?");
+            company_statement.setString(1, user_id);
+            ResultSet company_res = company_statement.executeQuery();
+            int company_id = 0;
+            if (company_res.next()) {
+                company_id = company_res.getInt("company_id");
+            }
+            company_res.close();
+            company_statement.close();
+
+            PreparedStatement job_statement = connection.prepareStatement("SELECT COUNT(1) FROM jobs WHERE job_id = ? AND company_id = ?");
+            job_statement.setInt(1, job_id);
+            job_statement.setInt(2, company_id);
+            ResultSet job_res = job_statement.executeQuery();
+            int is_available = 0;
+            if (job_res.next()) {
+                is_available = job_res.getInt(1);
+            }
+            job_res.close();
+            job_statement.close();
+
+            if (is_available == 0)
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You do not own this job");
+
+            PreparedStatement statement = connection.prepareStatement("DELETE FROM jobs WHERE job_id = ?");
+            statement.setInt(1, job_id);
+            statement.executeUpdate();
+            statement.close();
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
