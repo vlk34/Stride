@@ -357,22 +357,26 @@ Authorization: Bearer session_jwt_here
 response body:
 [
     {
+    "company_id": 1,
+    "logo": 1,
     "company": "example",
     "industry": "Technology",
     "user_id", "asdqwe",
-    "applicant_name",
-    "applicant_email",
-    "status",
-    "date": "date"
+    "name": "",
+    "email": "",
+    "image": "url",
+    "applied_at": "date"
     },
     {
+    "company_id": 1,
+    "logo": 1,
     "company": "example",
     "industry": "Technology",
     "user_id", "asdqwe",
-    "applicant_name",
-    "applicant_email",
-    "status",
-    "date": "date"
+    "name": "",
+    "email": "",
+    "image": "url",
+    "applied_at": "date"
     }
 ]
 

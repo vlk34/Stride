@@ -557,4 +557,39 @@ public class Database {
         }
         return null;
     }
+
+    public static List<Map<String, Object>> businessApplications() {
+        try {
+            PreparedStatement applicant_statement = connection.prepareStatement("SELECT user_id, company_id, application_date FROM business_applications");
+            ResultSet applicant_res = applicant_statement.executeQuery();
+            List<Map<String, Object>> list = new ArrayList<>();
+            while (applicant_res.next()) {
+                Map<String, Object> map = GetUserInfo.fromUserID(applicant_res.getString("user_id"));
+                if (map == null)
+                    map = new HashMap<>();
+                map.put("user_id", applicant_res.getString("user_id"));
+                map.put("applied_at", applicant_res.getDate("application_date"));
+
+                PreparedStatement company_statement = connection.prepareStatement("SELECT company_name, industry, logo FROM companies WHERE company_id = ?");
+                company_statement.setInt(1, applicant_res.getInt("company_id"));
+                ResultSet company_res = company_statement.executeQuery();
+                if (company_res.next()) {
+                    map.put("company", company_res.getString("company_name"));
+                    map.put("industry", company_res.getString("industry"));
+                    map.put("logo", company_res.getInt("logo"));
+                    map.put("company_id", applicant_res.getInt("company_id"));
+                }
+                company_res.close();
+                company_statement.close();
+
+                list.add(map);
+            }
+            applicant_res.close();
+            applicant_statement.close();
+            return list;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
 }

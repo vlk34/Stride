@@ -41,7 +41,7 @@ public class GetUserInfo {
 
         HashMap<String, Object> user = new HashMap<>();
 
-        user.put("full_name", res.user().get().firstName().get() + " " + res.user().get().lastName().get());
+        user.put("name", res.user().get().firstName().get() + " " + res.user().get().lastName().get());
         if (res.user().get().emailAddresses().isPresent())
             user.put("email", res.user().get().emailAddresses().get().getFirst().emailAddress());
         if (res.user().get().imageUrl().isPresent())
