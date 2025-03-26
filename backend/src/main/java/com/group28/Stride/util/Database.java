@@ -391,4 +391,37 @@ public class Database {
         }
         return null;
     }
+
+    public static Map<String, Object> jobDetails(Integer job_id) {
+        try {
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM jobs WHERE job_id = ?");
+            statement.setInt(1, job_id);
+            ResultSet res = statement.executeQuery();
+            Map<String, Object> map = new HashMap<>();
+            if (res.next()) {
+                map.put("job_id", res.getInt("job_id"));
+                map.put("title", res.getString("title"));
+                map.put("department", res.getString("department"));
+                map.put("location", res.getString("job_location"));
+                map.put("workstyle", res.getString("workstyle"));
+                map.put("job_type", res.getString("job_type"));
+                map.put("experience", res.getString("experience"));
+                map.put("education", res.getString("education"));
+                map.put("skills", res.getArray("skills").getArray());
+                map.put("languages", res.getArray("languages").getArray());
+                map.put("description", res.getString("job_description"));
+                map.put("responsibilities", res.getString("responsibilities"));
+                map.put("qualifications", res.getString("qualifications"));
+                map.put("deadline", res.getDate("closes_at"));
+                map.put("start", res.getDate("created_at"));
+                map.put("openings", res.getInt("openings"));
+            }
+            res.close();
+            statement.close();
+            return map;
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
 }

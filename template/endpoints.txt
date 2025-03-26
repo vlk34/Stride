@@ -243,7 +243,7 @@ request body:
     "experience": "5",
     "education": "phd",
     "skills": ["asd", "qwe"],
-    "languages": ["asd", "qwe"]
+    "languages": ["asd", "qwe"],
     "description": "",
     "responsibilities": "",
     "qualifications": "",
@@ -255,7 +255,8 @@ GET /details?job=999
 Authorization: Bearer session_jwt_here
 response body:
 {
-    "job_title": "example",
+    "job_id": 999,
+    "title": "example",
     "department": "Technology",
     "location": "example street",
     "workstyle": "remote",
@@ -263,7 +264,7 @@ response body:
     "experience": "5",
     "education": "phd",
     "skills": ["asd", "qwe"],
-    "languages": ["asd", "qwe"]
+    "languages": ["asd", "qwe"],
     "description": "",
     "responsibilities": "",
     "qualifications": "",
@@ -277,7 +278,7 @@ Authorization: Bearer session_jwt_here
 request body:
 {
     "job_id": 999,
-    "job_title": "example",
+    "title": "example",
     "department": "Technology",
     "location": "example street",
     "workstyle": "remote",
@@ -285,7 +286,7 @@ request body:
     "experience": "5",
     "education": "phd",
     "skills": ["asd", "qwe"],
-    "languages": ["asd", "qwe"]
+    "languages": ["asd", "qwe"],
     "description": "",
     "responsibilities": "",
     "qualifications": "",

@@ -44,6 +44,11 @@ public class UserController {
         return Database.jobQuery(q, workstyle, jobtype, industry);
     }
 
+    @GetMapping("/details")
+    public Map<String, Object> details(@RequestParam Integer job) throws IOException {
+        return Database.jobDetails(job);
+    }
+
     @CrossOrigin
     @PostMapping("/save")
     public ResponseEntity<String> save(@RequestBody Map<String, Object> body, HttpServletRequest request) throws IOException {
