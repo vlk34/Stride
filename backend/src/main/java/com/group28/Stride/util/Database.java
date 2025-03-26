@@ -356,6 +356,53 @@ public class Database {
         }
     }
 
+    public static void updateJob(String user_id, Map<String, Object> body) {
+        try {
+            PreparedStatement company_statement = connection.prepareStatement("SELECT company_id FROM companies WHERE user_id = ?");
+            company_statement.setString(1, user_id);
+            ResultSet company_res = company_statement.executeQuery();
+            int company_id = 0;
+            if (company_res.next()) {
+                company_id = company_res.getInt("company_id");
+            }
+            company_res.close();
+            company_statement.close();
+
+            PreparedStatement job_statement = connection.prepareStatement("SELECT COUNT(1) FROM jobs WHERE job_id = ? AND company_id = ?");
+            job_statement.setInt(1, (int) body.get("job_id"));
+            job_statement.setInt(2, company_id);
+            ResultSet job_res = job_statement.executeQuery();
+            int is_available = 0;
+            if (job_res.next()) {
+                is_available = job_res.getInt(1);
+            }
+            job_res.close();
+            job_statement.close();
+
+            if (is_available == 0)
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You do not own this job");
+
+            PreparedStatement statement = connection.prepareStatement("UPDATE jobs SET title = ?, department = ?, job_location = ?, job_type = ?, workstyle = ?, skills = ?, languages = ?, experience = ?, education = ?, responsibilities = ?, qualifications = ?, job_description = ?, closes_at = ?, openings = ? WHERE job_id = ?");
+            statement.setString(1, body.get("title").toString());
+            statement.setString(2, body.get("department").toString());
+            statement.setString(3, body.get("location").toString());
+            statement.setString(4, body.get("job_type").toString());
+            statement.setString(5, body.get("workstyle").toString());
+            statement.setArray(6, connection.createArrayOf("TEXT", ((List<String>) body.get("skills")).toArray()));
+            statement.setArray(7, connection.createArrayOf("TEXT", ((List<String>) body.get("languages")).toArray()));
+            statement.setString(8, body.get("experience").toString());
+            statement.setString(9, body.get("education").toString());
+            statement.setString(10, body.get("responsibilities").toString());
+            statement.setString(11, body.get("qualifications").toString());
+            statement.setString(12, body.get("description").toString());
+            statement.setTimestamp(13, Timestamp.valueOf(body.get("deadline").toString()));
+            statement.setInt(14, (int) body.get("openings"));
+            statement.setInt(15, (int) body.get("job_id"));
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
     public static List<Map<String, Object>> jobs(String user_id) {
         try {
             PreparedStatement statement = connection.prepareStatement("SELECT company_id, company_name, logo FROM companies WHERE user_id = ?");

@@ -294,7 +294,6 @@ request body:
     "responsibilities": "",
     "qualifications": "",
     "deadline": "date",
-    "start": "date",
     "openings": 99
 }
 
@@ -400,6 +399,11 @@ Authorization: Bearer session_jwt_here
 response body:
 image bytes
 (content-type header)
+
+GET /images/upload
+Authorization: Bearer session_jwt_here
+request body:
+image bytes
 
 GET /companies/{id}
 # to do
