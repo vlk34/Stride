@@ -498,8 +498,8 @@ public class Database {
                 map.put("description", res.getString("job_description"));
                 map.put("responsibilities", res.getString("responsibilities"));
                 map.put("qualifications", res.getString("qualifications"));
-                map.put("deadline", res.getDate("closes_at"));
-                map.put("start", res.getDate("created_at"));
+                map.put("deadline", res.getTimestamp("closes_at"));
+                map.put("start", res.getTimestamp("created_at"));
                 map.put("openings", res.getInt("openings"));
             }
             res.close();
@@ -546,7 +546,7 @@ public class Database {
                 if (map == null)
                     map = new HashMap<>();
                 map.put("user_id", applicant_res.getString("user_id"));
-                map.put("applied_at", applicant_res.getDate("application_date"));
+                map.put("applied_at", applicant_res.getTimestamp("application_date"));
                 list.add(map);
             }
             applicant_res.close();
@@ -568,7 +568,7 @@ public class Database {
                 if (map == null)
                     map = new HashMap<>();
                 map.put("user_id", applicant_res.getString("user_id"));
-                map.put("applied_at", applicant_res.getDate("application_date"));
+                map.put("applied_at", applicant_res.getTimestamp("application_date"));
 
                 PreparedStatement company_statement = connection.prepareStatement("SELECT company_name, industry, logo FROM companies WHERE company_id = ?");
                 company_statement.setInt(1, applicant_res.getInt("company_id"));
