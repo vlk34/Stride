@@ -1,10 +1,12 @@
 package com.group28.Stride.util;
 
 import com.clerk.backend_api.Clerk;
-import com.clerk.backend_api.models.operations.GetUserResponse;
+import com.clerk.backend_api.models.operations.*;
 import com.google.gson.Gson;
 import io.github.cdimascio.dotenv.Dotenv;
 import redis.clients.jedis.UnifiedJedis;
+
+import java.lang.Object;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -54,5 +56,24 @@ public class GetUserInfo {
         }
 
         return user;
+    }
+
+    public static void businessUpgrade(String user_id) throws Exception {
+        Dotenv dotenv = Dotenv.configure()
+                .directory("backend")
+                .load();
+
+        Clerk sdk = Clerk.builder()
+                .bearerAuth(dotenv.get("SECRET"))
+                .build();
+
+        UpdateUserMetadataResponse res = sdk.users().updateMetadata()
+                .userId(user_id)
+                .requestBody(UpdateUserMetadataRequestBody.builder().publicMetadata(Map.of("role", "business")).build())
+                .call();
+
+        if (res.user().isEmpty()) {
+            throw new Exception("User not found");
+        }
     }
 }
