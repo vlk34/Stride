@@ -49,7 +49,7 @@ public class AdminController {
 
     @CrossOrigin
     @GetMapping("/applications")
-    public List<Map<String, Object>> applications(@RequestBody Map<String, Object> body, HttpServletRequest request) throws Exception {
+    public List<Map<String, Object>> applications(HttpServletRequest request) throws Exception {
         Claims user_claims = Authentication.getClaims(request);
         if (user_claims == null)
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
