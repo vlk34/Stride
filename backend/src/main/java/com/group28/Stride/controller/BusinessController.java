@@ -47,7 +47,7 @@ public class BusinessController {
     }
 
     @CrossOrigin
-    @PostMapping("/update")
+    @PutMapping("/update")
     public ResponseEntity<String> update(@RequestBody Map<String, Object> body, HttpServletRequest request) throws IOException {
         Claims user_claims = Authentication.getClaims(request);
         if (user_claims == null)
