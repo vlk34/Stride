@@ -41,9 +41,7 @@ public class GetUserInfo {
 
         user.put("full_name", res.user().get().firstName().get() + " " + res.user().get().lastName().get());
         if (res.user().get().emailAddresses().isPresent())
-            user.put("email", res.user().get().emailAddresses().get().getFirst());
-        if (res.user().get().phoneNumbers().isPresent())
-            user.put("phone", res.user().get().phoneNumbers().get().getFirst());
+            user.put("email", res.user().get().emailAddresses().get().getFirst().emailAddress());
         if (res.user().get().imageUrl().isPresent())
             user.put("image", res.user().get().imageUrl().get());
 

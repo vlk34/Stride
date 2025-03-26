@@ -201,7 +201,6 @@ response body:
     "name": "Sarah Johnson",
     "image": "url",
     "email": "example",
-    "phone": "example",
     "location": "url",
     "experience_time": "lorem ipsum",
     "skills": ["asd", "qwe"],
@@ -214,7 +213,6 @@ response body:
     "name": "Sarah Johnson",
     "image": "url",
     "email": "example",
-    "phone": "example",
     "location": "url",
     "experience_time": "lorem ipsum",
     "skills": ["asd", "qwe"],
@@ -227,7 +225,6 @@ response body:
     "name": "Sarah Johnson",
     "image": "url",
     "email": "example",
-    "phone": "example",
     "location": "url",
     "experience_time": "lorem ipsum",
     "skills": ["asd", "qwe"],
@@ -403,3 +400,6 @@ Authorization: Bearer session_jwt_here
 response body:
 image bytes
 (content-type header)
+
+GET /companies/{id}
+# to do
