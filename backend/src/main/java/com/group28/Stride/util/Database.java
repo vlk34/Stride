@@ -7,6 +7,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.sql.*;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -395,7 +396,7 @@ public class Database {
             statement.setString(10, body.get("responsibilities").toString());
             statement.setString(11, body.get("qualifications").toString());
             statement.setString(12, body.get("description").toString());
-            statement.setTimestamp(13, Timestamp.valueOf(body.get("deadline").toString()));
+            statement.setTimestamp(13, Timestamp.from(Instant.parse(body.get("deadline").toString())));
             statement.setInt(14, (int) body.get("openings"));
             statement.setInt(15, (int) body.get("job_id"));
             statement.executeUpdate();
