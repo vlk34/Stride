@@ -6,9 +6,10 @@ import com.google.gson.Gson;
 import io.github.cdimascio.dotenv.Dotenv;
 import redis.clients.jedis.UnifiedJedis;
 import java.util.HashMap;
+import java.util.Map;
 
 public class GetUserInfo {
-    public static HashMap<String, Object> fromUserID(String user_id) throws Exception {
+    public static Map<String, Object> fromUserID(String user_id) throws Exception {
         Dotenv dotenv = Dotenv.configure()
                 .directory("backend")
                 .load();
@@ -38,8 +39,13 @@ public class GetUserInfo {
 
         HashMap<String, Object> user = new HashMap<>();
 
-        user.put("first_name", res.user().get().firstName().get());
-        user.put("last_name", res.user().get().lastName().get());
+        user.put("full_name", res.user().get().firstName().get() + " " + res.user().get().lastName().get());
+        if (res.user().get().emailAddresses().isPresent())
+            user.put("email", res.user().get().emailAddresses().get().getFirst());
+        if (res.user().get().phoneNumbers().isPresent())
+            user.put("phone", res.user().get().phoneNumbers().get().getFirst());
+        if (res.user().get().imageUrl().isPresent())
+            user.put("image", res.user().get().imageUrl().get());
 
         if (dotenv.get("REDIS_ENABLE").equals("true")) {
             try (UnifiedJedis jedis = new UnifiedJedis(String.format("redis://%s:%s", dotenv.get("REDIS_HOST"), dotenv.get("REDIS_PORT")))) {

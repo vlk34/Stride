@@ -199,35 +199,41 @@ response body:
     {
     "user_id": "user_asdqwe",
     "name": "Sarah Johnson",
+    "image": "url",
     "email": "example",
     "phone": "example",
     "location": "url",
     "experience_time": "lorem ipsum",
     "skills": ["asd", "qwe"],
     "experience": "lorem ipsum",
-    "notes": "from applicants"
+    "notes": "from applicants",
+    "applied_at": "date"
     },
     {
     "user_id": "user_asdqwe",
     "name": "Sarah Johnson",
+    "image": "url",
     "email": "example",
     "phone": "example",
     "location": "url",
     "experience_time": "lorem ipsum",
     "skills": ["asd", "qwe"],
     "experience": "lorem ipsum",
-    "notes": "from applicants"
+    "notes": "from applicants",
+    "applied_at": "date"
     },
     {
     "user_id": "user_asdqwe",
     "name": "Sarah Johnson",
+    "image": "url",
     "email": "example",
     "phone": "example",
     "location": "url",
     "experience_time": "lorem ipsum",
     "skills": ["asd", "qwe"],
     "experience": "lorem ipsum",
-    "notes": "from applicants"
+    "notes": "from applicants",
+    "applied_at": "date"
     }
 ]
 
