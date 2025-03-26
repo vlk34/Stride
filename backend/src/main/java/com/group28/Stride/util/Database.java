@@ -592,4 +592,26 @@ public class Database {
         }
         return null;
     }
+
+    public static void removeCompany(String user_id) {
+        try {
+            PreparedStatement statement = connection.prepareStatement("DELETE FROM companies WHERE user_id = ?");
+            statement.setString(1, user_id);
+            statement.executeUpdate();
+            statement.close();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public static void removeBusinessApplication(String user_id) {
+        try {
+            PreparedStatement statement = connection.prepareStatement("DELETE FROM business_applications WHERE user_id = ?");
+            statement.setString(1, user_id);
+            statement.executeUpdate();
+            statement.close();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
 }
