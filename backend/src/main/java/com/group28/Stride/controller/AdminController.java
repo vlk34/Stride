@@ -43,6 +43,7 @@ public class AdminController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
 
         Database.removeCompany(body.get("user_id").toString());
+        Database.removeBusinessApplication(body.get("user_id").toString());
 
         return new ResponseEntity<>("Successful", HttpStatus.OK);
     }
