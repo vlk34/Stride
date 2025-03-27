@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS saved (
     save_id SERIAL PRIMARY KEY,
     user_id VARCHAR(255) NOT NULL,
     job_id INTEGER NOT NULL,
-    CONSTRAINT unique_user_job UNIQUE (user_id, job_id),
+    CONSTRAINT unique_user_job_saved UNIQUE (user_id, job_id),
     FOREIGN KEY (job_id) REFERENCES jobs(job_id) ON DELETE CASCADE
 );
 
@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS applications (
     user_id VARCHAR(255) NOT NULL,
     job_id INTEGER NOT NULL,
     application_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT unique_user_job UNIQUE (user_id, job_id),
+    CONSTRAINT unique_user_job_applications UNIQUE (user_id, job_id),
     FOREIGN KEY (job_id) REFERENCES jobs(job_id) ON DELETE CASCADE
 );
 
