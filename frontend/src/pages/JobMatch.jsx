@@ -31,23 +31,43 @@ const JobMatch = () => {
 
     setIsSubmitting(true);
 
-    // In a real implementation, you would handle both the text and the file upload
-    // For now, we'll just simulate a delay and navigate to the results
-    setTimeout(() => {
+    try {
+      let responseData = null;
+
+      if (resumeData) {
+        // Already handled in handleFileChange -> will navigate automatically
+        return;
+      } else {
+        // User submitted the description, send it to FastAPI
+        const response = await fetch("http://localhost:8000/upload-text", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ description: userDescription }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to upload description");
+        }
+
+        responseData = await response.json();
+      }
+
       navigate("/recommended-jobs", {
-        state: {
-          userDescription,
-          hasResume: !!resumeData,
-          resumeName: uploadedFileName,
-          resumeData: resumeData,
-          fromJobMatch: true,
-        },
+        state: { offers: responseData.results },
       });
+
+    } catch (error) {
+      console.error("Error uploading text:", error);
+      setUploadError("Failed to upload description. Please try again.");
+    } finally {
       setIsSubmitting(false);
-    }, 1500);
+    }
   };
 
   const handleFileChange = async (e) => {
+
     const file = e.target.files[0];
     if (!file) {
       setUploadedFileName("");
@@ -93,8 +113,7 @@ const JobMatch = () => {
       }
 
       const data = await response.json();
-      setResumeData(data);
-      setUploadError("");
+      navigate("/recommended-jobs", { state: { offers: data.results } });
     } catch (error) {
       console.error("Error uploading PDF:", error);
       setUploadError(
@@ -198,11 +217,10 @@ const JobMatch = () => {
                 type="button"
                 onClick={triggerFileInput}
                 disabled={uploadInProgress}
-                className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                  uploadInProgress
+                className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${uploadInProgress
                     ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                     : "text-blue-600 bg-blue-50 hover:bg-blue-100"
-                }`}
+                  }`}
               >
                 {uploadInProgress ? "Uploading..." : "Choose PDF"}
               </button>
@@ -259,13 +277,12 @@ const JobMatch = () => {
               (!userDescription.trim() && !resumeData) ||
               uploadInProgress
             }
-            className={`flex items-center gap-2 px-6 py-2.5 rounded-lg font-medium text-white ${
-              isSubmitting ||
-              (!userDescription.trim() && !resumeData) ||
-              uploadInProgress
+            className={`flex items-center gap-2 px-6 py-2.5 rounded-lg font-medium text-white ${isSubmitting ||
+                (!userDescription.trim() && !resumeData) ||
+                uploadInProgress
                 ? "bg-blue-400 cursor-not-allowed"
                 : "bg-blue-600 hover:bg-blue-700"
-            }`}
+              }`}
           >
             {isSubmitting ? (
               <>

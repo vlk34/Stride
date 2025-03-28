@@ -452,6 +452,7 @@ const RecommendedJobs = () => {
   const location = useLocation();
   const userDescription = location.state?.userDescription || "";
   const [loading, setLoading] = useState(true);
+  const offersFromUpload = location.state?.offers || [];
   const [recommendedJobs, setRecommendedJobs] = useState([]);
   const [filteredJobs, setFilteredJobs] = useState([]);
   const [selectedJob, setSelectedJob] = useState(null);
