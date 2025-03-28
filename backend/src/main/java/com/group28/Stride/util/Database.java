@@ -60,7 +60,6 @@ public class Database {
             }
             res.close();
             statement.close();
-            statement.close();
             return map;
         } catch (SQLException | IOException ex) {
             ex.printStackTrace();
@@ -98,7 +97,6 @@ public class Database {
                 map.put("id", res.getInt("id"));
             }
             res.close();
-            statement.close();
             statement.close();
             return map;
         } catch (SQLException | IOException ex) {
