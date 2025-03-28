@@ -96,7 +96,8 @@ POST /apply
 Authorization: Bearer session_jwt_here
 request body:
 {
-    "job_id": 999
+    "job_id": 999,
+    "cv": 1
 }
 
 GET /applied
@@ -206,7 +207,8 @@ response body:
     "skills": ["asd", "qwe"],
     "experience": "lorem ipsum",
     "notes": "from applicants",
-    "applied_at": "date"
+    "applied_at": "date",
+    "cv": 1
     },
     {
     "user_id": "user_asdqwe",
@@ -218,7 +220,8 @@ response body:
     "skills": ["asd", "qwe"],
     "experience": "lorem ipsum",
     "notes": "from applicants",
-    "applied_at": "date"
+    "applied_at": "date",
+    "cv": 1
     },
     {
     "user_id": "user_asdqwe",
@@ -230,7 +233,8 @@ response body:
     "skills": ["asd", "qwe"],
     "experience": "lorem ipsum",
     "notes": "from applicants",
-    "applied_at": "date"
+    "applied_at": "date",
+    "cv": 1
     }
 ]
 
@@ -408,6 +412,17 @@ GET /images/upload
 Authorization: Bearer session_jwt_here
 request body:
 image bytes
+
+GET /resume/{id}
+Authorization: Bearer session_jwt_here
+response body:
+cv bytes
+(content-type header)
+
+GET /resume/upload
+Authorization: Bearer session_jwt_here
+request body:
+cv bytes
 
 GET /companies/{id}
 request body:

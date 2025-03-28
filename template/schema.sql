@@ -4,6 +4,12 @@ CREATE TABLE IF NOT EXISTS images (
     content VARCHAR(255) NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS resumes (
+    id SERIAL PRIMARY KEY,
+    cv BYTEA NOT NULL,
+    content VARCHAR(255) NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS companies (
     company_id SERIAL PRIMARY KEY,
 	user_id VARCHAR(255) UNIQUE NOT NULL,
@@ -60,8 +66,10 @@ CREATE TABLE IF NOT EXISTS applications (
     application_id SERIAL PRIMARY KEY,
     user_id VARCHAR(255) NOT NULL,
     job_id INTEGER NOT NULL,
+    cv INTEGER NOT NULL,
     application_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE (user_id, job_id),
+    FOREIGN KEY (cv) REFERENCES resumes(id),
     FOREIGN KEY (job_id) REFERENCES jobs(job_id) ON DELETE CASCADE
 );
 

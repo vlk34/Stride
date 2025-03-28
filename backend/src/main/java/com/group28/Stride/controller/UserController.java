@@ -30,7 +30,28 @@ public class UserController {
     @CrossOrigin
     @PostMapping("/images/upload")
     public Map<String, Integer> upload(@RequestParam("file") MultipartFile file) {
+        if (!("image/png".equals(file.getContentType()) || "image/jpeg".equals(file.getContentType())))
+            throw new ResponseStatusException(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Not a PNG or JPEG file");
+
         return Database.saveImage(file);
+    }
+
+    @CrossOrigin
+    @GetMapping("/resume/{id}")
+    public ResponseEntity<byte[]> resume(@PathVariable int id) {
+        Map<String, Object> cv = Database.getResume(id);
+        if (cv == null || cv.get("data") == null)
+            return ResponseEntity.notFound().build();
+        return ResponseEntity.ok().contentType(MediaType.valueOf(cv.get("content").toString())).body((byte[]) cv.get("data"));
+    }
+
+    @CrossOrigin
+    @PostMapping("/resume/upload")
+    public Map<String, Integer> resume_upload(@RequestParam("file") MultipartFile file) {
+        if (!"application/pdf".equals(file.getContentType()))
+            throw new ResponseStatusException(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Not a PDF file");
+
+        return Database.saveResume(file);
     }
 
     @CrossOrigin
@@ -94,7 +115,7 @@ public class UserController {
             return new ResponseEntity<>("Not authenticated", HttpStatus.UNAUTHORIZED);
         String user_id = user_claims.getSubject();
 
-        Database.applyJob(user_id, (int) body.get("job_id"));
+        Database.applyJob(user_id, body);
 
         return new ResponseEntity<>("Successful", HttpStatus.OK);
     }

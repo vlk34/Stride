@@ -68,6 +68,45 @@ public class Database {
         return null;
     }
 
+    public static Map<String, Object> getResume(int id) {
+        try {
+            PreparedStatement statement = connection.prepareStatement("SELECT cv, content FROM resumes WHERE id = ?");
+            statement.setInt(1, id);
+            ResultSet res = statement.executeQuery();
+            Map<String, Object> img = new HashMap<>();
+            if (res.next()) {
+                img.put("data", res.getBytes("cv"));
+                img.put("content", res.getString("content"));
+            }
+            res.close();
+            statement.close();
+            return img;
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
+    public static Map<String, Integer> saveResume(MultipartFile file) {
+        try {
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO resumes (cv, content) VALUES (?, ?) RETURNING id");
+            statement.setBytes(1, file.getBytes());
+            statement.setString(2, file.getContentType());
+            ResultSet res = statement.executeQuery();
+            Map<String, Integer> map = new HashMap<>();
+            if (res.next()) {
+                map.put("id", res.getInt("id"));
+            }
+            res.close();
+            statement.close();
+            statement.close();
+            return map;
+        } catch (SQLException | IOException ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
     public static List<Map<String, Object>> jobQuery(String q, String workstyle, String jobtype, String industry) {
         try {
             String query = "SELECT job_id, company_id, title, job_description FROM jobs WHERE 1=1";
@@ -187,11 +226,12 @@ public class Database {
         }
     }
 
-    public static void applyJob(String user_id, int job_id) {
+    public static void applyJob(String user_id, Map<String, Object> body) {
         try {
-            PreparedStatement statement = connection.prepareStatement("INSERT INTO applications (user_id, job_id) VALUES (?, ?)");
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO applications (user_id, job_id, cv) VALUES (?, ?, ?)");
             statement.setString(1, user_id);
-            statement.setInt(2, job_id);
+            statement.setInt(2, (int) body.get("job_id"));
+            statement.setInt(3, (int) body.get("cv"));
             statement.executeUpdate();
             statement.close();
         } catch (SQLException ex) {
@@ -538,7 +578,7 @@ public class Database {
             if (is_available == 0)
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You do not own this job");
 
-            PreparedStatement applicant_statement = connection.prepareStatement("SELECT user_id, application_date FROM applications WHERE job_id = ?");
+            PreparedStatement applicant_statement = connection.prepareStatement("SELECT user_id, cv, application_date FROM applications WHERE job_id = ?");
             applicant_statement.setInt(1, job_id);
             ResultSet applicant_res = applicant_statement.executeQuery();
             List<Map<String, Object>> list = new ArrayList<>();
@@ -547,6 +587,7 @@ public class Database {
                 if (map == null)
                     map = new HashMap<>();
                 map.put("user_id", applicant_res.getString("user_id"));
+                map.put("cv", applicant_res.getInt("cv"));
                 map.put("applied_at", applicant_res.getTimestamp("application_date"));
                 list.add(map);
             }
