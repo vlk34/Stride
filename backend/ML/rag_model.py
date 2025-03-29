@@ -12,6 +12,7 @@ from langchain_community.tools.sql_database.tool import QuerySQLDatabaseTool
 from langchain import hub
 from langchain_core.messages import HumanMessage
 from langgraph.prebuilt import create_react_agent
+import json
 
 
 
@@ -57,9 +58,10 @@ Your task:
 6. If the result is empty, automatically paraphrase or adjust your query by reducing or loosening the filters to find at least some results.
 7. Always order results by created_at descending to show the latest jobs.
 8. Never select all columns using (*).
-9. Never use DML statements (INSERT, UPDATE, DELETE, DROP, etc.).
+9. Never use DML statements (INSERT, UPDATE, DELETE, DROP, etc.)!!!!!.
 10. If you encounter an error while executing the query, rephrase and retry.
 11. Use the tools below
+
 
 You have access to this PostgreSQL table schema:
 
@@ -185,19 +187,44 @@ def agent_invoke(user_input: str):
     
     # Integrate examples into the agent prompt
     enhanced_prompt = agent_prompt + examples_text
-    
+    print(enhanced_prompt)
+    print("\n")
 
 
 
     agent_executor = create_react_agent(llm, tools, prompt=enhanced_prompt)
 
+
+
+    finalstep = None
     for step in agent_executor.stream(
         {"messages": [{"role": "user", "content": user_input}]},
         stream_mode="values",
     ):
         step["messages"][-1].pretty_print()
+        finalstep = step
 
-
-
-
+    try:
+        arguments = finalstep["messages"][-3].additional_kwargs["tool_calls"][0]["function"]["arguments"]
+        arguments_dict = json.loads(arguments)
+        # Access the query
+        sql_query = arguments_dict["query"]
+        execute_query_tool = QuerySQLDatabaseTool(db=db)
+        result = execute_query_tool.invoke(sql_query)
+        print("\n\n")
+        print(sql_query)
+        print(result)
     
+        return {
+            "sql_query": sql_query,
+            "result": result
+        }
+        
+    except (KeyError, IndexError, json.JSONDecodeError) as e:
+        print(f"An error occurred while extracting the SQL query: {e}")
+
+
+if __name__ == "__main__":
+    user_input = "i want to work in istanbul as software engineer"
+    # generate_sql_result(user_input)
+    agent_invoke(user_input)
