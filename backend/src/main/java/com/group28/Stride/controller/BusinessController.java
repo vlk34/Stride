@@ -103,4 +103,20 @@ public class BusinessController {
 
         return Database.jobApplicants(user_id, job);
     }
+
+    @CrossOrigin
+    @PutMapping("/editcompany")
+    public ResponseEntity<String> editcompany(@RequestBody Map<String, Object> body, HttpServletRequest request) throws IOException {
+        Claims user_claims = Authentication.getClaims(request);
+        if (user_claims == null)
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+        String user_id = user_claims.getSubject();
+        String role = (String) user_claims.get("metadata", HashMap.class).get("role");
+        if (!"business".equalsIgnoreCase(role))
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+
+        Database.editCompany(user_id, body);
+
+        return new ResponseEntity<>("Successful", HttpStatus.OK);
+    }
 }

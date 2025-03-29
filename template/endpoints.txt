@@ -446,3 +446,24 @@ request body:
     "mission": "",
     "benefits": ""
 }
+
+PUT /editcompany
+request body:
+{
+    "company": "example",
+    "industry": "Technology",
+    "size": "51-200",
+    "logo": 99,
+    "founded": 2000,
+    "email": "example@example.com",
+    "phone": "+1 (555) 000-0000",
+    "website": "https://www.example.com",
+    "address": "example street",
+    "city": "",
+    "state": "",
+    "country": "",
+    "postal_code": "",
+    "description": "",
+    "mission": "",
+    "benefits": ""
+}
