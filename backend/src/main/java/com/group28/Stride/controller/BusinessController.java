@@ -63,7 +63,7 @@ public class BusinessController {
     }
 
     @CrossOrigin
-    @PostMapping("/delete")
+    @DeleteMapping("/delete")
     public ResponseEntity<String> delete(@RequestBody Map<String, Object> body, HttpServletRequest request) throws IOException {
         Claims user_claims = Authentication.getClaims(request);
         if (user_claims == null)
