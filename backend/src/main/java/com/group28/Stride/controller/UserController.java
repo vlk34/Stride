@@ -71,6 +71,12 @@ public class UserController {
     }
 
     @CrossOrigin
+    @GetMapping("/company/{id}")
+    public Map<String, Object> company(@PathVariable int id) {
+        return Database.companyDetails(id);
+    }
+
+    @CrossOrigin
     @PostMapping("/save")
     public ResponseEntity<String> save(@RequestBody Map<String, Object> body, HttpServletRequest request) throws IOException {
         Claims user_claims = Authentication.getClaims(request);
