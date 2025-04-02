@@ -1,6 +1,7 @@
 package com.group28.Stride.util;
 
 import com.clerk.backend_api.Clerk;
+import com.clerk.backend_api.models.components.User;
 import com.clerk.backend_api.models.operations.*;
 import com.google.gson.Gson;
 import io.github.cdimascio.dotenv.Dotenv;
@@ -32,30 +33,37 @@ public class GetUserInfo {
                 .bearerAuth(dotenv.get("SECRET"))
                 .build();
 
-        GetUserResponse res = sdk.users().get()
-                .userId(user_id)
-                .call();
+        GetUserListRequest req = GetUserListRequest.builder().build();
 
-        if (res.user().isEmpty())
+        GetUserListResponse res = sdk.users().list().request(req).call();
+
+        if (res.userList().isEmpty())
             return null;
 
-        HashMap<String, Object> user = new HashMap<>();
+        HashMap<String, HashMap<String, Object>> users = new HashMap<>();
 
-        user.put("name", res.user().get().firstName().get() + " " + res.user().get().lastName().get());
-        if (res.user().get().emailAddresses().isPresent())
-            user.put("email", res.user().get().emailAddresses().get().getFirst().emailAddress());
-        if (res.user().get().imageUrl().isPresent())
-            user.put("image", res.user().get().imageUrl().get());
+        for (User clerk_user : res.userList().get()) {
+            HashMap<String, Object> user = new HashMap<>();
+            user.put("name", clerk_user.firstName().get() + " " + clerk_user.lastName().get());
+            if (clerk_user.emailAddresses().isPresent())
+                user.put("email", clerk_user.emailAddresses().get().getFirst().emailAddress());
+            if (clerk_user.imageUrl().isPresent())
+                user.put("image", clerk_user.imageUrl().get());
+            if (clerk_user.id().isPresent())
+                users.put(clerk_user.id().get(), user);
+        }
 
         if (dotenv.get("REDIS_ENABLE").equals("true")) {
             try (UnifiedJedis jedis = new UnifiedJedis(String.format("redis://%s:%s", dotenv.get("REDIS_HOST"), dotenv.get("REDIS_PORT")))) {
-                jedis.setex(user_id, Integer.parseInt(dotenv.get("REDIS_EXPIRE")), gson.toJson(user));
+                for (Map.Entry<String, HashMap<String, Object>> entry : users.entrySet()) {
+                    jedis.setex(entry.getKey(), Integer.parseInt(dotenv.get("REDIS_EXPIRE")), gson.toJson(entry.getValue()));
+                }
             } catch (Exception ex) {
                 System.out.println(ex.getMessage());
             }
         }
 
-        return user;
+        return users.get(user_id);
     }
 
     public static void businessUpgrade(String user_id) throws Exception {

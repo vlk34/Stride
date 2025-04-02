@@ -8,7 +8,6 @@ import java.util.List;
 import jakarta.servlet.http.HttpServletRequest;
 
 public class HttpConverter {
-    // Headers restricted by HttpRequest
     private static final List<String> RESTRICTED_HEADERS = List.of(
             "host", "connection", "content-length", "expect", "upgrade"
     );
@@ -18,10 +17,9 @@ public class HttpConverter {
                 .uri(URI.create(servletRequest.getRequestURL().toString()))
                 .method(servletRequest.getMethod(), HttpRequest.BodyPublishers.noBody());
 
-        // Copy headers except restricted ones
         Enumeration<String> headerNames = servletRequest.getHeaderNames();
         while (headerNames.hasMoreElements()) {
-            String headerName = headerNames.nextElement().toLowerCase(); // Normalize to lowercase
+            String headerName = headerNames.nextElement().toLowerCase();
             if (!RESTRICTED_HEADERS.contains(headerName)) {
                 requestBuilder.header(headerName, servletRequest.getHeader(headerName));
             }
