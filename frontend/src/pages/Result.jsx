@@ -12,77 +12,9 @@ import {
   Filter,
   X,
 } from "lucide-react";
+import { useAllJobs } from "../hooks/tanstack/useJobSearch";
 
-// Sample job data to use when no jobs are provided
-const sampleJobs = [
-  {
-    id: 1,
-    title: "Senior Frontend Developer",
-    company: "Tech Solutions Inc.",
-    companyLogo: "https://via.placeholder.com/150",
-    location: "Remote",
-    type: "Full-time",
-    workstyle: "Remote",
-    isVerified: true,
-    overview:
-      "We are looking for an experienced Frontend Developer to join our team and help build amazing user experiences.",
-    responsibilities: [
-      "Develop and maintain responsive web applications",
-      "Collaborate with cross-functional teams",
-      "Implement best practices and coding standards",
-      "Mentor junior developers",
-    ],
-    about:
-      "Tech Solutions Inc. is a leading technology company providing innovative solutions to businesses worldwide.",
-    industry: "Technology",
-    experience: "3-5 years",
-  },
-  {
-    id: 2,
-    title: "Product Designer",
-    company: "Creative Designs",
-    companyLogo: "https://via.placeholder.com/150",
-    location: "New York, NY",
-    type: "Full-time",
-    workstyle: "Hybrid",
-    isVerified: true,
-    overview:
-      "Join our design team to create beautiful and functional product experiences.",
-    responsibilities: [
-      "Create user-centered designs",
-      "Develop UI/UX wireframes and prototypes",
-      "Conduct user research and testing",
-      "Collaborate with developers to implement designs",
-    ],
-    about:
-      "Creative Designs is a design agency focused on creating exceptional digital experiences.",
-    industry: "Design",
-    experience: "1-3 years",
-  },
-  {
-    id: 3,
-    title: "Marketing Manager",
-    company: "Global Marketing",
-    companyLogo: "https://via.placeholder.com/150",
-    location: "San Francisco, CA",
-    type: "Full-time",
-    workstyle: "On-site",
-    isVerified: true,
-    overview: "Lead our marketing efforts to drive growth and brand awareness.",
-    responsibilities: [
-      "Develop and implement marketing strategies",
-      "Manage marketing campaigns across multiple channels",
-      "Analyze market trends and competitor activities",
-      "Collaborate with sales and product teams",
-    ],
-    about:
-      "Global Marketing is a marketing agency helping businesses grow through strategic marketing initiatives.",
-    industry: "Marketing",
-    experience: "3-5 years",
-  },
-];
-
-const Result = ({ jobs: propJobs }) => {
+const Result = () => {
   const location = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
   const [showFilters, setShowFilters] = useState(false);
@@ -93,56 +25,19 @@ const Result = ({ jobs: propJobs }) => {
     experience: "",
   });
   const [initialSelectionDone, setInitialSelectionDone] = useState(false);
-
-  // Use provided jobs or fall back to sample jobs
-  const [jobs, setJobs] = useState(propJobs || sampleJobs);
-  const [filteredJobs, setFilteredJobs] = useState(jobs);
   const [selectedJob, setSelectedJob] = useState(null);
 
-  // Modified useEffect to handle initial job selection and prevent reopening
-  useEffect(() => {
-    // Only select the first job if we haven't done the initial selection yet
-    if (
-      location.state?.fromDashboard &&
-      filteredJobs.length > 0 &&
-      !selectedJob &&
-      !initialSelectionDone
-    ) {
-      setSelectedJob(filteredJobs[0]);
-      // Mark that we've done the initial selection
-      setInitialSelectionDone(true);
-    }
-  }, [filteredJobs, location.state, selectedJob, initialSelectionDone]);
+  // Fetch jobs using tanstack query
+  const { data: jobs = [], isLoading, error } = useAllJobs();
 
-  // Create a wrapper for setSelectedJob that respects user's choice to close
-  const handleSelectJob = (job) => {
-    setSelectedJob(job);
-    // If user explicitly selects a job, we should consider initial selection done
-    if (!initialSelectionDone) {
-      setInitialSelectionDone(true);
-    }
-  };
-
-  // Create a handler for closing the job detail view
-  const handleCloseJobDetail = () => {
-    setSelectedJob(null);
-    // Ensure we don't reopen it automatically
-    setInitialSelectionDone(true);
-  };
-
-  // Update jobs if props change
-  useEffect(() => {
-    if (propJobs && propJobs.length > 0) {
-      setJobs(propJobs);
-    }
-  }, [propJobs]);
-
-  // Update filtered jobs whenever search term, filters, or jobs change
-  useEffect(() => {
+  // Filter jobs based on search and filters
+  const filteredJobs = React.useMemo(() => {
     const normalizedSearch = searchTerm.toLowerCase().replace(/\s+/g, "");
 
-    const filtered = jobs.filter((job) => {
-      const normalizedTitle = job.title.toLowerCase().replace(/\s+/g, "");
+    return jobs.filter((job) => {
+      const normalizedTitle = (job.title || "")
+        .toLowerCase()
+        .replace(/\s+/g, "");
       const matchesSearch = normalizedTitle.includes(normalizedSearch);
 
       const matchesWorkstyle =
@@ -161,9 +56,34 @@ const Result = ({ jobs: propJobs }) => {
         matchesExperience
       );
     });
+  }, [jobs, searchTerm, filters]);
 
-    setFilteredJobs(filtered);
-  }, [searchTerm, filters, jobs]);
+  // Handle initial job selection only when filteredJobs changes
+  useEffect(() => {
+    if (
+      location.state?.fromDashboard &&
+      filteredJobs.length > 0 &&
+      !selectedJob &&
+      !initialSelectionDone
+    ) {
+      setSelectedJob(filteredJobs[0]);
+      setInitialSelectionDone(true);
+    }
+  }, [filteredJobs, location.state, selectedJob, initialSelectionDone]);
+
+  // Create a wrapper for setSelectedJob that respects user's choice to close
+  const handleSelectJob = (job) => {
+    setSelectedJob(job);
+    if (!initialSelectionDone) {
+      setInitialSelectionDone(true);
+    }
+  };
+
+  // Create a handler for closing the job detail view
+  const handleCloseJobDetail = () => {
+    setSelectedJob(null);
+    setInitialSelectionDone(true);
+  };
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
@@ -172,6 +92,43 @@ const Result = ({ jobs: propJobs }) => {
       [name]: value,
     }));
   };
+
+  // Handle loading state
+  if (isLoading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-6">
+        <div className="flex justify-center items-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading jobs...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Handle error state
+  if (error) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-6">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+          <h2 className="text-lg font-semibold text-red-800 mb-2">
+            Error Loading Jobs
+          </h2>
+          <p className="text-red-600">
+            {error.message ||
+              "There was an error fetching job listings. Please try again later."}
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">
@@ -205,9 +162,9 @@ const Result = ({ jobs: propJobs }) => {
                 className="w-full pl-9 pr-3 py-1.5 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 text-sm appearance-none bg-white"
               >
                 <option value="">Workstyle</option>
-                <option value="Remote">Remote</option>
-                <option value="Hybrid">Hybrid</option>
-                <option value="On-site">On-site</option>
+                <option value="remote">Remote</option>
+                <option value="hybrid">Hybrid</option>
+                <option value="on-site">On-site</option>
               </select>
               <MapPin className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             </div>
@@ -220,10 +177,10 @@ const Result = ({ jobs: propJobs }) => {
                 className="w-full pl-9 pr-3 py-1.5 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 text-sm appearance-none bg-white"
               >
                 <option value="">Job Type</option>
-                <option value="Full-time">Full-time</option>
-                <option value="Part-time">Part-time</option>
-                <option value="Contract">Contract</option>
-                <option value="Internship">Internship</option>
+                <option value="full-time">Full-time</option>
+                <option value="part-time">Part-time</option>
+                <option value="contract">Contract</option>
+                <option value="internship">Internship</option>
               </select>
               <Briefcase className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             </div>
@@ -280,16 +237,38 @@ const Result = ({ jobs: propJobs }) => {
               </select>
             </div>
 
-            <div className="space-y-4 max-h-[calc(100vh-180px)] overflow-y-auto">
-              {filteredJobs.map((job) => (
-                <JobCard
-                  key={job.id}
-                  job={job}
-                  isSelected={selectedJob?.id === job.id}
-                  onSelect={handleSelectJob}
-                />
-              ))}
-            </div>
+            {filteredJobs.length === 0 ? (
+              <div className="text-center py-12 bg-gray-50 rounded-lg border border-gray-200">
+                <p className="text-gray-600">
+                  No job listings match your criteria.
+                </p>
+                <button
+                  onClick={() => {
+                    setSearchTerm("");
+                    setFilters({
+                      workstyle: "",
+                      type: "",
+                      industry: "",
+                      experience: "",
+                    });
+                  }}
+                  className="mt-3 text-blue-600 hover:underline"
+                >
+                  Clear all filters
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-4 max-h-[calc(100vh-180px)] overflow-y-auto">
+                {filteredJobs.map((job) => (
+                  <JobCard
+                    key={job.id}
+                    job={job}
+                    isSelected={selectedJob?.id === job.id}
+                    onSelect={handleSelectJob}
+                  />
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Job details - Desktop */}
@@ -313,16 +292,38 @@ const Result = ({ jobs: propJobs }) => {
             </select>
           </div>
 
-          <div className="space-y-4">
-            {filteredJobs.map((job) => (
-              <JobCard
-                key={job.id}
-                job={job}
-                isSelected={selectedJob?.id === job.id}
-                onSelect={handleSelectJob}
-              />
-            ))}
-          </div>
+          {filteredJobs.length === 0 ? (
+            <div className="text-center py-12 bg-gray-50 rounded-lg border border-gray-200">
+              <p className="text-gray-600">
+                No job listings match your criteria.
+              </p>
+              <button
+                onClick={() => {
+                  setSearchTerm("");
+                  setFilters({
+                    workstyle: "",
+                    type: "",
+                    industry: "",
+                    experience: "",
+                  });
+                }}
+                className="mt-3 text-blue-600 hover:underline"
+              >
+                Clear all filters
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {filteredJobs.map((job) => (
+                <JobCard
+                  key={job.id}
+                  job={job}
+                  isSelected={selectedJob?.id === job.id}
+                  onSelect={handleSelectJob}
+                />
+              ))}
+            </div>
+          )}
 
           {/* Mobile Job details overlay */}
           {selectedJob && (

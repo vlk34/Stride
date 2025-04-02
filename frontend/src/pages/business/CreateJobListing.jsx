@@ -11,11 +11,16 @@ import {
   ChevronRight,
   ChevronLeft,
   Building2,
+  AlertCircle,
 } from "lucide-react";
+import { useCreateJob } from "../../hooks/tanstack/useJobManagement";
 
 const CreateJobListing = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [validationErrors, setValidationErrors] = useState({});
+  const createJobMutation = useCreateJob();
   const [formData, setFormData] = useState({
     // Basic Info
     title: "",
@@ -224,12 +229,152 @@ const CreateJobListing = () => {
     setCurrentStep(currentStep - 1);
   };
 
+  // Format date for Timestamp (yyyy-MM-dd HH:mm:ss)
+  const formatDateForTimestamp = (dateString) => {
+    if (!dateString) return null;
+
+    const date = new Date(dateString);
+
+    // Check if date is valid
+    if (isNaN(date.getTime())) return null;
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+
+    // Set time to end of day (23:59:59) for application deadline
+    return `${year}-${month}-${day} 23:59:59`;
+  };
+
+  // Validate form data before submission
+  const validateForm = () => {
+    const errors = {};
+
+    // Check required fields
+    if (!formData.title) errors.title = "Job title is required";
+    if (!formData.department) errors.department = "Department is required";
+    if (!formData.location) errors.location = "Location is required";
+    if (!formData.locationType)
+      errors.locationType = "Location type is required";
+    if (!formData.employmentType)
+      errors.employmentType = "Employment type is required";
+    if (!formData.experience)
+      errors.experience = "Experience level is required";
+    if (!formData.education) errors.education = "Education level is required";
+
+    // Validate arrays
+    if (
+      !formData.skills ||
+      (Array.isArray(formData.skills) && formData.skills.length === 0)
+    ) {
+      errors.skills = "At least one skill is required";
+    }
+
+    // Validate text fields
+    if (!formData.description)
+      errors.description = "Job description is required";
+    if (!formData.responsibilities)
+      errors.responsibilities = "Responsibilities are required";
+
+    // Validate date fields
+    if (!formData.applicationDeadline) {
+      errors.applicationDeadline = "Application deadline is required";
+    } else {
+      const formattedDate = formatDateForTimestamp(
+        formData.applicationDeadline
+      );
+      if (!formattedDate) {
+        errors.applicationDeadline = "Invalid date format";
+      }
+    }
+
+    // Validate number fields
+    if (!formData.numberOfOpenings) {
+      errors.numberOfOpenings = "Number of openings is required";
+    } else if (
+      isNaN(parseInt(formData.numberOfOpenings)) ||
+      parseInt(formData.numberOfOpenings) <= 0
+    ) {
+      errors.numberOfOpenings = "Number of openings must be a positive number";
+    }
+
+    return errors;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission
-    console.log(formData);
-    setCurrentStep(5);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+
+    // Validate form data
+    const errors = validateForm();
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
+      alert("Please fix the validation errors before submitting");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setValidationErrors({});
+
+    try {
+      // Format skills and languages
+      let skillsArray = formData.skills;
+      if (typeof formData.skills === "string") {
+        skillsArray = formData.skills
+          .split(",")
+          .map((skill) => skill.trim())
+          .filter((skill) => skill);
+      }
+
+      let languagesArray = formData.languages;
+      if (typeof formData.languages === "string") {
+        languagesArray = formData.languages
+          .split(",")
+          .map((lang) => lang.trim())
+          .filter((lang) => lang);
+      } else if (!formData.languages || formData.languages.length === 0) {
+        languagesArray = []; // Ensure it's at least an empty array
+      }
+
+      // Format the deadline for Timestamp
+      const formattedDeadline = formatDateForTimestamp(
+        formData.applicationDeadline
+      );
+      if (!formattedDeadline) {
+        throw new Error("Invalid application deadline format");
+      }
+
+      // Transform form data to match the expected API format
+      const jobData = {
+        title: formData.title,
+        department: formData.department,
+        location: formData.location,
+        job_type: formData.employmentType.toLowerCase(),
+        workstyle: formData.locationType.toLowerCase(),
+        skills: skillsArray,
+        languages: languagesArray,
+        experience: formData.experience,
+        education: formData.education,
+        responsibilities: formData.responsibilities,
+        qualifications: formData.qualifications || "", // Ensure not null
+        description: formData.description,
+        deadline: formattedDeadline, // Formatted for Timestamp
+        openings: parseInt(formData.numberOfOpenings, 10),
+      };
+
+      console.log("Sending job data:", jobData);
+
+      // Send the job data to the API
+      await createJobMutation.mutateAsync(jobData);
+
+      // Move to success step
+      setCurrentStep(5);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (error) {
+      console.error("Error creating job:", error);
+      alert(`Failed to create job: ${error.message || "Unknown error"}`);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const currentStepData = steps.find((step) => step.id === currentStep);
@@ -266,6 +411,8 @@ const CreateJobListing = () => {
   );
 
   const renderField = (field) => {
+    const hasError = validationErrors[field.name];
+
     return (
       <div className="relative">
         {field.icon && (
@@ -274,22 +421,34 @@ const CreateJobListing = () => {
           </div>
         )}
         {field.type === "select" ? (
-          <select
-            name={field.name}
-            value={formData[field.name]}
-            onChange={handleInputChange}
-            className={`block w-full rounded-lg border border-gray-300 ${
-              field.icon ? "pl-10" : "pl-3"
-            } pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
-            required={field.required}
-          >
-            <option value="">Select {field.label}</option>
-            {field.options.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
+          <>
+            <select
+              name={field.name}
+              value={formData[field.name]}
+              onChange={handleInputChange}
+              className={`block w-full rounded-lg border ${
+                hasError ? "border-red-500" : "border-gray-300"
+              } ${
+                field.icon ? "pl-10" : "pl-3"
+              } pr-3 py-2 focus:outline-none focus:ring-2 ${
+                hasError ? "focus:ring-red-500" : "focus:ring-blue-500"
+              } ${hasError ? "focus:border-red-500" : "focus:border-blue-500"}`}
+              required={field.required}
+            >
+              <option value="">Select {field.label}</option>
+              {field.options.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+            {hasError && (
+              <p className="mt-1 text-sm text-red-600 flex items-center">
+                <AlertCircle className="w-3 h-3 mr-1" />{" "}
+                {validationErrors[field.name]}
+              </p>
+            )}
+          </>
         ) : field.type === "multiselect" ? (
           <select
             multiple
@@ -306,39 +465,78 @@ const CreateJobListing = () => {
             ))}
           </select>
         ) : field.type === "textarea" ? (
-          <textarea
-            name={field.name}
-            value={formData[field.name]}
-            onChange={handleInputChange}
-            placeholder={field.placeholder}
-            rows={field.rows || 4}
-            className="block w-full rounded-lg border border-gray-300 p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            required={field.required}
-          />
+          <>
+            <textarea
+              name={field.name}
+              value={formData[field.name]}
+              onChange={handleInputChange}
+              placeholder={field.placeholder}
+              rows={field.rows || 4}
+              className={`block w-full rounded-lg border ${
+                hasError ? "border-red-500" : "border-gray-300"
+              } p-3 focus:outline-none focus:ring-2 ${
+                hasError ? "focus:ring-red-500" : "focus:ring-blue-500"
+              } ${hasError ? "focus:border-red-500" : "focus:border-blue-500"}`}
+              required={field.required}
+            />
+            {hasError && (
+              <p className="mt-1 text-sm text-red-600 flex items-center">
+                <AlertCircle className="w-3 h-3 mr-1" />{" "}
+                {validationErrors[field.name]}
+              </p>
+            )}
+          </>
         ) : field.type === "tags" ? (
-          <input
-            type="text"
-            name={field.name}
-            value={formData[field.name]}
-            onChange={handleInputChange}
-            placeholder={field.placeholder}
-            className={`block w-full rounded-lg border border-gray-300 ${
-              field.icon ? "pl-10" : "pl-3"
-            } pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
-            required={field.required}
-          />
+          <>
+            <input
+              type="text"
+              name={field.name}
+              value={formData[field.name]}
+              onChange={handleInputChange}
+              placeholder={field.placeholder}
+              className={`block w-full rounded-lg border ${
+                hasError ? "border-red-500" : "border-gray-300"
+              } ${
+                field.icon ? "pl-10" : "pl-3"
+              } pr-3 py-2 focus:outline-none focus:ring-2 ${
+                hasError ? "focus:ring-red-500" : "focus:ring-blue-500"
+              } ${hasError ? "focus:border-red-500" : "focus:border-blue-500"}`}
+              required={field.required}
+            />
+            <small className="text-gray-500 block mt-1">
+              Enter values separated by commas
+            </small>
+            {hasError && (
+              <p className="mt-1 text-sm text-red-600 flex items-center">
+                <AlertCircle className="w-3 h-3 mr-1" />{" "}
+                {validationErrors[field.name]}
+              </p>
+            )}
+          </>
         ) : (
-          <input
-            type={field.type}
-            name={field.name}
-            value={formData[field.name]}
-            onChange={handleInputChange}
-            placeholder={field.placeholder}
-            className={`block w-full rounded-lg border border-gray-300 ${
-              field.icon ? "pl-10" : "pl-3"
-            } pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
-            required={field.required}
-          />
+          <>
+            <input
+              type={field.type}
+              name={field.name}
+              value={formData[field.name]}
+              onChange={handleInputChange}
+              placeholder={field.placeholder}
+              className={`block w-full rounded-lg border ${
+                hasError ? "border-red-500" : "border-gray-300"
+              } ${
+                field.icon ? "pl-10" : "pl-3"
+              } pr-3 py-2 focus:outline-none focus:ring-2 ${
+                hasError ? "focus:ring-red-500" : "focus:ring-blue-500"
+              } ${hasError ? "focus:border-red-500" : "focus:border-blue-500"}`}
+              required={field.required}
+            />
+            {hasError && (
+              <p className="mt-1 text-sm text-red-600 flex items-center">
+                <AlertCircle className="w-3 h-3 mr-1" />{" "}
+                {validationErrors[field.name]}
+              </p>
+            )}
+          </>
         )}
       </div>
     );
@@ -434,10 +632,20 @@ const CreateJobListing = () => {
                 ) : (
                   <button
                     type="submit"
-                    className="flex items-center gap-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors ml-auto px-6 py-2"
+                    disabled={isSubmitting}
+                    className="flex items-center gap-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors ml-auto px-6 py-2 disabled:bg-blue-400 disabled:cursor-not-allowed"
                   >
-                    Publish Job
-                    <ChevronRight className="w-4 h-4" />
+                    {isSubmitting ? (
+                      <>
+                        <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></span>
+                        Publishing...
+                      </>
+                    ) : (
+                      <>
+                        Publish Job
+                        <ChevronRight className="w-4 h-4" />
+                      </>
+                    )}
                   </button>
                 )}
               </div>

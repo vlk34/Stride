@@ -1,14 +1,27 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 
+// Helper function to get the session token from cookie
+const getSessionToken = () => {
+  const cookies = document.cookie.split(";");
+  for (let i = 0; i < cookies.length; i++) {
+    const cookie = cookies[i].trim();
+    if (cookie.startsWith("__session=")) {
+      return cookie.substring("__session=".length, cookie.length);
+    }
+  }
+  return null;
+};
+
 // Get all jobs created by the company
 export const useCompanyJobs = () => {
   return useQuery({
     queryKey: ["companyJobs"],
     queryFn: async () => {
-      const response = await axios.get("/jobs", {
+      const token = getSessionToken();
+      const response = await axios.get("http://localhost:8080/jobs", {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${token}`,
         },
       });
       return response.data;
@@ -22,11 +35,15 @@ export const useJobApplicants = (jobId) => {
   return useQuery({
     queryKey: ["jobApplicants", jobId],
     queryFn: async () => {
-      const response = await axios.get(`/applicants?job=${jobId}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
+      const token = getSessionToken();
+      const response = await axios.get(
+        `http://localhost:8080/applicants?job=${jobId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       return response.data;
     },
     enabled: !!jobId,
@@ -40,9 +57,11 @@ export const useCreateJob = () => {
 
   return useMutation({
     mutationFn: async (jobData) => {
-      await axios.post("/create", jobData, {
+      const token = getSessionToken();
+      await axios.post("http://localhost:8080/create", jobData, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
       });
     },
@@ -59,11 +78,15 @@ export const useJobDetails = (jobId) => {
   return useQuery({
     queryKey: ["jobDetails", jobId],
     queryFn: async () => {
-      const response = await axios.get(`/details?job=${jobId}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
+      const token = getSessionToken();
+      const response = await axios.get(
+        `http://localhost:8080/details?job=${jobId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       return response.data;
     },
     enabled: !!jobId,
@@ -77,9 +100,10 @@ export const useUpdateJob = () => {
 
   return useMutation({
     mutationFn: async (jobData) => {
-      await axios.put("/update", jobData, {
+      const token = getSessionToken();
+      await axios.put("http://localhost:8080/update", jobData, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${token}`,
         },
       });
     },
@@ -99,9 +123,10 @@ export const useDeleteJob = () => {
 
   return useMutation({
     mutationFn: async (jobId) => {
-      await axios.delete("/delete", {
+      const token = getSessionToken();
+      await axios.delete("http://localhost:8080/delete", {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${token}`,
         },
         data: { job_id: jobId },
       });
