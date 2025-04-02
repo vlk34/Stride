@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router";
 import {
   Building2,
@@ -12,16 +12,23 @@ import {
   ChevronLeft,
   CheckCircle,
 } from "lucide-react";
+import { useUpgradeAccount } from "../../hooks/tanstack/useCompanyAccount";
+import axios from "axios";
 
 const BusinessAccountCreation = () => {
   const navigate = useNavigate();
+  const upgradeAccount = useUpgradeAccount();
   const [currentStep, setCurrentStep] = useState(1);
+  const fileInputRef = useRef(null);
+  const [logoPreview, setLogoPreview] = useState(null);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
   const [formData, setFormData] = useState({
     // Company Basic Info
     companyName: "",
     industry: "",
     companySize: "",
     foundedYear: "",
+    logo: null,
 
     // Contact Info
     email: "",
@@ -58,6 +65,14 @@ const BusinessAccountCreation = () => {
           placeholder: "Enter your company name",
           icon: <Building2 className="w-5 h-5 text-gray-400" />,
           required: true,
+        },
+        {
+          name: "logo",
+          label: "Company Logo",
+          type: "file",
+          accept: "image/png, image/jpeg",
+          description: "Upload your company logo (PNG or JPEG)",
+          required: false,
         },
         {
           name: "industry",
@@ -217,10 +232,83 @@ const BusinessAccountCreation = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission
-    console.log(formData);
-    // Move to success step instead of navigating immediately
-    setCurrentStep(5);
+
+    // Format data according to the expected endpoint structure in endpoints.txt
+    const formattedData = {
+      company: formData.companyName,
+      industry: formData.industry,
+      size: formData.companySize,
+      logo: formData.logo || null, // You might need to handle logo upload separately
+      founded: parseInt(formData.foundedYear),
+      email: formData.email,
+      phone: formData.phone,
+      website: formData.website || "",
+      address: formData.address,
+      city: formData.city,
+      state: formData.state,
+      country: formData.country,
+      postal_code: formData.postalCode,
+      description: formData.description,
+      mission: formData.mission,
+      benefits: formData.benefits,
+    };
+
+    try {
+      // Call the mutation with formatted data
+      await upgradeAccount.mutateAsync(formattedData);
+
+      // Move to success step after successful API call
+      setCurrentStep(5);
+    } catch (error) {
+      console.error("Failed to create business account:", error);
+      // You might want to show an error message to the user
+    }
+  };
+
+  const handleLogoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Check if file is png or jpeg
+    if (!["image/png", "image/jpeg"].includes(file.type)) {
+      alert("Please upload a PNG or JPEG file");
+      return;
+    }
+
+    // Create preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setLogoPreview(reader.result);
+    };
+    reader.readAsDataURL(file);
+
+    // Upload the file
+    setUploadingLogo(true);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const response = await axios.post(
+        "http://localhost:8080/images/upload",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      // Store the image ID returned by the server
+      setFormData((prev) => ({
+        ...prev,
+        logo: response.data.id,
+      }));
+      setUploadingLogo(false);
+    } catch (error) {
+      console.error("Error uploading logo:", error);
+      setUploadingLogo(false);
+      alert("Failed to upload logo. Please try again.");
+    }
   };
 
   const currentStepData = steps.find((step) => step.id === currentStep);
@@ -314,53 +402,113 @@ const BusinessAccountCreation = () => {
                         <span className="text-red-500 ml-1">*</span>
                       )}
                     </label>
-                    <div className="relative">
-                      {field.icon && (
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                          {field.icon}
-                        </div>
-                      )}
-                      {field.type === "select" ? (
-                        <select
-                          name={field.name}
-                          value={formData[field.name]}
-                          onChange={handleInputChange}
-                          className={`block w-full rounded-lg border border-gray-300 ${
-                            field.icon ? "pl-10" : "pl-3"
-                          } pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
-                          required={field.required}
-                        >
-                          <option value="">Select {field.label}</option>
-                          {field.options.map((option) => (
-                            <option key={option} value={option}>
-                              {option}
-                            </option>
-                          ))}
-                        </select>
-                      ) : field.type === "textarea" ? (
-                        <textarea
-                          name={field.name}
-                          value={formData[field.name]}
-                          onChange={handleInputChange}
-                          placeholder={field.placeholder}
-                          rows={4}
-                          className="block w-full rounded-lg border border-gray-300 p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                          required={field.required}
-                        />
-                      ) : (
+
+                    {field.type === "file" ? (
+                      <div>
                         <input
-                          type={field.type}
-                          name={field.name}
-                          value={formData[field.name]}
-                          onChange={handleInputChange}
-                          placeholder={field.placeholder}
-                          className={`block w-full rounded-lg border border-gray-300 ${
-                            field.icon ? "pl-10" : "pl-3"
-                          } pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
-                          required={field.required}
+                          type="file"
+                          ref={fileInputRef}
+                          onChange={handleLogoUpload}
+                          accept={field.accept}
+                          className="hidden"
+                          id={field.name}
                         />
-                      )}
-                    </div>
+
+                        {logoPreview ? (
+                          <div className="mb-3">
+                            <div className="relative w-24 h-24 overflow-hidden rounded-md border border-gray-300">
+                              <img
+                                src={logoPreview}
+                                alt="Logo preview"
+                                className="w-full h-full object-cover"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setLogoPreview(null);
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    logo: null,
+                                  }));
+                                }}
+                                className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 text-xs"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          </div>
+                        ) : null}
+
+                        <button
+                          type="button"
+                          onClick={() => fileInputRef.current.click()}
+                          disabled={uploadingLogo}
+                          className={`flex items-center px-4 py-2 border border-gray-300 rounded-md ${
+                            uploadingLogo ? "bg-gray-100" : "bg-white"
+                          } hover:bg-gray-50`}
+                        >
+                          {uploadingLogo
+                            ? "Uploading..."
+                            : logoPreview
+                            ? "Change Logo"
+                            : "Upload Logo"}
+                        </button>
+
+                        {field.description && (
+                          <p className="mt-1 text-sm text-gray-500">
+                            {field.description}
+                          </p>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="relative">
+                        {field.icon && (
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            {field.icon}
+                          </div>
+                        )}
+                        {field.type === "select" ? (
+                          <select
+                            name={field.name}
+                            value={formData[field.name]}
+                            onChange={handleInputChange}
+                            className={`block w-full rounded-lg border border-gray-300 ${
+                              field.icon ? "pl-10" : "pl-3"
+                            } pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
+                            required={field.required}
+                          >
+                            <option value="">Select {field.label}</option>
+                            {field.options.map((option) => (
+                              <option key={option} value={option}>
+                                {option}
+                              </option>
+                            ))}
+                          </select>
+                        ) : field.type === "textarea" ? (
+                          <textarea
+                            name={field.name}
+                            value={formData[field.name]}
+                            onChange={handleInputChange}
+                            placeholder={field.placeholder}
+                            rows={4}
+                            className="block w-full rounded-lg border border-gray-300 p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            required={field.required}
+                          />
+                        ) : (
+                          <input
+                            type={field.type}
+                            name={field.name}
+                            value={formData[field.name]}
+                            onChange={handleInputChange}
+                            placeholder={field.placeholder}
+                            className={`block w-full rounded-lg border border-gray-300 ${
+                              field.icon ? "pl-10" : "pl-3"
+                            } pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
+                            required={field.required}
+                          />
+                        )}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

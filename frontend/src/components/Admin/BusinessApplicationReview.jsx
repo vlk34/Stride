@@ -20,6 +20,20 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
+import { useCompanyDetails } from "../../hooks/tanstack/useAdminFunctions";
+import axios from "axios";
+
+// Helper function to get the session token from cookie
+const getSessionToken = () => {
+  const cookies = document.cookie.split(";");
+  for (let i = 0; i < cookies.length; i++) {
+    const cookie = cookies[i].trim();
+    if (cookie.startsWith("__session=")) {
+      return cookie.substring("__session=".length, cookie.length);
+    }
+  }
+  return null;
+};
 
 const BusinessApplicationReview = () => {
   const { id } = useParams();
@@ -28,78 +42,208 @@ const BusinessApplicationReview = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState("");
   const [application, setApplication] = useState(null);
-  const [loading, setLoading] = useState(false);
-  
+  const [loading, setLoading] = useState(true);
+
   // Mobile-friendly state for expandable sections
   const [expandedSections, setExpandedSections] = useState({
     contact: true,
     location: true,
     description: true,
     mission: true,
-    benefits: true
+    benefits: true,
   });
 
-  const toggleSection = (section) => {
-    setExpandedSections(prev => ({
-      ...prev,
-      [section]: !prev[section]
-    }));
-  };
-
+  // Get company details from either location state or fetch them
   useEffect(() => {
-    // Get application data from navigation state
-    if (location.state?.applicationData) {
-      setApplication(location.state.applicationData);
-    }
-  }, [location.state]);
+    const fetchData = async () => {
+      try {
+        setLoading(true);
 
-  const handleApprove = () => {
-    setIsSubmitting(true);
+        // Check if we already have application data from navigation state
+        if (location.state?.applicationData) {
+          // Map API response fields to our component's expected structure
+          const appData = location.state.applicationData;
+          setApplication({
+            companyName: appData.company,
+            companySize: appData.size,
+            industry: appData.industry,
+            foundedYear: appData.founded,
+            email: appData.email,
+            phone: appData.phone,
+            website: appData.website,
+            address: appData.address,
+            city: appData.city,
+            state: appData.state,
+            country: appData.country,
+            postalCode: appData.postal_code,
+            description: appData.description,
+            mission: appData.mission,
+            benefits: appData.benefits,
+            logo: appData.logo,
+            company_id: appData.company_id,
+            created_at: appData.created_at,
+            // These may come from the businessApplications list
+            status: appData.status || "Pending",
+            applied_at: appData.applied_at,
+            name: appData.name,
+            applicantName: appData.name || "Applicant",
+            date: appData.applied_at
+              ? new Date(appData.applied_at).toLocaleDateString()
+              : "Recent",
+          });
+        } else {
+          // Fetch company details if not available
+          const token = getSessionToken();
+          const response = await axios.get(
+            `http://localhost:8080/company/${id}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
 
-    // Update the application status
-    setApplication((prev) => ({
+          const appData = response.data;
+          setApplication({
+            companyName: appData.company,
+            companySize: appData.size,
+            industry: appData.industry,
+            foundedYear: appData.founded,
+            email: appData.email,
+            phone: appData.phone,
+            website: appData.website,
+            address: appData.address,
+            city: appData.city,
+            state: appData.state,
+            country: appData.country,
+            postalCode: appData.postal_code,
+            description: appData.description,
+            mission: appData.mission,
+            benefits: appData.benefits,
+            logo: appData.logo,
+            company_id: appData.company_id,
+            created_at: appData.created_at,
+            status: "Pending",
+            date: new Date(appData.created_at).toLocaleDateString(),
+            applicantName: "Applicant",
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching company details:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [id, location.state]);
+
+  const toggleSection = (section) => {
+    setExpandedSections((prev) => ({
       ...prev,
-      status: "Accepted",
+      [section]: !prev[section],
     }));
-
-    setTimeout(() => {
-      setIsSubmitting(false);
-      navigate("/admin/approvals", {
-        state: {
-          message: `${application.companyName} has been approved`,
-        },
-      });
-    }, 500);
   };
 
-  const handleReject = () => {
+  const handleApprove = async () => {
+    try {
+      setIsSubmitting(true);
+
+      // Call API to approve the application
+      const token = getSessionToken();
+
+      // Use the actual user_id from the application data
+      // This comes from the application data passed from the ApprovalsList component
+      await axios.post(
+        "http://localhost:8080/upgradeuser",
+        {
+          user_id:
+            application.user_id || location.state?.applicationData?.user_id,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      // Update local state
+      setApplication((prev) => ({
+        ...prev,
+        status: "Accepted",
+      }));
+
+      setTimeout(() => {
+        navigate("/admin/approvals", {
+          state: {
+            message: `${application.companyName} has been approved`,
+            success: true,
+          },
+        });
+      }, 500);
+    } catch (error) {
+      console.error("Error approving application:", error);
+      alert(
+        `Failed to approve application: ${
+          error.response?.data || error.message
+        }`
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleReject = async () => {
     if (!feedback.trim()) {
       alert("Please provide feedback for rejection");
       return;
     }
 
-    setIsSubmitting(true);
+    try {
+      setIsSubmitting(true);
 
-    // Update the application status
-    setApplication((prev) => ({
-      ...prev,
-      status: "Declined",
-      declineReason: feedback,
-    }));
+      // Call API to decline the application
+      const token = getSessionToken();
+      await axios.post(
+        "http://localhost:8080/declineupgrade",
+        { user_id: application.user_id },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-    setTimeout(() => {
+      // Update local state
+      setApplication((prev) => ({
+        ...prev,
+        status: "Declined",
+        declineReason: feedback,
+      }));
+
+      setTimeout(() => {
+        navigate("/admin/approvals", {
+          state: {
+            message: `${application.companyName} has been rejected`,
+          },
+        });
+      }, 500);
+    } catch (error) {
+      console.error("Error rejecting application:", error);
+      alert("Failed to reject application. Please try again.");
+    } finally {
       setIsSubmitting(false);
-      navigate("/admin/approvals", {
-        state: {
-          message: `${application.companyName} has been rejected`,
-        },
-      });
-    }, 500);
+    }
   };
 
   if (loading) {
     return (
-      <div className="p-6 text-center">Loading application details...</div>
+      <div className="bg-white p-6 rounded-lg border border-gray-200 flex justify-center items-center h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading application details...</p>
+        </div>
+      </div>
     );
   }
 
@@ -148,12 +292,14 @@ const BusinessApplicationReview = () => {
     <div className="bg-white p-4 sm:p-6 rounded-lg border border-gray-200">
       {/* Add the custom style */}
       <style dangerouslySetInnerHTML={{ __html: customStyles }} />
-      
+
       {/* Header - More responsive */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 sm:mb-6">
         <div className="flex items-center">
           <Building2 className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 mr-2" />
-          <h1 className="text-lg sm:text-xl font-bold">Business Application Review</h1>
+          <h1 className="text-lg sm:text-xl font-bold">
+            Business Application Review
+          </h1>
         </div>
         <button
           onClick={() => navigate("/admin/approvals")}
@@ -167,24 +313,39 @@ const BusinessApplicationReview = () => {
       {/* Company Overview - More responsive */}
       <div className="mb-6 sm:mb-8 p-3 sm:p-4 bg-gray-50 rounded-lg border border-gray-200">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4 mb-3 sm:mb-4">
-          <div>
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
-              {application.companyName}
-            </h2>
-            <div className="flex flex-wrap items-center text-gray-600 gap-2 mt-1">
-              <div className="flex items-center">
-                <Briefcase className="w-4 h-4 mr-1" />
-                {application.industry}
+          <div className="flex items-center">
+            {application.logo && (
+              <div className="flex-shrink-0 h-12 w-12 mr-3">
+                <img
+                  src={`http://localhost:8080/images/${application.logo}`}
+                  alt={`${application.companyName} logo`}
+                  className="h-12 w-12 rounded-full object-cover"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = "https://via.placeholder.com/48?text=Logo";
+                  }}
+                />
               </div>
-              <span className="hidden sm:inline mx-1">•</span>
-              <div className="flex items-center">
-                <Users className="w-4 h-4 mr-1" />
-                {application.companySize} employees
-              </div>
-              <span className="hidden sm:inline mx-1">•</span>
-              <div className="flex items-center">
-                <Calendar className="w-4 h-4 mr-1" />
-                Founded {application.foundedYear}
+            )}
+            <div>
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
+                {application.companyName}
+              </h2>
+              <div className="flex flex-wrap items-center text-gray-600 gap-2 mt-1">
+                <div className="flex items-center">
+                  <Briefcase className="w-4 h-4 mr-1" />
+                  {application.industry}
+                </div>
+                <span className="hidden sm:inline mx-1">•</span>
+                <div className="flex items-center">
+                  <Users className="w-4 h-4 mr-1" />
+                  {application.companySize} employees
+                </div>
+                <span className="hidden sm:inline mx-1">•</span>
+                <div className="flex items-center">
+                  <Calendar className="w-4 h-4 mr-1" />
+                  Founded {application.foundedYear}
+                </div>
               </div>
             </div>
           </div>
@@ -204,23 +365,35 @@ const BusinessApplicationReview = () => {
         {/* Contact Information */}
         <div className="border border-gray-200 rounded-lg overflow-hidden">
           {/* Collapsible header for mobile and medium screens */}
-          <div 
+          <div
             className="bg-gray-50 p-3 sm:p-4 flex justify-between items-center cursor-pointer lg:cursor-default"
-            onClick={() => toggleSection('contact')}
+            onClick={() => toggleSection("contact")}
           >
-            <h3 className="text-base sm:text-lg font-semibold">Contact Information</h3>
+            <h3 className="text-base sm:text-lg font-semibold">
+              Contact Information
+            </h3>
             <button className="lg:hidden text-gray-500 custom-md-visible">
-              {expandedSections.contact ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+              {expandedSections.contact ? (
+                <ChevronUp size={18} />
+              ) : (
+                <ChevronDown size={18} />
+              )}
             </button>
           </div>
-          
+
           {/* Content - collapsible on mobile and medium */}
-          <div className={`p-3 sm:p-4 space-y-3 ${expandedSections.contact ? '' : 'hidden lg:block'}`}>
+          <div
+            className={`p-3 sm:p-4 space-y-3 ${
+              expandedSections.contact ? "" : "hidden lg:block"
+            }`}
+          >
             <div className="flex items-start">
               <Mail className="w-5 h-5 text-gray-400 mr-2 mt-0.5" />
               <div>
                 <div className="text-sm font-medium text-gray-700">Email</div>
-                <div className="text-gray-600 break-all">{application.email}</div>
+                <div className="text-gray-600 break-all">
+                  {application.email}
+                </div>
               </div>
             </div>
             <div className="flex items-start">
@@ -239,7 +412,11 @@ const BusinessApplicationReview = () => {
                 <div className="text-gray-600 break-all">
                   {application.website ? (
                     <a
-                      href={application.website}
+                      href={
+                        application.website.startsWith("http")
+                          ? application.website
+                          : `https://${application.website}`
+                      }
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-blue-600 hover:underline"
@@ -303,18 +480,26 @@ const BusinessApplicationReview = () => {
         {/* Location */}
         <div className="border border-gray-200 rounded-lg overflow-hidden">
           {/* Collapsible header for mobile and medium */}
-          <div 
+          <div
             className="bg-gray-50 p-3 sm:p-4 flex justify-between items-center cursor-pointer lg:cursor-default"
-            onClick={() => toggleSection('location')}
+            onClick={() => toggleSection("location")}
           >
             <h3 className="text-base sm:text-lg font-semibold">Location</h3>
             <button className="lg:hidden text-gray-500 custom-md-visible">
-              {expandedSections.location ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+              {expandedSections.location ? (
+                <ChevronUp size={18} />
+              ) : (
+                <ChevronDown size={18} />
+              )}
             </button>
           </div>
-          
+
           {/* Content - collapsible on mobile and medium */}
-          <div className={`p-3 sm:p-4 ${expandedSections.location ? '' : 'hidden lg:block'}`}>
+          <div
+            className={`p-3 sm:p-4 ${
+              expandedSections.location ? "" : "hidden lg:block"
+            }`}
+          >
             <div className="flex items-start">
               <MapPin className="w-5 h-5 text-gray-400 mr-2 mt-0.5" />
               <div>
@@ -343,16 +528,22 @@ const BusinessApplicationReview = () => {
         <div className="space-y-4">
           {/* Description */}
           <div className="border border-gray-200 rounded-lg overflow-hidden">
-            <div 
+            <div
               className="bg-gray-50 p-3 flex justify-between items-center cursor-pointer lg:cursor-default"
-              onClick={() => toggleSection('description')}
+              onClick={() => toggleSection("description")}
             >
               <div className="flex items-center">
                 <Info className="w-5 h-5 text-gray-400 mr-2" />
-                <h4 className="text-base font-medium text-gray-700">Description</h4>
+                <h4 className="text-base font-medium text-gray-700">
+                  Description
+                </h4>
               </div>
               <button className="lg:hidden text-gray-500 custom-md-visible">
-                {expandedSections.description ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                {expandedSections.description ? (
+                  <ChevronUp size={18} />
+                ) : (
+                  <ChevronDown size={18} />
+                )}
               </button>
             </div>
             {expandedSections.description && (
@@ -364,43 +555,49 @@ const BusinessApplicationReview = () => {
 
           {/* Mission */}
           <div className="border border-gray-200 rounded-lg overflow-hidden">
-            <div 
+            <div
               className="bg-gray-50 p-3 flex justify-between items-center cursor-pointer lg:cursor-default"
-              onClick={() => toggleSection('mission')}
+              onClick={() => toggleSection("mission")}
             >
               <div className="flex items-center">
                 <Target className="w-5 h-5 text-gray-400 mr-2" />
                 <h4 className="text-base font-medium text-gray-700">Mission</h4>
               </div>
               <button className="lg:hidden text-gray-500 custom-md-visible">
-                {expandedSections.mission ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                {expandedSections.mission ? (
+                  <ChevronUp size={18} />
+                ) : (
+                  <ChevronDown size={18} />
+                )}
               </button>
             </div>
             {expandedSections.mission && (
-              <p className="text-gray-600 p-3 sm:p-4">
-                {application.mission}
-              </p>
+              <p className="text-gray-600 p-3 sm:p-4">{application.mission}</p>
             )}
           </div>
 
           {/* Benefits */}
           <div className="border border-gray-200 rounded-lg overflow-hidden">
-            <div 
+            <div
               className="bg-gray-50 p-3 flex justify-between items-center cursor-pointer lg:cursor-default"
-              onClick={() => toggleSection('benefits')}
+              onClick={() => toggleSection("benefits")}
             >
               <div className="flex items-center">
                 <Award className="w-5 h-5 text-gray-400 mr-2" />
-                <h4 className="text-base font-medium text-gray-700">Employee Benefits</h4>
+                <h4 className="text-base font-medium text-gray-700">
+                  Employee Benefits
+                </h4>
               </div>
               <button className="lg:hidden text-gray-500 custom-md-visible">
-                {expandedSections.benefits ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                {expandedSections.benefits ? (
+                  <ChevronUp size={18} />
+                ) : (
+                  <ChevronDown size={18} />
+                )}
               </button>
             </div>
             {expandedSections.benefits && (
-              <p className="text-gray-600 p-3 sm:p-4">
-                {application.benefits}
-              </p>
+              <p className="text-gray-600 p-3 sm:p-4">{application.benefits}</p>
             )}
           </div>
         </div>

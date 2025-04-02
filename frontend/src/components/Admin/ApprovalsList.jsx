@@ -1,106 +1,94 @@
-import React, { useState } from "react";
-import { useNavigate, useLocation } from "react-router";
-import { Building2, Calendar, ArrowRight, Search, Filter, MoreVertical } from "lucide-react";
-
-// Sample data directly in the component with all fields from BusinessAccountCreation
-const sampleApplications = [
-  {
-    id: 1,
-    companyName: "TechCorp Solutions",
-    industry: "Technology",
-    companySize: "51-200",
-    foundedYear: "2015",
-    email: "contact@techcorp.com",
-    phone: "555-123-4567",
-    website: "https://techcorp.example.com",
-    address: "123 Tech Lane",
-    city: "San Francisco",
-    state: "CA",
-    country: "USA",
-    postalCode: "94105",
-    description:
-      "We build enterprise software solutions for businesses of all sizes. Our focus is on creating intuitive, scalable applications that solve real-world problems.",
-    mission:
-      "To transform how businesses operate through innovative technology solutions that empower teams and drive growth.",
-    benefits:
-      "Competitive salary, health insurance, 401(k) matching, flexible work hours, remote work options, professional development budget, and team building events.",
-    linkedin: "https://linkedin.com/company/techcorp",
-    twitter: "https://twitter.com/techcorp",
-    applicantName: "John Smith",
-    date: "2023-11-15",
-    status: "Pending",
-  },
-  {
-    id: 2,
-    companyName: "Green Earth Landscaping",
-    industry: "Other",
-    companySize: "11-50",
-    foundedYear: "2010",
-    email: "info@greenearth.com",
-    phone: "555-987-6543",
-    website: "https://greenearth.example.com",
-    address: "456 Garden Road",
-    city: "Portland",
-    state: "OR",
-    country: "USA",
-    postalCode: "97201",
-    description:
-      "Green Earth Landscaping provides sustainable landscaping and garden design services for residential and commercial properties. We specialize in eco-friendly solutions that conserve water and promote biodiversity.",
-    mission:
-      "To create beautiful outdoor spaces that are environmentally responsible and sustainable for generations to come.",
-    benefits:
-      "Health insurance, paid time off, seasonal bonuses, employee discounts on plants and materials, and ongoing training in sustainable landscaping practices.",
-    linkedin: "https://linkedin.com/company/greenearth",
-    twitter: "https://twitter.com/greenearth",
-    applicantName: "Sarah Johnson",
-    date: "2023-11-18",
-    status: "Pending",
-  },
-  {
-    id: 3,
-    companyName: "Bright Futures Education",
-    industry: "Education",
-    companySize: "11-50",
-    foundedYear: "2018",
-    email: "hello@brightfutures.edu",
-    phone: "555-456-7890",
-    website: "https://brightfutures.example.edu",
-    address: "789 Learning Avenue",
-    city: "Boston",
-    state: "MA",
-    country: "USA",
-    postalCode: "02108",
-    description:
-      "Bright Futures Education is an innovative online learning platform designed for K-12 students. We combine cutting-edge technology with proven educational methodologies to deliver personalized learning experiences.",
-    mission:
-      "To make quality education accessible to all students, regardless of location or background, through technology-enabled personalized learning.",
-    benefits:
-      "Competitive salary, comprehensive health benefits, flexible work schedule, remote work options, education stipend, and parental leave.",
-    linkedin: "https://linkedin.com/company/brightfutures",
-    twitter: "https://twitter.com/brightfutures",
-    applicantName: "Michael Brown",
-    date: "2023-11-20",
-    status: "Pending",
-  },
-];
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router";
+import {
+  Building2,
+  Calendar,
+  ArrowRight,
+  Search,
+  Filter,
+  MoreVertical,
+} from "lucide-react";
+import {
+  useBusinessApplications,
+  useCompanyDetails,
+} from "../../hooks/tanstack/useAdminFunctions";
+import { useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
 
 const ApprovalsList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [activeActionMenu, setActiveActionMenu] = useState(null);
+  const [selectingCompanyId, setSelectingCompanyId] = useState(null);
   const navigate = useNavigate();
-  const location = useLocation();
+  const queryClient = useQueryClient();
+
+  // Use the TanStack query hook for applications
+  const {
+    data: applications = [],
+    isLoading: isLoadingApplications,
+    error: applicationsError,
+  } = useBusinessApplications();
+
+  // Use the TanStack query hook for company details when needed
+  const {
+    data: companyDetails,
+    isLoading: isLoadingDetails,
+    error: detailsError,
+  } = useCompanyDetails(selectingCompanyId);
+
+  // When company details are loaded, navigate to the review page
+  useEffect(() => {
+    if (selectingCompanyId && companyDetails && !isLoadingDetails) {
+      // Find the basic application data
+      const baseApplication = applications.find(
+        (app) => app.company_id === selectingCompanyId
+      );
+
+      // Combine with detailed data
+      const detailedApplication = {
+        ...baseApplication,
+        ...companyDetails,
+      };
+
+      // Navigate to review page
+      navigate(`/admin/review/business/${selectingCompanyId}`, {
+        state: { applicationData: detailedApplication },
+      });
+
+      // Reset the selecting state
+      setSelectingCompanyId(null);
+    }
+  }, [
+    selectingCompanyId,
+    companyDetails,
+    isLoadingDetails,
+    applications,
+    navigate,
+  ]);
 
   const handleReviewClick = (id) => {
-    // Find the application data
-    const application = sampleApplications.find((app) => app.id === id);
-    
     // Close any open action menu
     setActiveActionMenu(null);
 
-    // Navigate to the review page with the application data
-    navigate(`/admin/review/business/${id}`, {
-      state: { applicationData: application },
+    // Set the company ID we want to get details for
+    setSelectingCompanyId(id);
+
+    // Prefetch the company details
+    queryClient.prefetchQuery({
+      queryKey: ["companyDetails", id],
+      queryFn: async () => {
+        const token = getSessionToken();
+        const response = await axios.get(
+          `http://localhost:8080/company/${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        return response.data;
+      },
     });
   };
 
@@ -119,13 +107,59 @@ const ApprovalsList = () => {
     setActiveActionMenu(activeActionMenu === appId ? null : appId);
   };
 
-  const filteredApplications = sampleApplications.filter(
+  // Helper function to get session token
+  const getSessionToken = () => {
+    const cookies = document.cookie.split(";");
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.startsWith("__session=")) {
+        return cookie.substring("__session=".length, cookie.length);
+      }
+    }
+    return null;
+  };
+
+  // Filter applications based on search term and status
+  const filteredApplications = applications.filter(
     (app) =>
-      (app.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-       app.applicantName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-       app.industry.toLowerCase().includes(searchTerm.toLowerCase())) &&
+      (app.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        app.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        app.industry?.toLowerCase().includes(searchTerm.toLowerCase())) &&
       (statusFilter === "All" || app.status === statusFilter)
   );
+
+  // Render loading state
+  if (isLoadingApplications) {
+    return (
+      <div className="bg-white p-6 rounded-lg border border-gray-200 flex justify-center items-center h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading applications...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Render error state
+  if (applicationsError) {
+    return (
+      <div className="bg-white p-6 rounded-lg border border-gray-200">
+        <div className="bg-red-50 p-4 rounded-md">
+          <h3 className="text-red-800 font-medium">Error loading data</h3>
+          <p className="text-red-700 mt-1">
+            {applicationsError.message ||
+              "Failed to load applications. Please try again later."}
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-3 bg-red-100 text-red-800 px-4 py-2 rounded-md hover:bg-red-200 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white p-4 sm:p-6 rounded-lg border border-gray-200">
@@ -222,40 +256,70 @@ const ApprovalsList = () => {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredApplications.map((application) => (
-                  <tr key={application.id} className="hover:bg-gray-50">
+                  <tr key={application.company_id} className="hover:bg-gray-50">
                     <td className="px-4 py-3 whitespace-nowrap">
-                      <div className="font-medium text-gray-900">{application.companyName}</div>
+                      <div className="flex items-center">
+                        {application.logo && (
+                          <div className="flex-shrink-0 h-10 w-10 mr-3">
+                            <img
+                              src={`http://localhost:8080/images/${application.logo}`}
+                              alt={`${application.company} logo`}
+                              className="h-10 w-10 rounded-full object-cover"
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src =
+                                  "https://via.placeholder.com/40?text=Logo";
+                              }}
+                            />
+                          </div>
+                        )}
+                        <div className="font-medium text-gray-900">
+                          {application.company}
+                        </div>
+                      </div>
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap">
                       {application.industry}
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap">
-                      <div className="text-gray-900">{application.applicantName}</div>
-                      <div className="text-sm text-gray-500">{application.email}</div>
+                      <div className="text-gray-900">
+                        {application.name || "Unknown"}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {application.email || "No email provided"}
+                      </div>
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap">
                       <div className="flex items-center text-gray-500">
                         <Calendar className="h-4 w-4 mr-1" />
-                        {application.date}
+                        {new Date(application.applied_at).toLocaleDateString()}
                       </div>
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap">
                       <span
                         className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                          application.status
+                          application.status || "Pending"
                         )}`}
                       >
-                        {application.status}
+                        {application.status || "Pending"}
                       </span>
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap text-right">
                       <button
-                        onClick={() => handleReviewClick(application.id)}
+                        onClick={() =>
+                          handleReviewClick(application.company_id)
+                        }
                         className="text-blue-600 hover:text-blue-800 p-1"
                         title="Review"
+                        disabled={
+                          isLoadingDetails &&
+                          selectingCompanyId === application.company_id
+                        }
                       >
-                        Review
-    
+                        {isLoadingDetails &&
+                        selectingCompanyId === application.company_id
+                          ? "Loading..."
+                          : "Review"}
                       </button>
                     </td>
                   </tr>
@@ -263,8 +327,8 @@ const ApprovalsList = () => {
               </tbody>
             </table>
           </div>
-          
-          {/* Medium screen simplified table */}
+
+          {/* Medium screen simplified table - similar updates as above */}
           <div className="hidden md:block lg:block custom-md-visible">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
@@ -285,38 +349,75 @@ const ApprovalsList = () => {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredApplications.map((application) => (
-                  <tr key={application.id} className="hover:bg-gray-50">
+                  <tr key={application.company_id} className="hover:bg-gray-50">
                     <td className="px-4 py-3">
-                      <div>
-                        <div className="font-medium truncate">{application.companyName}</div>
-                        <div className="text-sm text-gray-500">{application.industry}</div>
+                      <div className="flex items-center">
+                        {application.logo && (
+                          <div className="flex-shrink-0 h-8 w-8 mr-3">
+                            <img
+                              src={`http://localhost:8080/images/${application.logo}`}
+                              alt={`${application.company} logo`}
+                              className="h-8 w-8 rounded-full object-cover"
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src =
+                                  "https://via.placeholder.com/32?text=Logo";
+                              }}
+                            />
+                          </div>
+                        )}
+                        <div>
+                          <div className="font-medium truncate">
+                            {application.company}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {application.industry}
+                          </div>
+                        </div>
                       </div>
                     </td>
                     <td className="px-2 py-3">
-                      <div className="truncate">{application.applicantName}</div>
+                      <div className="truncate">
+                        {application.name || "Unknown"}
+                      </div>
                     </td>
                     <td className="px-2 py-3">
                       <div>
                         <span
                           className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                            application.status
+                            application.status || "Pending"
                           )}`}
                         >
-                          {application.status}
+                          {application.status || "Pending"}
                         </span>
                         <div className="text-xs text-gray-500 mt-1 flex items-center">
                           <Calendar className="h-3 w-3 mr-1" />
-                          {application.date}
+                          {new Date(
+                            application.applied_at
+                          ).toLocaleDateString()}
                         </div>
                       </div>
                     </td>
                     <td className="px-2 py-3 text-right">
                       <button
-                        onClick={() => handleReviewClick(application.id)}
+                        onClick={() =>
+                          handleReviewClick(application.company_id)
+                        }
                         className="inline-flex items-center text-blue-600 hover:text-blue-800 p-1"
+                        disabled={
+                          isLoadingDetails &&
+                          selectingCompanyId === application.company_id
+                        }
                       >
-                        Review
-                        <ArrowRight className="ml-1 h-4 w-4" />
+                        {isLoadingDetails &&
+                        selectingCompanyId === application.company_id ? (
+                          "Loading..."
+                        ) : (
+                          <>
+                            Review
+                            <ArrowRight className="ml-1 h-4 w-4" />
+                          </>
+                        )}
                       </button>
                     </td>
                   </tr>
@@ -325,52 +426,91 @@ const ApprovalsList = () => {
             </table>
           </div>
 
-          {/* Small screen card layout */}
+          {/* Small screen card layout with similar updates */}
           <div className="md:hidden">
             <div className="divide-y divide-gray-200">
               {filteredApplications.map((application) => (
-                <div key={application.id} className="p-4 bg-white relative hover:bg-gray-50">
+                <div
+                  key={application.company_id}
+                  className="p-4 bg-white relative hover:bg-gray-50"
+                >
                   <div className="absolute top-3 right-3">
                     <button
-                      onClick={() => toggleActionMenu(application.id)}
+                      onClick={() => toggleActionMenu(application.company_id)}
                       className="p-2 rounded-full hover:bg-gray-100"
                     >
                       <MoreVertical className="w-5 h-5 text-gray-500" />
                     </button>
-                    
+
                     {/* Mobile Action Menu */}
-                    {activeActionMenu === application.id && (
+                    {activeActionMenu === application.company_id && (
                       <div className="absolute right-0 mt-1 bg-white shadow-lg rounded-lg py-1 w-32 z-10">
                         <button
-                          onClick={() => handleReviewClick(application.id)}
+                          onClick={() =>
+                            handleReviewClick(application.company_id)
+                          }
                           className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center text-blue-600"
+                          disabled={
+                            isLoadingDetails &&
+                            selectingCompanyId === application.company_id
+                          }
                         >
-                          <ArrowRight className="w-4 h-4 mr-2" /> Review
+                          {isLoadingDetails &&
+                          selectingCompanyId === application.company_id ? (
+                            "Loading..."
+                          ) : (
+                            <>
+                              <ArrowRight className="w-4 h-4 mr-2" /> Review
+                            </>
+                          )}
                         </button>
                       </div>
                     )}
                   </div>
-                  
-                  <div className="mb-3 pr-8">
-                    <h3 className="font-medium text-lg">{application.companyName}</h3>
-                    <p className="text-gray-600 text-sm">{application.industry}</p>
+
+                  <div className="mb-3 pr-8 flex items-center">
+                    {application.logo && (
+                      <div className="flex-shrink-0 h-10 w-10 mr-3">
+                        <img
+                          src={`http://localhost:8080/images/${application.logo}`}
+                          alt={`${application.company} logo`}
+                          className="h-10 w-10 rounded-full object-cover"
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src =
+                              "https://via.placeholder.com/40?text=Logo";
+                          }}
+                        />
+                      </div>
+                    )}
+                    <div>
+                      <h3 className="font-medium text-lg">
+                        {application.company}
+                      </h3>
+                      <p className="text-gray-600 text-sm">
+                        {application.industry}
+                      </p>
+                    </div>
                   </div>
-                  
+
                   <div className="flex justify-between items-center mb-2">
                     <div className="text-sm">
-                      <div>{application.applicantName}</div>
-                      <div className="text-gray-500 text-xs">{application.email}</div>
+                      <div>{application.name || "Unknown"}</div>
+                      <div className="text-gray-500 text-xs">
+                        {application.email || "No email provided"}
+                      </div>
                     </div>
                     <span
                       className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                        application.status
+                        application.status || "Pending"
                       )}`}
                     >
-                      {application.status}
+                      {application.status || "Pending"}
                     </span>
                   </div>
                   <div className="text-xs text-gray-500 flex items-center">
-                    <Calendar className="w-3 h-3 mr-1" /> {application.date}
+                    <Calendar className="w-3 h-3 mr-1" />
+                    {new Date(application.applied_at).toLocaleDateString()}
                   </div>
                 </div>
               ))}

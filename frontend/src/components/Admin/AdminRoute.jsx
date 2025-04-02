@@ -28,7 +28,7 @@ const AdminRoute = () => {
           <main className="flex-1">
             {!isLoaded ? (
               <LoadingScreen />
-            ) : role !== "Admin" ? (
+            ) : role !== "admin" ? (
               <Navigate to="/admin-unauthorized" replace />
             ) : (
               <Outlet />
