@@ -225,6 +225,6 @@ def agent_invoke(user_input: str):
 
 
 if __name__ == "__main__":
-    user_input = "i want to work in istanbul as software engineer"
+    user_input = "i am looking for a software engineer position with experience in Python and machine learning"
     # generate_sql_result(user_input)
     agent_invoke(user_input)
