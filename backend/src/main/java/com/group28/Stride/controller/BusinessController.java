@@ -1,18 +1,27 @@
 package com.group28.Stride.controller;
 
-import com.group28.Stride.util.Authentication;
-import com.group28.Stride.util.Database;
-import io.jsonwebtoken.Claims;
-import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
+
+import com.group28.Stride.util.Authentication;
+import com.group28.Stride.util.Database;
+
+import io.jsonwebtoken.Claims;
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 public class BusinessController {
@@ -78,6 +87,7 @@ public class BusinessController {
         return new ResponseEntity<>("Successful", HttpStatus.OK);
     }
 
+    @CrossOrigin
     @GetMapping("/jobs")
     public List<Map<String, Object>> jobs(HttpServletRequest request) throws IOException {
         Claims user_claims = Authentication.getClaims(request);
@@ -91,6 +101,7 @@ public class BusinessController {
         return Database.jobs(user_id);
     }
 
+    @CrossOrigin
     @GetMapping("/applicants")
     public List<Map<String, Object>> applicants(@RequestParam Integer job, HttpServletRequest request) throws IOException {
         Claims user_claims = Authentication.getClaims(request);
