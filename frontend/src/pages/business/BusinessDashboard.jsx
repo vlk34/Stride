@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   BarChart3,
   Users,
@@ -21,21 +21,45 @@ import {
   XCircle,
   Filter,
   Download,
+  AlertCircle,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router";
+import {
+  useCompanyStats,
+  useCompanyJobs,
+  useRecentApplicants,
+} from "../../hooks/tanstack/useBusinessDashboard";
 
 const BusinessDashboard = () => {
   const [timeRange, setTimeRange] = useState("week");
-  const [loading, setLoading] = useState(true);
-  const [dashboardData, setDashboardData] = useState(null);
   const navigate = useNavigate();
+
+  // Fetch real data using hooks
+  const {
+    data: statsData,
+    isLoading: statsLoading,
+    error: statsError,
+  } = useCompanyStats();
+  const {
+    data: jobsData,
+    isLoading: jobsLoading,
+    error: jobsError,
+  } = useCompanyJobs();
+  const {
+    data: recentApplicants,
+    isLoading: applicantsLoading,
+    error: applicantsError,
+  } = useRecentApplicants(5);
+
+  // Check if any data fetching has errors
+  const hasError = statsError || jobsError || applicantsError;
 
   // Static icons for stats
   const statIcons = [
-    <Briefcase className="w-6 h-6 text-blue-600" />,
-    <Users className="w-6 h-6 text-blue-600" />,
-    <Eye className="w-6 h-6 text-blue-600" />,
-    <ThumbsUp className="w-6 h-6 text-blue-600" />,
+    <Briefcase key="jobs" className="w-6 h-6 text-blue-600" />,
+    <Users key="applicants" className="w-6 h-6 text-blue-600" />,
+    <Eye key="views" className="w-6 h-6 text-blue-600" />,
+    <ThumbsUp key="response" className="w-6 h-6 text-blue-600" />,
   ];
 
   const statTitles = [
@@ -45,193 +69,96 @@ const BusinessDashboard = () => {
     "Response Rate",
   ];
 
-  // Simulate data fetching
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      // Simulate API call delay
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+  // Format stats data
+  const getFormattedStats = () => {
+    if (!statsData)
+      return Array(4).fill({ value: "0", change: "0", trend: "up" });
 
-      // Dummy data - replace with real data from your backend
-      const data = {
-        stats: [
-          {
-            title: "Total Job Posts",
-            value: "12",
-            change: "+3",
-            trend: "up",
-          },
-          {
-            title: "Total Applicants",
-            value: "148",
-            change: "+22",
-            trend: "up",
-          },
-          {
-            title: "Profile Views",
-            value: "1,234",
-            change: "+127",
-            trend: "up",
-          },
-          {
-            title: "Response Rate",
-            value: "94%",
-            change: "-2",
-            trend: "down",
-          },
-        ],
-        recentJobs: [
-          {
-            id: 1,
-            title: "Senior Frontend Developer",
-            department: "Engineering",
-            location: "Remote",
-            applicants: 24,
-            newApplicants: 5,
-            status: "Active",
-            posted: "2 days ago",
-            topMatch: 92,
-          },
-          {
-            id: 2,
-            title: "Product Designer",
-            department: "Design",
-            location: "New York, NY",
-            applicants: 18,
-            newApplicants: 3,
-            status: "Active",
-            posted: "3 days ago",
-            topMatch: 88,
-          },
-          {
-            id: 3,
-            title: "Marketing Manager",
-            department: "Marketing",
-            location: "San Francisco, CA",
-            applicants: 31,
-            newApplicants: 0,
-            status: "Closed",
-            posted: "1 week ago",
-            topMatch: 85,
-          },
-          {
-            id: 4,
-            title: "Marketing Manager",
-            department: "Marketing",
-            location: "San Francisco, CA",
-            applicants: 31,
-            newApplicants: 0,
-            status: "Closed",
-            posted: "1 week ago",
-            topMatch: 85,
-          },
-          {
-            id: 5,
-            title: "Marketing Manager",
-            department: "Marketing",
-            location: "San Francisco, CA",
-            applicants: 31,
-            newApplicants: 0,
-            status: "Closed",
-            posted: "1 week ago",
-            topMatch: 85,
-          },
-          {
-            id: 6,
-            title: "Marketing Manager",
-            department: "Marketing",
-            location: "San Francisco, CA",
-            applicants: 31,
-            newApplicants: 0,
-            status: "Closed",
-            posted: "1 week ago",
-            topMatch: 85,
-          },
-        ],
-        recentApplicants: [
-          {
-            id: 1,
-            name: "Sarah Johnson",
-            role: "Senior Frontend Developer",
-            status: "New",
-            applied: "2 hours ago",
-            photo: "https://randomuser.me/api/portraits/women/44.jpg",
-            match_score: 92,
-          },
-          {
-            id: 2,
-            name: "Michael Chen",
-            role: "Product Designer",
-            status: "Reviewed",
-            applied: "5 hours ago",
-            photo: "https://randomuser.me/api/portraits/men/32.jpg",
-            match_score: 88,
-          },
-          {
-            id: 3,
-            name: "Emily Davis",
-            role: "Marketing Manager",
-            status: "New",
-            applied: "1 day ago",
-            photo: "https://randomuser.me/api/portraits/women/67.jpg",
-            match_score: 85,
-          },
-          {
-            id: 4,
-            name: "Emily Davis",
-            role: "Marketing Manager",
-            status: "New",
-            applied: "1 day ago",
-            photo: "https://randomuser.me/api/portraits/women/67.jpg",
-            match_score: 85,
-          },
-          {
-            id: 5,
-            name: "Emily Davis",
-            role: "Marketing Manager",
-            status: "New",
-            applied: "1 day ago",
-            photo: "https://randomuser.me/api/portraits/women/67.jpg",
-            match_score: 85,
-          },
-          {
-            id: 6,
-            name: "Emily Davis",
-            role: "Marketing Manager",
-            status: "New",
-            applied: "1 day ago",
-            photo: "https://randomuser.me/api/portraits/women/67.jpg",
-            match_score: 85,
-          },
-        ],
-      };
+    return [
+      {
+        title: "Total Job Posts",
+        value: statsData.total_jobs.toString(),
+        change: "+0", // Change calculation would require historical data
+        trend: "up",
+      },
+      {
+        title: "Total Applicants",
+        value: statsData.total_applicants.toString(),
+        change: "+0",
+        trend: "up",
+      },
+      {
+        title: "Profile Views",
+        value: statsData.profile_views.toString(),
+        change: "+0",
+        trend: "up",
+      },
+      {
+        title: "Response Rate",
+        value: statsData.response_rate ? `${statsData.response_rate}%` : "0%",
+        change: "0",
+        trend: "neutral",
+      },
+    ];
+  };
 
-      setDashboardData(data);
-      setLoading(false);
-    };
+  // Format jobs for display
+  const getFormattedJobs = () => {
+    if (!jobsData) return [];
 
-    fetchData();
-  }, []);
+    return jobsData.map((job) => ({
+      id: job.job_id,
+      title: job.title,
+      department: job.department || "General",
+      location:
+        job.location || (job.workstyle === "remote" ? "Remote" : "On-site"),
+      applicants: 0, // This would need additional API calls to count applicants
+      newApplicants: 0,
+      status: new Date(job.deadline) > new Date() ? "Active" : "Closed",
+      posted: getRelativeTime(job.created_at || new Date()),
+    }));
+  };
+
+  // Function to format relative time
+  const getRelativeTime = (timestamp) => {
+    const now = new Date();
+    const pastDate = new Date(timestamp);
+    const diffInSeconds = Math.floor((now - pastDate) / 1000);
+
+    if (diffInSeconds < 60) return `${diffInSeconds} seconds ago`;
+    if (diffInSeconds < 3600)
+      return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+    if (diffInSeconds < 86400)
+      return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+    if (diffInSeconds < 604800)
+      return `${Math.floor(diffInSeconds / 86400)} days ago`;
+    return `${Math.floor(diffInSeconds / 604800)} weeks ago`;
+  };
 
   // Handle card clicks
   const handleJobCardClick = (jobId) => {
-    // Navigate to the result page with a flag indicating we came from dashboard
-    navigate("/result", { state: { fromDashboard: true } });
+    navigate(`/business/job-details/${jobId}`);
   };
 
-  const handleApplicantCardClick = (applicantId) => {
-    navigate(`/business/review-applicant/${applicantId}`);
+  const handleApplicantCardClick = (userId, jobId) => {
+    navigate(`/business/review-applicant/${userId}`, {
+      state: { jobId: jobId },
+    });
   };
+
+  const isLoading = statsLoading || jobsLoading || applicantsLoading;
+  const stats = getFormattedStats();
+  const jobs = getFormattedJobs();
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
-      {/* Header with Time Range Selector - Keep static */}
+      {/* Header with Time Range Selector */}
       <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-8">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
             Business Dashboard
           </h1>
-          <p className="text-gray-600">Welcome back, Acme Corporation</p>
+          <p className="text-gray-600">Welcome back</p>
         </div>
         <div className="flex items-center gap-3">
           <select
@@ -247,7 +174,31 @@ const BusinessDashboard = () => {
         </div>
       </div>
 
-      {/* Stats Grid - Show skeleton only for values */}
+      {/* Error Alert */}
+      {hasError && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start">
+          <AlertCircle className="w-5 h-5 text-red-500 mr-3 mt-0.5 flex-shrink-0" />
+          <div>
+            <h3 className="font-medium text-red-800 mb-1">
+              Error Loading Dashboard Data
+            </h3>
+            <p className="text-sm text-red-700">
+              {statsError?.message ||
+                jobsError?.message ||
+                applicantsError?.message ||
+                "There was an error loading your dashboard data. Please try refreshing the page."}
+            </p>
+            <button
+              onClick={() => window.location.reload()}
+              className="mt-2 px-3 py-1 bg-red-100 text-red-700 text-sm rounded hover:bg-red-200"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
         {Array(4)
           .fill()
@@ -260,30 +211,32 @@ const BusinessDashboard = () => {
                 <div className="bg-blue-50 p-2 md:p-3 rounded-lg">
                   {statIcons[index]}
                 </div>
-                {loading ? (
+                {isLoading ? (
                   <div className="w-10 h-5 bg-gray-200 rounded animate-pulse"></div>
                 ) : (
                   <div
                     className={`flex items-center ${
-                      dashboardData.stats[index].trend === "up"
+                      stats[index].trend === "up"
                         ? "text-green-600"
-                        : "text-red-600"
+                        : stats[index].trend === "down"
+                        ? "text-red-600"
+                        : "text-gray-600"
                     }`}
                   >
-                    {dashboardData.stats[index].trend === "up" ? (
+                    {stats[index].trend === "up" ? (
                       <TrendingUp className="w-4 h-4 mr-1" />
-                    ) : (
+                    ) : stats[index].trend === "down" ? (
                       <TrendingDown className="w-4 h-4 mr-1" />
-                    )}
-                    {dashboardData.stats[index].change}
+                    ) : null}
+                    {stats[index].change}
                   </div>
                 )}
               </div>
-              {loading ? (
+              {isLoading ? (
                 <div className="h-8 w-16 bg-gray-200 rounded animate-pulse mb-1"></div>
               ) : (
                 <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-1">
-                  {dashboardData.stats[index].value}
+                  {stats[index].value}
                 </h3>
               )}
               <p className="text-sm md:text-base text-gray-600">
@@ -293,7 +246,7 @@ const BusinessDashboard = () => {
           ))}
       </div>
 
-      {/* Main Content Grid - With symmetrical cards */}
+      {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
         {/* Recent Jobs */}
         <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6 h-full">
@@ -310,8 +263,8 @@ const BusinessDashboard = () => {
             </Link>
           </div>
 
-          {loading ? (
-            // Skeleton for recent jobs - keep icons visible
+          {isLoading ? (
+            // Skeleton for recent jobs
             <div className="space-y-3 md:space-y-4">
               {Array(5)
                 .fill()
@@ -337,10 +290,27 @@ const BusinessDashboard = () => {
                   </div>
                 ))}
             </div>
+          ) : jobs.length === 0 ? (
+            // No jobs message
+            <div className="text-center py-10">
+              <Briefcase className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-600 mb-2">
+                No Job Listings Yet
+              </h3>
+              <p className="text-gray-500 mb-4">
+                Create your first job listing to start receiving applications.
+              </p>
+              <Link
+                to="/business/create-job"
+                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              >
+                Create Job Listing
+              </Link>
+            </div>
           ) : (
             // Actual jobs when loaded
             <div className="space-y-3 md:space-y-4">
-              {dashboardData.recentJobs.slice(0, 5).map((job) => (
+              {jobs.slice(0, 5).map((job) => (
                 <div
                   key={job.id}
                   onClick={() => handleJobCardClick(job.id)}
@@ -354,16 +324,10 @@ const BusinessDashboard = () => {
                       {job.department} • {job.location}
                     </p>
                     <div className="flex items-center mt-1 flex-wrap">
-                      <Users className="w-4 h-4 text-gray-400 mr-1 flex-shrink-0" />
+                      <Clock className="w-4 h-4 text-gray-400 mr-1 flex-shrink-0" />
                       <span className="text-sm text-gray-600 mr-3">
-                        {job.applicants}
+                        Posted {job.posted}
                       </span>
-
-                      {job.newApplicants > 0 && (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 mt-1 md:mt-0">
-                          +{job.newApplicants} new
-                        </span>
-                      )}
                     </div>
                   </div>
                   <div className="flex flex-col items-end ml-2">
@@ -379,7 +343,7 @@ const BusinessDashboard = () => {
                     <Link
                       to={`/business/job-applicants/${job.id}`}
                       className="text-blue-600 hover:text-blue-700 text-xs md:text-sm mt-2 whitespace-nowrap"
-                      onClick={(e) => e.stopPropagation()} // Prevent card click when clicking this link
+                      onClick={(e) => e.stopPropagation()} // Prevent card click
                     >
                       View Applicants
                     </Link>
@@ -405,8 +369,8 @@ const BusinessDashboard = () => {
             </Link>
           </div>
 
-          {loading ? (
-            // Skeleton for recent applicants - keep static text
+          {isLoading ? (
+            // Skeleton for recent applicants
             <div className="space-y-3 md:space-y-4">
               {Array(5)
                 .fill()
@@ -440,13 +404,26 @@ const BusinessDashboard = () => {
                   </div>
                 ))}
             </div>
+          ) : recentApplicants?.length === 0 ? (
+            // No applicants message
+            <div className="text-center py-10">
+              <Users className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-600 mb-2">
+                No Applicants Yet
+              </h3>
+              <p className="text-gray-500">
+                When candidates apply to your job listings, they'll appear here.
+              </p>
+            </div>
           ) : (
             // Actual applicants when loaded
             <div className="space-y-3 md:space-y-4">
-              {dashboardData.recentApplicants.slice(0, 5).map((applicant) => (
+              {recentApplicants?.map((applicant) => (
                 <div
                   key={applicant.id}
-                  onClick={() => handleApplicantCardClick(applicant.id)}
+                  onClick={() =>
+                    handleApplicantCardClick(applicant.id, applicant.job_id)
+                  }
                   className="flex items-center justify-between p-3 md:p-4 h-auto min-h-[5rem] md:h-24 rounded-lg border border-gray-100 hover:border-blue-500 hover:bg-blue-50/30 transition-colors cursor-pointer"
                 >
                   <div className="flex items-center flex-1 min-w-0">
@@ -454,6 +431,10 @@ const BusinessDashboard = () => {
                       src={applicant.photo}
                       alt={applicant.name}
                       className="w-8 h-8 md:w-10 md:h-10 rounded-full object-cover mr-2 md:mr-3 border border-gray-200 flex-shrink-0"
+                      onError={(e) => {
+                        e.target.src =
+                          "https://via.placeholder.com/150?text=Profile";
+                      }}
                     />
                     <div className="min-w-0">
                       <h3 className="font-medium text-gray-900 truncate">
@@ -488,6 +469,17 @@ const BusinessDashboard = () => {
             </div>
           )}
         </div>
+      </div>
+
+      {/* Add Job Button (Visible on Mobile) */}
+      <div className="lg:hidden mt-8 flex justify-center">
+        <Link
+          to="/business/create-job"
+          className="bg-blue-600 text-white px-6 py-3 rounded-lg flex items-center justify-center w-full max-w-xs"
+        >
+          <Briefcase className="w-5 h-5 mr-2" />
+          Create New Job
+        </Link>
       </div>
     </div>
   );

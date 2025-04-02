@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route, Navigate } from "react-router";
+import { Routes, Route, Navigate, BrowserRouter } from "react-router";
 import ProtectedRoute from "./components/ProtectedRoute";
 import CustomSignIn from "./pages/auth/CustomSignIn";
 import CustomSignUp from "./pages/auth/CustomSignUp";
@@ -288,7 +288,6 @@ const App = () => {
           <Route path="/admin-unauthorized" element={<AdminUnathorized />} />
           <Route path="/job-match" element={<JobMatch />} />
           <Route path="/recommended-jobs" element={<RecommendedJobs />} />
-          
         </Route>
 
         <Route element={<PublicRoute hasFooter={false} />}>
@@ -296,7 +295,7 @@ const App = () => {
             path="/search"
             element={<JobRecommendations dummyData={dummyData} />}
           />
-          <Route path="/result" element={<Result jobs={jobs} />} />
+          <Route path="/result" element={<Result />} />
           <Route path="/help" element={<Help faqData={faqData} />} />
           <Route path="/jobs" element={<SavedJobs />} />
           <Route path="/company/:id" element={<CompanyProfile />} />
@@ -337,7 +336,7 @@ const App = () => {
             path="/business/job-applicants/:id"
             element={<JobApplicants />}
           />
-          <Route path="/business/edit-job/:id" element={<EditJob />} />
+          <Route path="/business/edit-job/:jobId" element={<EditJob />} />
           <Route path="/business/all-applicants" element={<AllApplicants />} />
           <Route path="/business/edit-company" element={<EditCompany />} />
         </Route>
@@ -349,7 +348,10 @@ const App = () => {
           <Route path="/admin/jobs" element={<AdminJobs jobs={jobs} />} />
           <Route path="/admin/approvals" element={<ApprovalsList />} />
           <Route path="/admin/activities" element={<ActivitiesList />} />
-          <Route path="admin/business-unauthorized" element={<AdminBusinessAuth />} />
+          <Route
+            path="admin/business-unauthorized"
+            element={<AdminBusinessAuth />}
+          />
           <Route
             path="/admin/review/business/:id"
             element={<BusinessApplicationReview />}
