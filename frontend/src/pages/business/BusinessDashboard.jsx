@@ -301,7 +301,7 @@ const BusinessDashboard = () => {
                 Create your first job listing to start receiving applications.
               </p>
               <Link
-                to="/business/create-job"
+                to="/business/create-job-listing"
                 className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
               >
                 Create Job Listing
@@ -474,7 +474,7 @@ const BusinessDashboard = () => {
       {/* Add Job Button (Visible on Mobile) */}
       <div className="lg:hidden mt-8 flex justify-center">
         <Link
-          to="/business/create-job"
+          to="/business/create-job-listing"
           className="bg-blue-600 text-white px-6 py-3 rounded-lg flex items-center justify-center w-full max-w-xs"
         >
           <Briefcase className="w-5 h-5 mr-2" />

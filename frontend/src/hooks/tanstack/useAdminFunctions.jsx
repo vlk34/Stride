@@ -131,3 +131,27 @@ export const useUpgradeUser = () => {
     },
   });
 };
+
+// Decline business application (admin only)
+export const useDeclineBusinessApplication = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (userId) => {
+      const token = getSessionToken();
+      await axios.post(
+        "http://localhost:8080/declineupgrade",
+        { user_id: userId },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+    },
+    onSuccess: () => {
+      // Invalidate business applications list
+      queryClient.invalidateQueries({ queryKey: ["businessApplications"] });
+    },
+  });
+};
