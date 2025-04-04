@@ -8,7 +8,9 @@ import io.github.cdimascio.dotenv.Dotenv;
 import redis.clients.jedis.UnifiedJedis;
 
 import java.lang.Object;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class GetUserInfo {
@@ -64,6 +66,39 @@ public class GetUserInfo {
         }
 
         return users.get(user_id);
+    }
+
+    public static List<Map<String, Object>> users() throws Exception {
+        Dotenv dotenv = Dotenv.configure()
+                .directory("backend")
+                .load();
+
+        Clerk sdk = Clerk.builder()
+                .bearerAuth(dotenv.get("SECRET"))
+                .build();
+
+        GetUserListRequest req = GetUserListRequest.builder().build();
+
+        GetUserListResponse res = sdk.users().list().request(req).call();
+
+        if (res.userList().isEmpty())
+            return null;
+
+        List<Map<String, Object>> users = new ArrayList<>();
+
+        for (User clerk_user : res.userList().get()) {
+            Map<String, Object> user = new HashMap<>();
+            user.put("name", clerk_user.firstName().get() + " " + clerk_user.lastName().get());
+            if (clerk_user.emailAddresses().isPresent())
+                user.put("email", clerk_user.emailAddresses().get().getFirst().emailAddress());
+            if (clerk_user.imageUrl().isPresent())
+                user.put("image", clerk_user.imageUrl().get());
+            if (clerk_user.id().isPresent())
+                user.put("user_id", clerk_user.id().get());
+            users.add(user);
+        }
+
+        return users;
     }
 
     public static void businessUpgrade(String user_id) throws Exception {

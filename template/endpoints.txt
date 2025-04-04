@@ -318,37 +318,22 @@ Authorization: Bearer session_jwt_here
 response body:
 [
     {
-    "user_id": "user_asdqwe",
-    "name": "Sarah Johnson",
-    "email": "example",
-    "phone": "example",
-    "location": "url",
-    "experience_time": "lorem ipsum",
-    "skills": ["asd", "qwe"],
-    "experience": "lorem ipsum",
-    "notes": "from applicants"
+        "user_id": "user_asdqwe",
+        "name": "Sarah Johnson",
+        "email": "example",
+        "image": "url"
     },
     {
-    "user_id": "user_asdqwe",
-    "name": "Sarah Johnson",
-    "email": "example",
-    "phone": "example",
-    "location": "url",
-    "experience_time": "lorem ipsum",
-    "skills": ["asd", "qwe"],
-    "experience": "lorem ipsum",
-    "notes": "from applicants"
+        "user_id": "user_asdqwe",
+        "name": "Sarah Johnson",
+        "email": "example",
+        "image": "url"
     },
     {
-    "user_id": "user_asdqwe",
-    "name": "Sarah Johnson",
-    "email": "example",
-    "phone": "example",
-    "location": "url",
-    "experience_time": "lorem ipsum",
-    "skills": ["asd", "qwe"],
-    "experience": "lorem ipsum",
-    "notes": "from applicants"
+        "user_id": "user_asdqwe",
+        "name": "Sarah Johnson",
+        "email": "example",
+        "image": "url"
     }
 ]
 
@@ -463,3 +448,54 @@ request body:
     "mission": "",
     "benefits": ""
 }
+
+GET /recentjobs
+Authorization: Bearer session_jwt_here
+response body:
+[
+    {
+    "job_id": 999,
+    "title": "example",
+    "company": "example",
+    "logo": 999,
+    "description": "lorem ipsum"
+    },
+    {
+    "job_id": 999,
+    "title": "example",
+    "company": "example",
+    "logo": 999,
+    "description": "lorem ipsum"
+    },
+    {
+    "job_id": 999,
+    "title": "example",
+    "company": "example",
+    "logo": 999,
+    "description": "lorem ipsum"
+    }
+]
+
+GET /recentapplicants
+Authorization: Bearer session_jwt_here
+response body:
+[
+    {
+        "user_id": "user_asdqwe",
+        "name": "Sarah Johnson",
+        "email": "example",
+        "image": "url"
+    },
+    {
+        "user_id": "user_asdqwe",
+        "name": "Sarah Johnson",
+        "email": "example",
+        "image": "url"
+    },
+    {
+        "user_id": "user_asdqwe",
+        "name": "Sarah Johnson",
+        "email": "example",
+        "image": "url"
+    }
+]

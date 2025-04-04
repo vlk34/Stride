@@ -59,4 +59,17 @@ public class AdminController {
 
         return Database.businessApplications();
     }
+
+    @CrossOrigin
+    @GetMapping("/users")
+    public List<Map<String, Object>> users(@RequestHeader("Authorization") String auth) throws Exception {
+        Claims user_claims = Authentication.getClaims(auth);
+        if (user_claims == null)
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+        String role = (String) user_claims.get("metadata", HashMap.class).get("role");
+        if (!"admin".equalsIgnoreCase(role))
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+
+        return GetUserInfo.users();
+    }
 }
