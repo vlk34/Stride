@@ -196,7 +196,7 @@ public class Database {
                 Map<String, Object> map = new HashMap<>();
                 int job_id = res.getInt("job_id");
                 map.put("job_id", job_id);
-                PreparedStatement job_statement = connection.prepareStatement("SELECT title, company_id, job_description FROM jobs WHERE job_id = ?");
+                PreparedStatement job_statement = connection.prepareStatement("SELECT job_id, company_id, title, job_description, job_type, job_location, workstyle FROM jobs WHERE job_id = ?");
                 job_statement.setInt(1, job_id);
                 ResultSet job_res = job_statement.executeQuery();
                 int company_id = 0;
@@ -204,6 +204,10 @@ public class Database {
                     company_id = job_res.getInt("company_id");
                     map.put("title", job_res.getString("title"));
                     map.put("description", job_res.getString("job_description"));
+                    map.put("job_id", job_res.getInt("job_id"));
+                    map.put("jobtype", job_res.getString("job_type"));
+                    map.put("location", job_res.getString("job_location"));
+                    map.put("workstyle", job_res.getString("workstyle"));
                 }
                 job_res.close();
                 job_statement.close();
@@ -250,7 +254,7 @@ public class Database {
                 Map<String, Object> map = new HashMap<>();
                 int job_id = res.getInt("job_id");
                 map.put("job_id", job_id);
-                PreparedStatement job_statement = connection.prepareStatement("SELECT title, company_id, job_description FROM jobs WHERE job_id = ?");
+                PreparedStatement job_statement = connection.prepareStatement("SELECT job_id, company_id, title, job_description, job_type, job_location, workstyle FROM jobs WHERE job_id = ?");
                 job_statement.setInt(1, job_id);
                 ResultSet job_res = job_statement.executeQuery();
                 int company_id = 0;
@@ -258,6 +262,10 @@ public class Database {
                     company_id = job_res.getInt("company_id");
                     map.put("title", job_res.getString("title"));
                     map.put("description", job_res.getString("job_description"));
+                    map.put("job_id", job_res.getInt("job_id"));
+                    map.put("jobtype", job_res.getString("job_type"));
+                    map.put("location", job_res.getString("job_location"));
+                    map.put("workstyle", job_res.getString("workstyle"));
                 }
                 job_res.close();
                 job_statement.close();
