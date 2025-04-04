@@ -39,7 +39,7 @@ const RegularHeader = () => {
   // Regular user menu items
   const menuItems = [
     {
-      path: "/search",
+      path: "/search-home",
       icon: <Search className="w-5 h-5" />,
       label: "Search Jobs",
     },

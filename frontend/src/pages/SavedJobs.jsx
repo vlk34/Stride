@@ -1,21 +1,46 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import JobCard from "../components/searchResult/JobCard";
 import JobInformation from "../components/searchResult/JobInformation";
-import useSavedJobs from "../hooks/useSavedJobs";
-import useAppliedJobs from "../hooks/useAppliedJobs";
 import { useNavigate, Link } from "react-router";
 import { X, Bookmark } from "lucide-react";
 import { useUser } from "@clerk/clerk-react";
+import {
+  useSavedJobs,
+  useAppliedJobs,
+} from "../hooks/tanstack/useJobInteractions";
 
 const SavedJobs = () => {
   const [activeTab, setActiveTab] = useState("saved");
   const [selectedJob, setSelectedJob] = useState(null);
   const navigate = useNavigate();
-  const { savedJobs } = useSavedJobs();
-  const { appliedJobs } = useAppliedJobs();
   const { user } = useUser();
 
+  // Use TanStack Query hooks for data fetching
+  const {
+    data: savedJobsData = [],
+    isLoading: isSavedLoading,
+    error: savedError,
+  } = useSavedJobs();
+
+  const {
+    data: appliedJobsData = [],
+    isLoading: isAppliedLoading,
+    error: appliedError,
+  } = useAppliedJobs();
+
+  // Safely access the jobs data
+  const savedJobs = Array.isArray(savedJobsData) ? savedJobsData : [];
+  const appliedJobs = Array.isArray(appliedJobsData) ? appliedJobsData : [];
+
+  // Currently active jobs based on tab selection
   const currentJobs = activeTab === "saved" ? savedJobs : appliedJobs;
+  const isLoading = activeTab === "saved" ? isSavedLoading : isAppliedLoading;
+  const error = activeTab === "saved" ? savedError : appliedError;
+
+  // Reset selected job when changing tabs
+  useEffect(() => {
+    setSelectedJob(null);
+  }, [activeTab]);
 
   if (!user) {
     return (
@@ -45,6 +70,97 @@ const SavedJobs = () => {
               Sign up
             </Link>
           </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-6">
+        {/* Tabs - keep these visible during loading */}
+        <div className="flex space-x-1 mb-6">
+          <button
+            onClick={() => setActiveTab("saved")}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+              ${
+                activeTab === "saved"
+                  ? "bg-blue-600 text-white"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+              }`}
+          >
+            Saved Jobs
+          </button>
+          <button
+            onClick={() => setActiveTab("applied")}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+              ${
+                activeTab === "applied"
+                  ? "bg-blue-600 text-white"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+              }`}
+          >
+            Applied Jobs
+          </button>
+        </div>
+
+        <div className="flex justify-center items-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500 mx-auto mb-4"></div>
+            <p className="text-gray-600">
+              Loading {activeTab === "saved" ? "saved" : "applied"} jobs...
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Handle error state
+  if (error) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-6">
+        {/* Tabs - keep these visible during error */}
+        <div className="flex space-x-1 mb-6">
+          <button
+            onClick={() => setActiveTab("saved")}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+              ${
+                activeTab === "saved"
+                  ? "bg-blue-600 text-white"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+              }`}
+          >
+            Saved Jobs
+          </button>
+          <button
+            onClick={() => setActiveTab("applied")}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+              ${
+                activeTab === "applied"
+                  ? "bg-blue-600 text-white"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+              }`}
+          >
+            Applied Jobs
+          </button>
+        </div>
+
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+          <h2 className="text-lg font-semibold text-red-800 mb-2">
+            Error Loading Jobs
+          </h2>
+          <p className="text-red-600 mb-4">
+            {error.message ||
+              "There was an error loading your jobs. Please try again."}
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+          >
+            Retry
+          </button>
         </div>
       </div>
     );
@@ -97,12 +213,10 @@ const SavedJobs = () => {
             <div className="space-y-4 max-h-[calc(100vh-180px)] overflow-y-auto">
               {currentJobs.map((job) => (
                 <JobCard
-                  key={job.id}
+                  key={job.job_id}
                   job={job}
-                  isSelected={selectedJob?.id === job.id}
-                  onSelect={setSelectedJob}
-                  appliedAt={job.appliedAt}
-                  isApplied={activeTab === "applied"}
+                  isSelected={selectedJob?.job_id === job.job_id}
+                  onSelect={() => setSelectedJob(job)}
                 />
               ))}
             </div>
@@ -124,10 +238,23 @@ const SavedJobs = () => {
         </div>
 
         {/* Job details - Desktop */}
-        <div className="w-3/5 bg-white rounded-lg border border-gray-200">
-          <div className="h-[calc(100vh-180px)] overflow-y-auto">
+        <div className="w-3/5">
+          {selectedJob ? (
             <JobInformation job={selectedJob} />
-          </div>
+          ) : (
+            <div className="bg-gray-50 border border-gray-200 rounded-lg h-[calc(100vh-180px)] flex items-center justify-center">
+              <div className="text-center px-6">
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                  Select a job to view details
+                </h3>
+                <p className="text-gray-600">
+                  Click on any job in your{" "}
+                  {activeTab === "saved" ? "saved" : "applied"} list to view
+                  more information
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -148,12 +275,9 @@ const SavedJobs = () => {
           <div className="space-y-4">
             {currentJobs.map((job) => (
               <JobCard
-                key={job.id}
+                key={job.job_id}
                 job={job}
-                isSelected={selectedJob?.id === job.id}
-                onSelect={setSelectedJob}
-                appliedAt={job.appliedAt}
-                isApplied={activeTab === "applied"}
+                onSelect={() => setSelectedJob(job)}
               />
             ))}
           </div>

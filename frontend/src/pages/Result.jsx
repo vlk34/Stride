@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import JobCard from "../components/searchResult/JobCard";
 import JobInformation from "../components/searchResult/JobInformation";
-import { useLocation, useSearchParams } from "react-router";
+import { useLocation, useSearchParams, useNavigate } from "react-router";
 import {
   MapPin,
   Briefcase,
@@ -13,10 +13,12 @@ import {
   X,
 } from "lucide-react";
 import { useSearch } from "../hooks/tanstack/useSearch";
+import { useJobDetails } from "../hooks/tanstack/useJobInteractions";
 
 const Result = () => {
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [selectedJob, setSelectedJob] = useState(null);
 
   // Extract search parameters from URL
@@ -25,6 +27,7 @@ const Result = () => {
   const jobType = searchParams.get("jobtype") || "";
   const industry = searchParams.get("industry") || "";
   const experience = searchParams.get("experience") || "";
+  const jobId = searchParams.get("jobId") || null;
 
   // Set up local filters state for the form
   const [filterState, setFilterState] = useState({
@@ -54,6 +57,31 @@ const Result = () => {
   // Ensure jobs is always an array
   const jobs = Array.isArray(jobsData) ? jobsData : [];
 
+  // Find selected job from jobId in URL, if available
+  useEffect(() => {
+    if (jobId && jobs.length > 0) {
+      const foundJob = jobs.find((job) => job.job_id.toString() === jobId);
+      if (foundJob) {
+        setSelectedJob(foundJob);
+      } else {
+        // Job not found in current search results, try to fetch it directly
+        // This would handle cases where someone directly visits a job link
+        // without going through search first
+        const {
+          data: jobDetails,
+          isLoading: jobLoading,
+          error: jobError,
+        } = useJobDetails(parseInt(jobId));
+        if (!jobLoading && !jobError && jobDetails) {
+          setSelectedJob(jobDetails);
+        }
+      }
+    } else if (!jobId) {
+      // No job ID in URL, reset selected job
+      setSelectedJob(null);
+    }
+  }, [jobId, jobs]);
+
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
     setFilterState((prev) => ({
@@ -76,6 +104,11 @@ const Result = () => {
     if (filterState.experience)
       newParams.set("experience", filterState.experience);
 
+    // Preserve the jobId if one is selected
+    if (selectedJob) {
+      newParams.set("jobId", selectedJob.job_id);
+    }
+
     // Update the URL parameters
     setSearchParams(newParams);
   };
@@ -89,11 +122,39 @@ const Result = () => {
   // Handle job selection
   const handleSelectJob = (job) => {
     setSelectedJob(job);
+
+    // Update URL with jobId
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set("jobId", job.job_id);
+    setSearchParams(newParams);
   };
 
   // Handle closing job details
   const handleCloseJobDetail = () => {
     setSelectedJob(null);
+
+    // Remove jobId from URL
+    const newParams = new URLSearchParams(searchParams);
+    newParams.delete("jobId");
+    setSearchParams(newParams);
+  };
+
+  // Handle clear filters button
+  const handleClearFilters = () => {
+    // Create new params with only jobId if present
+    const newParams = new URLSearchParams();
+    if (selectedJob) {
+      newParams.set("jobId", selectedJob.job_id);
+    }
+    setSearchParams(newParams);
+
+    setFilterState({
+      searchTerm: "",
+      workstyle: "",
+      type: "",
+      industry: "",
+      experience: "",
+    });
   };
 
   // Handle loading state
@@ -316,16 +377,7 @@ const Result = () => {
 
           {(query || workstyle || jobType || industry || experience) && (
             <button
-              onClick={() => {
-                setSearchParams({});
-                setFilterState({
-                  searchTerm: "",
-                  workstyle: "",
-                  type: "",
-                  industry: "",
-                  experience: "",
-                });
-              }}
+              onClick={handleClearFilters}
               className="flex items-center gap-1 text-sm text-gray-600 underline hover:text-gray-800"
             >
               Clear all
@@ -357,16 +409,7 @@ const Result = () => {
                   No job listings match your criteria.
                 </p>
                 <button
-                  onClick={() => {
-                    setSearchParams({});
-                    setFilterState({
-                      searchTerm: "",
-                      workstyle: "",
-                      type: "",
-                      industry: "",
-                      experience: "",
-                    });
-                  }}
+                  onClick={handleClearFilters}
                   className="mt-3 text-blue-600 hover:underline"
                 >
                   Clear all filters
@@ -453,16 +496,7 @@ const Result = () => {
                     No job listings match your criteria.
                   </p>
                   <button
-                    onClick={() => {
-                      setSearchParams({});
-                      setFilterState({
-                        searchTerm: "",
-                        workstyle: "",
-                        type: "",
-                        industry: "",
-                        experience: "",
-                      });
-                    }}
+                    onClick={handleClearFilters}
                     className="mt-3 text-blue-600 hover:underline"
                   >
                     Clear all filters

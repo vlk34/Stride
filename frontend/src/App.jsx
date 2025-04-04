@@ -47,7 +47,7 @@ import BusinessMessages from "./pages/BusinessMessages";
 import JobMatch from "./pages/JobMatch";
 import RecommendedJobs from "./pages/RecommendedJobs";
 import AdminBusinessAuth from "./components/Admin/AdminBusinessAuth";
-
+import Search from "./pages/Search";
 const faqData = {
   categories: [
     {
@@ -150,113 +150,6 @@ const faqData = {
 };
 
 const App = () => {
-  const dummyData = {
-    recommendedJobs: [
-      {
-        id: 1,
-        title: "Senior Frontend Developer",
-        company: "TechCorp Inc.",
-        location: "San Francisco, CA",
-        salary: "$120k - $150k",
-        type: "Full-time",
-        workstyle: "Remote",
-        isVerified: true,
-        postedAt: "2 days ago",
-        companyLogo: "https://logo.clearbit.com/techcorp.com",
-      },
-      {
-        id: 2,
-        title: "Product Designer",
-        company: "Design Studio",
-        location: "Remote",
-        salary: "$90k - $120k",
-        type: "Full-time",
-        workstyle: "Remote",
-        isVerified: true,
-        postedAt: "1 day ago",
-        companyLogo: "https://logo.clearbit.com/designstudio.com",
-      },
-      {
-        id: 3,
-        title: "Backend Engineer",
-        company: "Cloud Systems",
-        location: "Austin, TX",
-        salary: "$110k - $140k",
-        type: "Full-time",
-        workstyle: "Hybrid",
-        isVerified: false,
-        postedAt: "3 days ago",
-        companyLogo: "https://logo.clearbit.com/cloudsystems.com",
-      },
-    ],
-    trendingJobs: [
-      {
-        id: 5,
-        title: "AI Engineer",
-        company: "AI Solutions Ltd",
-        location: "New York, NY",
-        salary: "$130k - $160k",
-        type: "Full-time",
-        workstyle: "Hybrid",
-        isVerified: true,
-        postedAt: "3 days ago",
-        companyLogo: "https://logo.clearbit.com/aisolutions.com",
-      },
-      {
-        id: 6,
-        title: "DevOps Specialist",
-        company: "Infrastructure Inc",
-        location: "Seattle, WA",
-        salary: "$125k - $155k",
-        type: "Full-time",
-        workstyle: "Remote",
-        isVerified: true,
-        postedAt: "1 week ago",
-        companyLogo: "https://logo.clearbit.com/infrastructureinc.com",
-      },
-    ],
-    recentSearches: [
-      {
-        id: 1,
-        query: "Frontend Developer",
-        location: "San Francisco",
-        timestamp: "Today",
-        results: "24 jobs found",
-      },
-      {
-        id: 2,
-        query: "UX Designer",
-        location: "Remote",
-        timestamp: "Yesterday",
-        results: "18 jobs found",
-      },
-      {
-        id: 3,
-        query: "Data Scientist",
-        location: "New York",
-        timestamp: "2 days ago",
-        results: "32 jobs found",
-      },
-      {
-        id: 4,
-        query: "Product Manager",
-        location: "Austin",
-        timestamp: "3 days ago",
-        results: "15 jobs found",
-      },
-    ],
-    matchingCompanies: [
-      {
-        id: 1,
-        name: "TechCorp Inc.",
-        industry: "Technology",
-        openPositions: 5,
-        companyLogo: "https://logo.clearbit.com/techcorp.com",
-      },
-      // Add more companies...
-    ],
-  };
-
   const { user, isLoaded } = useUser();
   const role = user?.publicMetadata?.role;
 
@@ -288,6 +181,7 @@ const App = () => {
           <Route path="/admin-unauthorized" element={<AdminUnathorized />} />
           <Route path="/job-match" element={<JobMatch />} />
           <Route path="/recommended-jobs" element={<RecommendedJobs />} />
+          <Route path="/search-home" element={<Search />} />
         </Route>
 
         <Route element={<PublicRoute hasFooter={false} />}>

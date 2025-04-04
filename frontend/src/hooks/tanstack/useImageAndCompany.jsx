@@ -6,12 +6,15 @@ export const useImage = (imageId) => {
   return useQuery({
     queryKey: ["image", imageId],
     queryFn: async () => {
-      const response = await axios.get(`/images/${imageId}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        responseType: "blob",
-      });
+      const response = await axios.get(
+        `http://localhost:8080/images/${imageId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          responseType: "blob",
+        }
+      );
       return URL.createObjectURL(response.data);
     },
     enabled: !!imageId,
@@ -28,12 +31,16 @@ export const useUploadImage = () => {
       const formData = new FormData();
       formData.append("image", imageFile);
 
-      const response = await axios.post("/images/upload", formData, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const response = await axios.post(
+        "http://localhost:8080/images/upload",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
       return response.data;
     },
     onSuccess: () => {
@@ -47,7 +54,9 @@ export const useCompanyDetails = (companyId) => {
   return useQuery({
     queryKey: ["companyDetails", companyId],
     queryFn: async () => {
-      const response = await axios.get(`/companies/${companyId}`);
+      const response = await axios.get(
+        `http://localhost:8080/company/${companyId}`
+      );
       return response.data;
     },
     enabled: !!companyId,
