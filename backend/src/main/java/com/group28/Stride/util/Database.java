@@ -773,7 +773,7 @@ public class Database {
             res.close();
             statement.close();
 
-            String query = "SELECT user_id, applied_at FROM applications WHERE 1=1";
+            String query = "SELECT user_id, application_date FROM applications WHERE 1=1";
             List<Integer> params = new ArrayList<>();
 
             PreparedStatement job_statement = connection.prepareStatement("SELECT job_id FROM jobs WHERE company_id = ?");
@@ -786,7 +786,7 @@ public class Database {
             job_res.close();
             job_statement.close();
 
-            query += " ORDER BY applied_at DESC LIMIT 5";
+            query += " ORDER BY application_date DESC LIMIT 5";
 
             PreparedStatement applicant_statement = connection.prepareStatement(query);
 
