@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate, useLocation } from "react-router";
+import { useParams, useNavigate } from "react-router";
 import {
   Building2,
   MapPin,
@@ -38,11 +38,16 @@ const getSessionToken = () => {
 const BusinessApplicationReview = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const location = useLocation();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState("");
   const [application, setApplication] = useState(null);
-  const [loading, setLoading] = useState(true);
+
+  // Use the hook to fetch company details
+  const {
+    data: companyData,
+    isLoading: loading,
+    error,
+  } = useCompanyDetails(id);
 
   // Mobile-friendly state for expandable sections
   const [expandedSections, setExpandedSections] = useState({
@@ -53,90 +58,40 @@ const BusinessApplicationReview = () => {
     benefits: true,
   });
 
-  // Get company details from either location state or fetch them
+  // Process the fetched data
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-
-        // Check if we already have application data from navigation state
-        if (location.state?.applicationData) {
-          // Map API response fields to our component's expected structure
-          const appData = location.state.applicationData;
-          setApplication({
-            companyName: appData.company,
-            companySize: appData.size,
-            industry: appData.industry,
-            foundedYear: appData.founded,
-            email: appData.email,
-            phone: appData.phone,
-            website: appData.website,
-            address: appData.address,
-            city: appData.city,
-            state: appData.state,
-            country: appData.country,
-            postalCode: appData.postal_code,
-            description: appData.description,
-            mission: appData.mission,
-            benefits: appData.benefits,
-            logo: appData.logo,
-            company_id: appData.company_id,
-            created_at: appData.created_at,
-            // These may come from the businessApplications list
-            status: appData.status || "Pending",
-            applied_at: appData.applied_at,
-            name: appData.name,
-            applicantName: appData.name || "Applicant",
-            date: appData.applied_at
-              ? new Date(appData.applied_at).toLocaleDateString()
-              : "Recent",
-          });
-        } else {
-          // Fetch company details if not available
-          const token = getSessionToken();
-          const response = await axios.get(
-            `http://localhost:8080/company/${id}`,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
-
-          const appData = response.data;
-          setApplication({
-            companyName: appData.company,
-            companySize: appData.size,
-            industry: appData.industry,
-            foundedYear: appData.founded,
-            email: appData.email,
-            phone: appData.phone,
-            website: appData.website,
-            address: appData.address,
-            city: appData.city,
-            state: appData.state,
-            country: appData.country,
-            postalCode: appData.postal_code,
-            description: appData.description,
-            mission: appData.mission,
-            benefits: appData.benefits,
-            logo: appData.logo,
-            company_id: appData.company_id,
-            created_at: appData.created_at,
-            status: "Pending",
-            date: new Date(appData.created_at).toLocaleDateString(),
-            applicantName: "Applicant",
-          });
-        }
-      } catch (error) {
-        console.error("Error fetching company details:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [id, location.state]);
+    console.log(companyData);
+    if (companyData) {
+      setApplication({
+        companyName: companyData.company,
+        companySize: companyData.size,
+        industry: companyData.industry,
+        foundedYear: companyData.founded,
+        email: companyData.email,
+        phone: companyData.phone,
+        website: companyData.website,
+        address: companyData.address,
+        city: companyData.city,
+        state: companyData.state,
+        country: companyData.country,
+        postalCode: companyData.postal_code,
+        description: companyData.description,
+        mission: companyData.mission,
+        benefits: companyData.benefits,
+        logo: companyData.logo,
+        company_id: companyData.company_id,
+        created_at: companyData.created_at,
+        user_id: companyData.user_id,
+        status: companyData.status || "Pending",
+        applied_at: companyData.applied_at || companyData.created_at,
+        name: companyData.name || "Applicant",
+        applicantName: companyData.name || "Applicant",
+        date: companyData.applied_at
+          ? new Date(companyData.applied_at).toLocaleDateString()
+          : new Date(companyData.created_at).toLocaleDateString(),
+      });
+    }
+  }, [companyData]);
 
   const toggleSection = (section) => {
     setExpandedSections((prev) => ({
@@ -149,20 +104,27 @@ const BusinessApplicationReview = () => {
     try {
       setIsSubmitting(true);
 
-      // Call API to approve the application
-      const token = getSessionToken();
+      // Ensure we have a user_id
+      if (!application.user_id) {
+        throw new Error("User ID is missing");
+      }
 
-      // Use the actual user_id from the application data
-      // This comes from the application data passed from the ApprovalsList component
+      console.log("Making API call with user ID:", application.user_id);
+
+      // Use direct axios call with fresh token from cookies
+      const sessionToken = getSessionToken();
+      if (!sessionToken) {
+        throw new Error("Authentication token not found");
+      }
+
+      // Make the API call directly
       await axios.post(
         "http://localhost:8080/upgradeuser",
-        {
-          user_id:
-            application.user_id || location.state?.applicationData?.user_id,
-        },
+        { user_id: application.user_id },
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${sessionToken}`,
+            "Content-Type": "application/json",
           },
         }
       );
@@ -202,14 +164,25 @@ const BusinessApplicationReview = () => {
     try {
       setIsSubmitting(true);
 
-      // Call API to decline the application
-      const token = getSessionToken();
+      // Ensure we have a user_id
+      if (!application.user_id) {
+        throw new Error("User ID is missing");
+      }
+
+      // Get fresh token from cookies
+      const sessionToken = getSessionToken();
+      if (!sessionToken) {
+        throw new Error("Authentication token not found");
+      }
+
+      // Make the API call directly
       await axios.post(
         "http://localhost:8080/declineupgrade",
         { user_id: application.user_id },
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${sessionToken}`,
+            "Content-Type": "application/json",
           },
         }
       );
@@ -242,6 +215,27 @@ const BusinessApplicationReview = () => {
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading application details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-white p-4 sm:p-6 rounded-lg border border-gray-200">
+        <div className="text-center py-8">
+          <h3 className="text-xl font-bold text-gray-900 mb-2">
+            Error Loading Application
+          </h3>
+          <p className="text-gray-600 mb-4">
+            {error.message || "Failed to load application details."}
+          </p>
+          <button
+            onClick={() => navigate("/admin/approvals")}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Back to Applications
+          </button>
         </div>
       </div>
     );

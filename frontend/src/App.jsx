@@ -347,14 +347,14 @@ const App = () => {
           <Route path="/admin/users" element={<AdminUsers />} />
           <Route path="/admin/jobs" element={<AdminJobs jobs={jobs} />} />
           <Route path="/admin/approvals" element={<ApprovalsList />} />
+          <Route
+            path="/admin/approvals/:id"
+            element={<BusinessApplicationReview />}
+          />
           <Route path="/admin/activities" element={<ActivitiesList />} />
           <Route
             path="admin/business-unauthorized"
             element={<AdminBusinessAuth />}
-          />
-          <Route
-            path="/admin/review/business/:id"
-            element={<BusinessApplicationReview />}
           />
         </Route>
       </Routes>

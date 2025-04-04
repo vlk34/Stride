@@ -20,18 +20,18 @@ export const useCompanyDetails = (companyId) => {
     queryFn: async () => {
       if (!companyId) return null;
 
-      const token = getSessionToken();
+      const sessionToken = getSessionToken();
       const response = await axios.get(
         `http://localhost:8080/company/${companyId}`,
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${sessionToken}`,
           },
         }
       );
       return response.data;
     },
-    enabled: !!companyId, // Only run the query if companyId is provided
+    enabled: !!companyId, // Only run the query if companyId exists
     staleTime: 5 * 60 * 1000,
   });
 };
@@ -41,10 +41,10 @@ export const useAdminStats = () => {
   return useQuery({
     queryKey: ["adminStats"],
     queryFn: async () => {
-      const token = getSessionToken();
+      const sessionToken = getSessionToken();
       const response = await axios.get("http://localhost:8080/adminstats", {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${sessionToken}`,
         },
       });
       return response.data;
@@ -58,10 +58,10 @@ export const useAllUsers = () => {
   return useQuery({
     queryKey: ["allUsers"],
     queryFn: async () => {
-      const token = getSessionToken();
+      const sessionToken = getSessionToken();
       const response = await axios.get("http://localhost:8080/users", {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${sessionToken}`,
         },
       });
       return response.data;
@@ -75,10 +75,10 @@ export const useBusinessApplications = () => {
   return useQuery({
     queryKey: ["businessApplications"],
     queryFn: async () => {
-      const token = getSessionToken();
+      const sessionToken = getSessionToken();
       const response = await axios.get("http://localhost:8080/applications", {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${sessionToken}`,
         },
       });
       return Array.isArray(response.data) ? response.data : [];
@@ -93,10 +93,10 @@ export const useUpdateUser = () => {
 
   return useMutation({
     mutationFn: async (userData) => {
-      const token = getSessionToken();
+      const sessionToken = getSessionToken();
       await axios.patch("http://localhost:8080/updateuser", userData, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${sessionToken}`,
         },
       });
     },
@@ -113,13 +113,13 @@ export const useUpgradeUser = () => {
 
   return useMutation({
     mutationFn: async (userId) => {
-      const token = getSessionToken();
+      const sessionToken = getSessionToken();
       await axios.post(
         "http://localhost:8080/upgradeuser",
         { user_id: userId },
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${sessionToken}`,
           },
         }
       );
@@ -138,13 +138,13 @@ export const useDeclineBusinessApplication = () => {
 
   return useMutation({
     mutationFn: async (userId) => {
-      const token = getSessionToken();
+      const sessionToken = getSessionToken();
       await axios.post(
         "http://localhost:8080/declineupgrade",
         { user_id: userId },
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${sessionToken}`,
           },
         }
       );

@@ -1,19 +1,60 @@
 import React, { useState } from "react";
 import { AlertTriangle, ArrowLeft, CheckCircle, XCircle } from "lucide-react";
 import { Link, useNavigate } from "react-router";
+import axios from "axios";
+import { useUser, useClerk } from "@clerk/clerk-react"; // Import Clerk hooks
 
 const SwitchToPersonal = () => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  const handleSwitchConfirm = async () => {
+  const { user } = useUser(); // Get the current user from Clerk
+  const { session } = useClerk(); // Get the current session from Clerk
+
+  // Helper function to get the session token from Clerk
+  const getSessionToken = async () => {
     try {
-      // Update user metadata to change role from business to personal with a backend api call to update public metadata.
-      // Close modal and navigate to success state
+      return await session.getToken();
+    } catch (error) {
+      console.error("Failed to get session token:", error);
+      return null;
+    }
+  };
+
+  const handleSwitchConfirm = async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const token = await getSessionToken();
+      if (!token) {
+        throw new Error("Session token not found");
+      }
+
+      // Call the /descend endpoint to switch from business to personal
+      await axios.post(
+        "http://localhost:8080/descend",
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      // Reload user data from Clerk to refresh metadata
+      await user.reload();
+
+      // Close modal and navigate to homepage
       setShowConfirmModal(false);
-      navigate("/");
+      navigate("/"); // Navigate to the homepage
     } catch (error) {
       console.error("Error switching account type:", error);
+      setError("Failed to switch account. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -139,20 +180,23 @@ const SwitchToPersonal = () => {
                 This action will switch your account from Business to Personal
                 immediately.
               </p>
+              {error && <p className="text-red-600 mt-2 text-sm">{error}</p>}
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3">
               <button
                 onClick={() => setShowConfirmModal(false)}
                 className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                disabled={isLoading}
               >
                 No, cancel
               </button>
               <button
                 onClick={handleSwitchConfirm}
                 className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                disabled={isLoading}
               >
-                Yes, switch to personal
+                {isLoading ? "Processing..." : "Yes, switch to personal"}
               </button>
             </div>
           </div>
