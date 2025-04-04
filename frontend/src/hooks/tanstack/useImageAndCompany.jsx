@@ -29,10 +29,58 @@ export const useUploadImage = () => {
   return useMutation({
     mutationFn: async (imageFile) => {
       const formData = new FormData();
-      formData.append("image", imageFile);
+      formData.append("file", imageFile);
 
       const response = await axios.post(
         "http://localhost:8080/images/upload",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      // No need to invalidate any queries as this is a new upload
+    },
+  });
+};
+
+// Get CV/Resume by ID
+export const useResume = (resumeId) => {
+  return useQuery({
+    queryKey: ["resume", resumeId],
+    queryFn: async () => {
+      const response = await axios.get(
+        `http://localhost:8080/resume/${resumeId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          responseType: "blob",
+        }
+      );
+      return URL.createObjectURL(response.data);
+    },
+    enabled: !!resumeId,
+    staleTime: 24 * 60 * 60 * 1000, // Resumes can be cached for longer periods
+  });
+};
+
+// Upload a CV/Resume
+export const useUploadResume = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (pdfFile) => {
+      const formData = new FormData();
+      formData.append("file", pdfFile);
+
+      const response = await axios.post(
+        "http://localhost:8080/resume/upload",
         formData,
         {
           headers: {

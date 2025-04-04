@@ -245,7 +245,7 @@ public class Database {
 
     public static List<Map<String, Object>> applied(String user_id) {
         try {
-            PreparedStatement statement = connection.prepareStatement("SELECT user_id, job_id FROM applied WHERE user_id = ?");
+            PreparedStatement statement = connection.prepareStatement("SELECT user_id, job_id FROM applications WHERE user_id = ?");
             statement.setString(1, user_id);
             ResultSet res = statement.executeQuery();
             List<Map<String, Object>> list = new ArrayList<>();
