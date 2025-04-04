@@ -37,7 +37,29 @@ const Home = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    navigate("/search", { state: { searchParams } });
+
+    // Only navigate if there's at least one search parameter
+    if (
+      searchParams.query ||
+      searchParams.workstyle ||
+      searchParams.type ||
+      searchParams.industry ||
+      searchParams.experience
+    ) {
+      // Build query parameters
+      const params = new URLSearchParams();
+      if (searchParams.query) params.append("q", searchParams.query);
+      if (searchParams.workstyle)
+        params.append("workstyle", searchParams.workstyle);
+      if (searchParams.type) params.append("jobtype", searchParams.type);
+      if (searchParams.industry)
+        params.append("industry", searchParams.industry);
+      if (searchParams.experience)
+        params.append("experience", searchParams.experience);
+
+      // Navigate with query parameters in URL
+      navigate(`/search?${params.toString()}`);
+    }
   };
 
   return (

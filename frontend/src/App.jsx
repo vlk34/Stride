@@ -291,11 +291,8 @@ const App = () => {
         </Route>
 
         <Route element={<PublicRoute hasFooter={false} />}>
-          <Route
-            path="/search"
-            element={<JobRecommendations dummyData={dummyData} />}
-          />
-          <Route path="/result" element={<Result />} />
+          <Route path="/search" element={<Result />} />
+          <Route path="/result" element={<Navigate to="/search" replace />} />
           <Route path="/help" element={<Help faqData={faqData} />} />
           <Route path="/jobs" element={<SavedJobs />} />
           <Route path="/company/:id" element={<CompanyProfile />} />
