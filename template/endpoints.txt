@@ -411,6 +411,7 @@ cv bytes
 GET /companies/{id}
 request body:
 {
+    "user_id": "user_asdqwe",
     "company_id": 1,
     "created_at": "date",
     "company": "example",

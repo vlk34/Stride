@@ -659,8 +659,9 @@ public class Database {
             ResultSet company_res = company_statement.executeQuery();
             Map<String, Object> map = new HashMap<>();
             if (company_res.next()) {
+                map.put("user_id", company_res.getString("user_id"));
                 map.put("company_id", company_res.getInt("company_id"));
-                map.put("created_at", company_res.getString("created_at"));
+                map.put("created_at", company_res.getTimestamp("created_at"));
                 map.put("company", company_res.getString("company_name"));
                 map.put("industry", company_res.getString("industry"));
                 map.put("size", company_res.getString("company_size"));
