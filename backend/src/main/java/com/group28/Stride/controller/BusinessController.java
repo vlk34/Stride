@@ -138,4 +138,32 @@ public class BusinessController {
 
         return new ResponseEntity<>("Successful", HttpStatus.OK);
     }
+
+    @CrossOrigin
+    @GetMapping("/recentjobs")
+    public List<Map<String, Object>> recentjobs(@RequestHeader("Authorization") String auth) throws IOException {
+        Claims user_claims = Authentication.getClaims(auth);
+        if (user_claims == null)
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+        String user_id = user_claims.getSubject();
+        String role = (String) user_claims.get("metadata", HashMap.class).get("role");
+        if (!"business".equalsIgnoreCase(role))
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+
+        return Database.recentJobs(user_id);
+    }
+
+    @CrossOrigin
+    @GetMapping("/recentapplicants")
+    public List<Map<String, Object>> recentapplicants(@RequestHeader("Authorization") String auth) throws IOException {
+        Claims user_claims = Authentication.getClaims(auth);
+        if (user_claims == null)
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+        String user_id = user_claims.getSubject();
+        String role = (String) user_claims.get("metadata", HashMap.class).get("role");
+        if (!"business".equalsIgnoreCase(role))
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+
+        return Database.recentApplicants(user_id);
+    }
 }

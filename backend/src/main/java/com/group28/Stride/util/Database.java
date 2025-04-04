@@ -713,4 +713,98 @@ public class Database {
             ex.printStackTrace();
         }
     }
+
+    public static List<Map<String, Object>> recentJobs(String user_id) {
+        try {
+            PreparedStatement statement = connection.prepareStatement("SELECT company_id, company_name, logo FROM companies WHERE user_id = ?");
+            statement.setString(1, user_id);
+            ResultSet res = statement.executeQuery();
+            int company_id = 0;
+            int logo = 0;
+            String company_name = "";
+            if (res.next()) {
+                company_id = res.getInt("company_id");
+                logo = res.getInt("logo");
+                company_name = res.getString("company_name");
+            }
+            res.close();
+            statement.close();
+
+            List<Map<String, Object>> list = new ArrayList<>();
+            PreparedStatement job_statement = connection.prepareStatement("SELECT job_id, title, job_description FROM jobs WHERE company_id = ? ORDER BY created_at DESC LIMIT 5");
+            job_statement.setInt(1, company_id);
+            ResultSet job_res = job_statement.executeQuery();
+            while (job_res.next()) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("company", company_name);
+                map.put("logo", logo);
+                map.put("job_id", job_res.getInt("job_id"));
+                map.put("title", job_res.getString("title"));
+                map.put("description", job_res.getString("job_description"));
+                list.add(map);
+            }
+            job_res.close();
+            job_statement.close();
+            return list;
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    public static List<Map<String, Object>> recentApplicants(String user_id) {
+        try {
+            PreparedStatement statement = connection.prepareStatement("SELECT company_id, company_name, logo FROM companies WHERE user_id = ?");
+            statement.setString(1, user_id);
+            ResultSet res = statement.executeQuery();
+            int company_id = 0;
+            int logo = 0;
+            String company_name = "";
+            if (res.next()) {
+                company_id = res.getInt("company_id");
+                logo = res.getInt("logo");
+                company_name = res.getString("company_name");
+            }
+            res.close();
+            statement.close();
+
+            String query = "SELECT user_id, applied_at FROM applications WHERE 1=1";
+            List<Integer> params = new ArrayList<>();
+
+            PreparedStatement job_statement = connection.prepareStatement("SELECT job_id FROM jobs WHERE company_id = ?");
+            job_statement.setInt(1, company_id);
+            ResultSet job_res = job_statement.executeQuery();
+            while (job_res.next()) {
+                query += " OR job_id = ?";
+                params.add(job_res.getInt("job_id"));
+            }
+            job_res.close();
+            job_statement.close();
+
+            query += " ORDER BY applied_at DESC LIMIT 5";
+
+            PreparedStatement applicant_statement = connection.prepareStatement(query);
+
+            for (int i = 0; i < params.size(); i++)
+                applicant_statement.setInt(i + 1, params.get(i));
+
+            ResultSet applicant_res = applicant_statement.executeQuery();
+            List<Map<String, Object>> list = new ArrayList<>();
+            while (applicant_res.next()) {
+                Map<String, Object> map = GetUserInfo.fromUserID(applicant_res.getString("user_id"));
+                if (map == null)
+                    map = new HashMap<>();
+                map.put("user_id", applicant_res.getString("user_id"));
+                map.put("applied_at", applicant_res.getTimestamp("application_date"));
+                list.add(map);
+            }
+            applicant_res.close();
+            applicant_statement.close();
+
+            return list;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
 }
