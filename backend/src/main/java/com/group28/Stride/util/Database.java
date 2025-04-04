@@ -754,17 +754,12 @@ public class Database {
 
     public static List<Map<String, Object>> recentApplicants(String user_id) {
         try {
-            PreparedStatement statement = connection.prepareStatement("SELECT company_id, company_name, logo FROM companies WHERE user_id = ?");
+            PreparedStatement statement = connection.prepareStatement("SELECT company_id FROM companies WHERE user_id = ?");
             statement.setString(1, user_id);
             ResultSet res = statement.executeQuery();
             int company_id = 0;
-            int logo = 0;
-            String company_name = "";
-            if (res.next()) {
+            if (res.next())
                 company_id = res.getInt("company_id");
-                logo = res.getInt("logo");
-                company_name = res.getString("company_name");
-            }
             res.close();
             statement.close();
 

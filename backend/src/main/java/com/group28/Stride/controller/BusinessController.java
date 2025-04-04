@@ -141,7 +141,7 @@ public class BusinessController {
 
     @CrossOrigin
     @GetMapping("/recentjobs")
-    public List<Map<String, Object>> recentjobs(@RequestHeader("Authorization") String auth) throws IOException {
+    public List<Map<String, Object>> recentjobs(@RequestHeader("Authorization") String auth) {
         Claims user_claims = Authentication.getClaims(auth);
         if (user_claims == null)
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
@@ -155,7 +155,7 @@ public class BusinessController {
 
     @CrossOrigin
     @GetMapping("/recentapplicants")
-    public List<Map<String, Object>> recentapplicants(@RequestHeader("Authorization") String auth) throws IOException {
+    public List<Map<String, Object>> recentapplicants(@RequestHeader("Authorization") String auth) {
         Claims user_claims = Authentication.getClaims(auth);
         if (user_claims == null)
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
