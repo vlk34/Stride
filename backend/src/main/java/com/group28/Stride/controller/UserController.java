@@ -3,7 +3,6 @@ package com.group28.Stride.controller;
 import com.group28.Stride.util.Authentication;
 import com.group28.Stride.util.Database;
 import io.jsonwebtoken.Claims;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -79,8 +78,8 @@ public class UserController {
 
     @CrossOrigin
     @PostMapping("/save")
-    public ResponseEntity<String> save(@RequestBody Map<String, Object> body, HttpServletRequest request) throws IOException {
-        Claims user_claims = Authentication.getClaims(request);
+    public ResponseEntity<String> save(@RequestBody Map<String, Object> body, @RequestHeader("Authorization") String auth) throws IOException {
+        Claims user_claims = Authentication.getClaims(auth);
         if (user_claims == null)
             return new ResponseEntity<>("Not authenticated", HttpStatus.UNAUTHORIZED);
         String user_id = user_claims.getSubject();
@@ -92,8 +91,8 @@ public class UserController {
 
     @CrossOrigin
     @PostMapping("/unsave")
-    public ResponseEntity<String> unsave(@RequestBody Map<String, Object> body, HttpServletRequest request) throws IOException {
-        Claims user_claims = Authentication.getClaims(request);
+    public ResponseEntity<String> unsave(@RequestBody Map<String, Object> body, @RequestHeader("Authorization") String auth) {
+        Claims user_claims = Authentication.getClaims(auth);
         if (user_claims == null)
             return new ResponseEntity<>("Not authenticated", HttpStatus.UNAUTHORIZED);
         String user_id = user_claims.getSubject();
@@ -105,8 +104,8 @@ public class UserController {
 
     @CrossOrigin
     @GetMapping("/saved")
-    public List<Map<String, Object>> saved(HttpServletRequest request) throws IOException {
-        Claims user_claims = Authentication.getClaims(request);
+    public List<Map<String, Object>> saved(@RequestHeader("Authorization") String auth) throws IOException {
+        Claims user_claims = Authentication.getClaims(auth);
         if (user_claims == null)
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
         String user_id = user_claims.getSubject();
@@ -116,8 +115,8 @@ public class UserController {
 
     @CrossOrigin
     @PostMapping("/apply")
-    public ResponseEntity<String> apply(@RequestBody Map<String, Object> body, HttpServletRequest request) throws IOException {
-        Claims user_claims = Authentication.getClaims(request);
+    public ResponseEntity<String> apply(@RequestBody Map<String, Object> body, @RequestHeader("Authorization") String auth) throws IOException {
+        Claims user_claims = Authentication.getClaims(auth);
         if (user_claims == null)
             return new ResponseEntity<>("Not authenticated", HttpStatus.UNAUTHORIZED);
         String user_id = user_claims.getSubject();
@@ -129,8 +128,8 @@ public class UserController {
 
     @CrossOrigin
     @GetMapping("/applied")
-    public List<Map<String, Object>> applied(HttpServletRequest request) throws IOException {
-        Claims user_claims = Authentication.getClaims(request);
+    public List<Map<String, Object>> applied(@RequestHeader("Authorization") String auth) throws IOException {
+        Claims user_claims = Authentication.getClaims(auth);
         if (user_claims == null)
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
         String user_id = user_claims.getSubject();
@@ -140,8 +139,8 @@ public class UserController {
 
     @CrossOrigin
     @PostMapping("/upgrade")
-    public ResponseEntity<String> upgrade(@RequestBody Map<String, Object> body, HttpServletRequest request) throws IOException {
-        Claims user_claims = Authentication.getClaims(request);
+    public ResponseEntity<String> upgrade(@RequestBody Map<String, Object> body, @RequestHeader("Authorization") String auth) throws IOException {
+        Claims user_claims = Authentication.getClaims(auth);
         if (user_claims == null)
             return new ResponseEntity<>("Not authenticated", HttpStatus.UNAUTHORIZED);
         String user_id = user_claims.getSubject();

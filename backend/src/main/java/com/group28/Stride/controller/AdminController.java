@@ -4,7 +4,6 @@ import com.group28.Stride.util.Authentication;
 import com.group28.Stride.util.Database;
 import com.group28.Stride.util.GetUserInfo;
 import io.jsonwebtoken.Claims;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,8 +17,8 @@ import java.util.Map;
 public class AdminController {
     @CrossOrigin
     @PostMapping("/upgradeuser")
-    public ResponseEntity<String> upgradeuser(@RequestBody Map<String, Object> body, HttpServletRequest request) throws Exception {
-        Claims user_claims = Authentication.getClaims(request);
+    public ResponseEntity<String> upgradeuser(@RequestBody Map<String, Object> body, @RequestHeader("Authorization") String auth) throws Exception {
+        Claims user_claims = Authentication.getClaims(auth);
         if (user_claims == null)
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
         String role = (String) user_claims.get("metadata", HashMap.class).get("role");
@@ -34,8 +33,8 @@ public class AdminController {
 
     @CrossOrigin
     @PostMapping("/declineupgrade")
-    public ResponseEntity<String> declineupgrade(@RequestBody Map<String, Object> body, HttpServletRequest request) throws Exception {
-        Claims user_claims = Authentication.getClaims(request);
+    public ResponseEntity<String> declineupgrade(@RequestBody Map<String, Object> body, @RequestHeader("Authorization") String auth) {
+        Claims user_claims = Authentication.getClaims(auth);
         if (user_claims == null)
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
         String role = (String) user_claims.get("metadata", HashMap.class).get("role");
@@ -50,8 +49,8 @@ public class AdminController {
 
     @CrossOrigin
     @GetMapping("/applications")
-    public List<Map<String, Object>> applications(HttpServletRequest request) throws Exception {
-        Claims user_claims = Authentication.getClaims(request);
+    public List<Map<String, Object>> applications(@RequestHeader("Authorization") String auth) throws Exception {
+        Claims user_claims = Authentication.getClaims(auth);
         if (user_claims == null)
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
         String role = (String) user_claims.get("metadata", HashMap.class).get("role");

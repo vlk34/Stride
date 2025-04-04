@@ -2,8 +2,8 @@ package com.group28.Stride.controller;
 
 import com.group28.Stride.util.Authentication;
 import com.group28.Stride.util.Database;
+import com.group28.Stride.util.GetUserInfo;
 import io.jsonwebtoken.Claims;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,8 +18,8 @@ import java.util.Map;
 public class BusinessController {
     @CrossOrigin
     @GetMapping("/stats")
-    public Map<String, Integer> stats(HttpServletRequest request) throws IOException {
-        Claims user_claims = Authentication.getClaims(request);
+    public Map<String, Integer> stats(@RequestHeader("Authorization") String auth) throws IOException {
+        Claims user_claims = Authentication.getClaims(auth);
         if (user_claims == null)
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
         String user_id = user_claims.getSubject();
@@ -32,8 +32,8 @@ public class BusinessController {
 
     @CrossOrigin
     @PostMapping("/create")
-    public ResponseEntity<String> create(@RequestBody Map<String, Object> body, HttpServletRequest request) throws IOException {
-        Claims user_claims = Authentication.getClaims(request);
+    public ResponseEntity<String> create(@RequestBody Map<String, Object> body, @RequestHeader("Authorization") String auth) throws IOException {
+        Claims user_claims = Authentication.getClaims(auth);
         if (user_claims == null)
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
         String user_id = user_claims.getSubject();
@@ -48,8 +48,8 @@ public class BusinessController {
 
     @CrossOrigin
     @PutMapping("/update")
-    public ResponseEntity<String> update(@RequestBody Map<String, Object> body, HttpServletRequest request) throws IOException {
-        Claims user_claims = Authentication.getClaims(request);
+    public ResponseEntity<String> update(@RequestBody Map<String, Object> body, @RequestHeader("Authorization") String auth) throws IOException {
+        Claims user_claims = Authentication.getClaims(auth);
         if (user_claims == null)
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
         String user_id = user_claims.getSubject();
@@ -64,8 +64,8 @@ public class BusinessController {
 
     @CrossOrigin
     @DeleteMapping("/delete")
-    public ResponseEntity<String> delete(@RequestBody Map<String, Object> body, HttpServletRequest request) throws IOException {
-        Claims user_claims = Authentication.getClaims(request);
+    public ResponseEntity<String> delete(@RequestBody Map<String, Object> body, @RequestHeader("Authorization") String auth) throws IOException {
+        Claims user_claims = Authentication.getClaims(auth);
         if (user_claims == null)
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
         String user_id = user_claims.getSubject();
@@ -80,8 +80,8 @@ public class BusinessController {
 
     @CrossOrigin
     @GetMapping("/jobs")
-    public List<Map<String, Object>> jobs(HttpServletRequest request) throws IOException {
-        Claims user_claims = Authentication.getClaims(request);
+    public List<Map<String, Object>> jobs(@RequestHeader("Authorization") String auth) throws IOException {
+        Claims user_claims = Authentication.getClaims(auth);
         if (user_claims == null)
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
         String user_id = user_claims.getSubject();
@@ -94,8 +94,8 @@ public class BusinessController {
 
     @CrossOrigin
     @GetMapping("/applicants")
-    public List<Map<String, Object>> applicants(@RequestParam Integer job, HttpServletRequest request) throws IOException {
-        Claims user_claims = Authentication.getClaims(request);
+    public List<Map<String, Object>> applicants(@RequestParam Integer job, @RequestHeader("Authorization") String auth) throws IOException {
+        Claims user_claims = Authentication.getClaims(auth);
         if (user_claims == null)
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
         String user_id = user_claims.getSubject();
@@ -108,8 +108,8 @@ public class BusinessController {
 
     @CrossOrigin
     @PutMapping("/editcompany")
-    public ResponseEntity<String> editcompany(@RequestBody Map<String, Object> body, HttpServletRequest request) throws IOException {
-        Claims user_claims = Authentication.getClaims(request);
+    public ResponseEntity<String> editcompany(@RequestBody Map<String, Object> body, @RequestHeader("Authorization") String auth) {
+        Claims user_claims = Authentication.getClaims(auth);
         if (user_claims == null)
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
         String user_id = user_claims.getSubject();
@@ -118,6 +118,23 @@ public class BusinessController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
 
         Database.editCompany(user_id, body);
+
+        return new ResponseEntity<>("Successful", HttpStatus.OK);
+    }
+
+    @CrossOrigin
+    @PostMapping("/descend")
+    public ResponseEntity<String> descend(@RequestHeader("Authorization") String auth) throws Exception {
+        Claims user_claims = Authentication.getClaims(auth);
+        if (user_claims == null)
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+        String user_id = user_claims.getSubject();
+        String role = (String) user_claims.get("metadata", HashMap.class).get("role");
+        if (!"business".equalsIgnoreCase(role))
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+
+        GetUserInfo.businessDowngrade(user_id);
+        Database.removeCompany(user_id);
 
         return new ResponseEntity<>("Successful", HttpStatus.OK);
     }

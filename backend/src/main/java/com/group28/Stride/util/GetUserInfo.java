@@ -84,4 +84,23 @@ public class GetUserInfo {
             throw new Exception("User not found");
         }
     }
+
+    public static void businessDowngrade(String user_id) throws Exception {
+        Dotenv dotenv = Dotenv.configure()
+                .directory("backend")
+                .load();
+
+        Clerk sdk = Clerk.builder()
+                .bearerAuth(dotenv.get("SECRET"))
+                .build();
+
+        UpdateUserMetadataResponse res = sdk.users().updateMetadata()
+                .userId(user_id)
+                .requestBody(UpdateUserMetadataRequestBody.builder().publicMetadata(Map.of("role", "user")).build())
+                .call();
+
+        if (res.user().isEmpty()) {
+            throw new Exception("User not found");
+        }
+    }
 }

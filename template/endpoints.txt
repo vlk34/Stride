@@ -151,10 +151,6 @@ request body:
 
 POST /descend
 Authorization: Bearer session_jwt_here
-request body:
-{
-    "company": "example"
-}
 
 GET /stats
 Authorization: Bearer session_jwt_here
