@@ -18,14 +18,14 @@ export const useCompanyStats = () => {
   return useQuery({
     queryKey: ["companyStats"],
     queryFn: async () => {
-      const token = getSessionToken();
-      if (!token) {
+      const sessionToken = getSessionToken();
+      if (!sessionToken) {
         throw new Error("Session token not found");
       }
 
       const response = await axios.get("http://localhost:8080/stats", {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${sessionToken}`,
         },
       });
       return response.data;
@@ -39,14 +39,14 @@ export const useCompanyJobs = () => {
   return useQuery({
     queryKey: ["companyJobs"],
     queryFn: async () => {
-      const token = getSessionToken();
-      if (!token) {
+      const sessionToken = getSessionToken();
+      if (!sessionToken) {
         throw new Error("Session token not found");
       }
 
       const response = await axios.get("http://localhost:8080/jobs", {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${sessionToken}`,
         },
       });
       return response.data;
@@ -60,8 +60,8 @@ export const useJobApplicants = (jobId) => {
   return useQuery({
     queryKey: ["jobApplicants", jobId],
     queryFn: async () => {
-      const token = getSessionToken();
-      if (!token) {
+      const sessionToken = getSessionToken();
+      if (!sessionToken) {
         throw new Error("Session token not found");
       }
 
@@ -69,7 +69,7 @@ export const useJobApplicants = (jobId) => {
         `http://localhost:8080/applicants?job=${jobId}`,
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${sessionToken}`,
           },
         }
       );
@@ -80,82 +80,79 @@ export const useJobApplicants = (jobId) => {
   });
 };
 
-// Get all applicants (aggregated from recent jobs)
+// Get recent applicants
 export const useRecentApplicants = (limit = 5) => {
-  const { data: jobs, isLoading: jobsLoading } = useCompanyJobs();
-
-  // Function to format relative time
-  const getRelativeTime = (timestamp) => {
-    const now = new Date();
-    const pastDate = new Date(timestamp);
-    const diffInSeconds = Math.floor((now - pastDate) / 1000);
-
-    if (diffInSeconds < 60) return `${diffInSeconds} seconds ago`;
-    if (diffInSeconds < 3600)
-      return `${Math.floor(diffInSeconds / 60)} minutes ago`;
-    if (diffInSeconds < 86400)
-      return `${Math.floor(diffInSeconds / 3600)} hours ago`;
-    if (diffInSeconds < 604800)
-      return `${Math.floor(diffInSeconds / 86400)} days ago`;
-    return `${Math.floor(diffInSeconds / 604800)} weeks ago`;
-  };
-
-  // Use the job IDs to fetch applicants for all jobs
   return useQuery({
     queryKey: ["recentApplicants"],
     queryFn: async () => {
-      const token = getSessionToken();
-      if (!token) {
+      const sessionToken = getSessionToken();
+      if (!sessionToken) {
         throw new Error("Session token not found");
       }
 
-      if (!jobs || jobs.length === 0) {
-        return [];
-      }
-
-      // Take only the first few jobs to limit API calls
-      const recentJobs = jobs.slice(0, 3);
-
-      // Fetch applicants for each job
-      const applicantsPromises = recentJobs.map((job) =>
-        axios
-          .get(`http://localhost:8080/applicants?job=${job.job_id}`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          })
-          .then((response) => {
-            // Add job title to each applicant
-            return response.data.map((applicant) => ({
-              ...applicant,
-              role: job.title,
-              job_id: job.job_id,
-            }));
-          })
+      const response = await axios.get(
+        "http://localhost:8080/recentapplicants",
+        {
+          headers: {
+            Authorization: `Bearer ${sessionToken}`,
+          },
+        }
       );
 
-      const allApplicantsArrays = await Promise.all(applicantsPromises);
-
-      // Flatten and sort all applicants by applied_at
-      const allApplicants = allApplicantsArrays
-        .flat()
-        .sort((a, b) => new Date(b.applied_at) - new Date(a.applied_at))
-        .slice(0, limit)
+      // Empty array is a valid response - transform it just like non-empty results
+      const applicants = response.data || [];
+      return applicants
         .map((applicant) => ({
           id: applicant.user_id,
-          job_id: applicant.job_id,
-          name: applicant.name,
-          role: applicant.role,
-          status: "New", // Set default status, update if needed
+          job_id: applicant.job_id || 0,
+          name: applicant.name || "Unknown",
+          role: applicant.role || "Applicant",
+          status: "New",
           applied: getRelativeTime(applicant.applied_at),
-          photo: applicant.image || "https://via.placeholder.com/150",
-          match_score: Math.floor(Math.random() * 30) + 70, // Placeholder for match score
-        }));
-
-      return allApplicants;
+          photo:
+            applicant.image || "https://via.placeholder.com/150?text=Profile",
+          match_score: Math.floor(Math.random() * 30) + 70,
+        }))
+        .slice(0, limit);
     },
-    enabled: !jobsLoading && !!jobs,
-    staleTime: 60 * 1000, // 1 minute
+    staleTime: 2 * 60 * 1000,
+  });
+};
+
+// Get recent jobs (uses the dedicated endpoint)
+export const useRecentJobs = (limit = 5) => {
+  return useQuery({
+    queryKey: ["recentJobs"],
+    queryFn: async () => {
+      const sessionToken = getSessionToken();
+      if (!sessionToken) {
+        throw new Error("Session token not found");
+      }
+
+      const response = await axios.get("http://localhost:8080/recentjobs", {
+        headers: {
+          Authorization: `Bearer ${sessionToken}`,
+        },
+      });
+
+      // Transform the response data to match the expected format in the UI
+      return response.data
+        .map((job) => ({
+          id: job.job_id,
+          title: job.title,
+          company: job.company,
+          department: job.department || "General",
+          location:
+            job.location || (job.workstyle === "remote" ? "Remote" : "On-site"),
+          applicants: 0, // This would need additional API calls to count applicants
+          newApplicants: 0,
+          status: new Date(job.deadline) > new Date() ? "Active" : "Closed",
+          posted: getRelativeTime(job.created_at || new Date()),
+          description: job.description,
+        }))
+        .slice(0, limit);
+    },
+    staleTime: 2 * 60 * 1000, // 2 minutes
   });
 };
 
@@ -165,14 +162,14 @@ export const useDeleteJob = () => {
 
   return useMutation({
     mutationFn: async (jobId) => {
-      const token = getSessionToken();
-      if (!token) {
+      const sessionToken = getSessionToken();
+      if (!sessionToken) {
         throw new Error("Session token not found");
       }
 
       await axios.delete("http://localhost:8080/delete", {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${sessionToken}`,
         },
         data: { job_id: jobId },
       });
@@ -244,8 +241,8 @@ export const useJobDetails = (jobId) => {
   return useQuery({
     queryKey: ["jobDetails", jobId],
     queryFn: async () => {
-      const token = getSessionToken();
-      if (!token) {
+      const sessionToken = getSessionToken();
+      if (!sessionToken) {
         throw new Error("Session token not found");
       }
 
@@ -255,7 +252,7 @@ export const useJobDetails = (jobId) => {
         `http://localhost:8080/details?job=${jobId}`,
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${sessionToken}`,
           },
         }
       );
@@ -273,14 +270,14 @@ export const useUpdateJob = () => {
 
   return useMutation({
     mutationFn: async (jobData) => {
-      const token = getSessionToken();
-      if (!token) {
+      const sessionToken = getSessionToken();
+      if (!sessionToken) {
         throw new Error("Session token not found");
       }
 
       await axios.put("http://localhost:8080/update", jobData, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${sessionToken}`,
           "Content-Type": "application/json",
         },
       });

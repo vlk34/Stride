@@ -22,7 +22,7 @@ import {
 } from "../../hooks/tanstack/useBusinessDashboard";
 
 const ManageJobs = () => {
-  const [activeTab, setActiveTab] = useState("active");
+  const [activeTab, setActiveTab] = useState("all");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [jobToDelete, setJobToDelete] = useState(null);
   const [jobToDeleteTitle, setJobToDeleteTitle] = useState("");
@@ -70,7 +70,7 @@ const ManageJobs = () => {
     });
 
     setFilteredJobs(filtered);
-  }, [searchTerm, activeTab]);
+  }, [searchTerm, activeTab, jobs]);
 
   // Helper function to determine job status based on available data
   const determineJobStatus = (job) => {

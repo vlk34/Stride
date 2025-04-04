@@ -26,7 +26,7 @@ import {
 import { Link, useNavigate } from "react-router";
 import {
   useCompanyStats,
-  useCompanyJobs,
+  useRecentJobs,
   useRecentApplicants,
 } from "../../hooks/tanstack/useBusinessDashboard";
 
@@ -44,7 +44,7 @@ const BusinessDashboard = () => {
     data: jobsData,
     isLoading: jobsLoading,
     error: jobsError,
-  } = useCompanyJobs();
+  } = useRecentJobs();
   const {
     data: recentApplicants,
     isLoading: applicantsLoading,
@@ -369,7 +369,7 @@ const BusinessDashboard = () => {
             </Link>
           </div>
 
-          {isLoading ? (
+          {applicantsLoading ? (
             // Skeleton for recent applicants
             <div className="space-y-3 md:space-y-4">
               {Array(5)
@@ -403,6 +403,17 @@ const BusinessDashboard = () => {
                     </div>
                   </div>
                 ))}
+            </div>
+          ) : applicantsError ? (
+            // Error state for applicants
+            <div className="text-center py-10">
+              <AlertCircle className="w-12 h-12 text-red-300 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-600 mb-2">
+                Couldn't Load Applicants
+              </h3>
+              <p className="text-gray-500 mb-4">
+                There was an error loading recent applicants data.
+              </p>
             </div>
           ) : recentApplicants?.length === 0 ? (
             // No applicants message

@@ -15,6 +15,18 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 
+// Helper function to get the session token from cookie
+const getSessionToken = () => {
+  const cookies = document.cookie.split(";");
+  for (let i = 0; i < cookies.length; i++) {
+    const cookie = cookies[i].trim();
+    if (cookie.startsWith("__session=")) {
+      return cookie.substring("__session=".length, cookie.length);
+    }
+  }
+  return null;
+};
+
 const ApprovalsList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
@@ -51,10 +63,8 @@ const ApprovalsList = () => {
         ...companyDetails,
       };
 
-      // Navigate to review page
-      navigate(`/admin/review/business/${selectingCompanyId}`, {
-        state: { applicationData: detailedApplication },
-      });
+      // Navigate to review page with updated URL pattern
+      navigate(`/admin/approvals/${selectingCompanyId}`);
 
       // Reset the selecting state
       setSelectingCompanyId(null);
@@ -105,18 +115,6 @@ const ApprovalsList = () => {
 
   const toggleActionMenu = (appId) => {
     setActiveActionMenu(activeActionMenu === appId ? null : appId);
-  };
-
-  // Helper function to get session token
-  const getSessionToken = () => {
-    const cookies = document.cookie.split(";");
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i].trim();
-      if (cookie.startsWith("__session=")) {
-        return cookie.substring("__session=".length, cookie.length);
-      }
-    }
-    return null;
   };
 
   // Filter applications based on search term and status
