@@ -83,21 +83,30 @@ response body:
     "title": "example",
     "company": "example",
     "logo": 999,
-    "description": "lorem ipsum"
+    "description": "lorem ipsum",
+    "location": "",
+    "jobtype": "",
+    "workstyle": ""
     },
     {
     "job_id": 999,
     "title": "example",
     "company": "example",
     "logo": 999,
-    "description": "lorem ipsum"
+    "description": "lorem ipsum",
+    "location": "",
+    "jobtype": "",
+    "workstyle": ""
     },
     {
     "job_id": 999,
     "title": "example",
     "company": "example",
     "logo": 999,
-    "description": "lorem ipsum"
+    "description": "lorem ipsum",
+    "location": "",
+    "jobtype": "",
+    "workstyle": ""
     }
 ]
 
@@ -118,21 +127,30 @@ response body:
     "title": "example",
     "company": "example",
     "logo": 999,
-    "description": "lorem ipsum"
+    "description": "lorem ipsum",
+    "location": "",
+    "jobtype": "",
+    "workstyle": ""
     },
     {
     "job_id": 999,
     "title": "example",
     "company": "example",
     "logo": 999,
-    "description": "lorem ipsum"
+    "description": "lorem ipsum",
+    "location": "",
+    "jobtype": "",
+    "workstyle": ""
     },
     {
     "job_id": 999,
     "title": "example",
     "company": "example",
     "logo": 999,
-    "description": "lorem ipsum"
+    "description": "lorem ipsum",
+    "location": "",
+    "jobtype": "",
+    "workstyle": ""
     }
 ]
 
