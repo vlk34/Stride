@@ -51,6 +51,8 @@ public class GetUserInfo {
                 user.put("email", clerk_user.emailAddresses().get().getFirst().emailAddress());
             if (clerk_user.imageUrl().isPresent())
                 user.put("image", clerk_user.imageUrl().get());
+            if (clerk_user.publicMetadata().isPresent() && clerk_user.publicMetadata().get().get("role") != null)
+                user.put("role", clerk_user.publicMetadata().get().get("role"));
             if (clerk_user.id().isPresent())
                 users.put(clerk_user.id().get(), user);
         }
@@ -95,6 +97,8 @@ public class GetUserInfo {
                 user.put("image", clerk_user.imageUrl().get());
             if (clerk_user.id().isPresent())
                 user.put("user_id", clerk_user.id().get());
+            if (clerk_user.publicMetadata().isPresent() && clerk_user.publicMetadata().get().get("role") != null)
+                user.put("role", clerk_user.publicMetadata().get().get("role"));
             users.add(user);
         }
 

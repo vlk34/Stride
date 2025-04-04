@@ -321,19 +321,22 @@ response body:
         "user_id": "user_asdqwe",
         "name": "Sarah Johnson",
         "email": "example",
-        "image": "url"
+        "image": "url",
+        "role": ""
     },
     {
         "user_id": "user_asdqwe",
         "name": "Sarah Johnson",
         "email": "example",
-        "image": "url"
+        "image": "url",
+        "role": ""
     },
     {
         "user_id": "user_asdqwe",
         "name": "Sarah Johnson",
         "email": "example",
-        "image": "url"
+        "image": "url",
+        "role": ""
     }
 ]
 
