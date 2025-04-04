@@ -401,7 +401,7 @@ response body:
 image bytes
 (content-type header)
 
-GET /images/upload
+POST /images/upload
 Authorization: Bearer session_jwt_here
 request body:
 image bytes
@@ -412,7 +412,7 @@ response body:
 cv bytes
 (content-type header)
 
-GET /resume/upload
+POST /resume/upload
 Authorization: Bearer session_jwt_here
 request body:
 cv bytes
