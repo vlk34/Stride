@@ -2,13 +2,14 @@ import json
 import psycopg2
 from psycopg2.extras import execute_values
 import random
+from datetime import datetime, timedelta
 
 # Database connection parameters
 DB_PARAMS = {
     "host": "localhost",
     "database": "java project",
     "user": "postgres",
-    "password": "",
+    "password": "rootadmin1",  # Replace with your actual password
     "port": "5432"
 }
 
@@ -18,55 +19,78 @@ def load_json(file_path):
         return json.load(file)
 
 def transform_jobs_data(jobs_data):
-    """Transform jobs data to match database schema with random company IDs"""
+    """Transform jobs data to match database schema"""
     transformed_jobs = []
-    
+
     for job in jobs_data:
-        # Convert responsibilities array to text if it exists
         responsibilities = ""
-        if 'responsibilities' in job and isinstance(job['responsibilities'], list):
-            responsibilities = "\n- ".join(job.get('responsibilities', []))
+        if isinstance(job.get('responsibilities'), list):
+            responsibilities = "\n- ".join(job['responsibilities'])
             if responsibilities:
                 responsibilities = "- " + responsibilities
-        
-        # Assign random company_id between 1 and 100
-        company_id = random.randint(1, 100)
-            
+
+        qualifications = ""
+        if isinstance(job.get('qualifications'), list):
+            qualifications = "\n- ".join(job['qualifications'])
+            if qualifications:
+                qualifications = "- " + qualifications
+
         transformed_job = {
-            'company_id': company_id,
+            'company_id': random.randint(1, 100),
             'title': job.get('title', 'Unnamed Position'),
+            'department': job.get('department', 'General'),
             'job_location': job.get('location', ''),
-            'type': job.get('type', ''),
-            'overview': job.get('overview', ''),
+            'job_type': job.get('type', 'Full-time'),
+            'workstyle': job.get('workstyle', 'Hybrid'),
+            'skills': job.get('skills', []),
+            'languages': job.get('languages', []),
+            'experience': job.get('experience', 'Not specified'),
+            'education': job.get('education', 'Not specified'),
             'responsibilities': responsibilities,
+            'qualifications': qualifications,
+            'job_description': job.get('overview', ''),
+            'closes_at': datetime.now() + timedelta(days=random.randint(10, 60)),
+            'openings': job.get('openings', random.randint(1, 5))
         }
-        
+
         transformed_jobs.append(transformed_job)
-    
+
     return transformed_jobs
 
 def insert_jobs(conn, cursor, transformed_jobs):
     """Insert transformed jobs into the database"""
     insert_query = """
-    INSERT INTO jobs (company_id, title, job_location, type, overview, responsibilities)
+    INSERT INTO jobs (
+        company_id, title, department, job_location, job_type,
+        workstyle, skills, languages, experience, education,
+        responsibilities, qualifications, job_description,
+        closes_at, openings
+    )
     VALUES %s
     RETURNING job_id;
     """
-    
-    # Prepare data for batch insert
+
     job_data = [
         (
             job['company_id'],
             job['title'],
+            job['department'],
             job['job_location'],
-            job['type'],
-            job['overview'],
-            job['responsibilities']
+            job['job_type'],
+            job['workstyle'],
+            job['skills'],
+            job['languages'],
+            job['experience'],
+            job['education'],
+            job['responsibilities'],
+            job['qualifications'],
+            job['job_description'],
+            job['closes_at'],
+            job['openings']
         )
         for job in transformed_jobs
     ]
-    
-    # Execute batch insert
+
     try:
         execute_values(cursor, insert_query, job_data)
         inserted_ids = [row[0] for row in cursor.fetchall()]
@@ -78,24 +102,20 @@ def insert_jobs(conn, cursor, transformed_jobs):
         return []
 
 def main():
-    # Load jobs data from JSON file
     json_file_path = "c:\\Users\\mekin\\OneDrive\\Desktop\\java\\cmpe356\\backend\\ML\\jobs.json"
     jobs_data = load_json(json_file_path)
     print(f"Loaded {len(jobs_data)} jobs from JSON file")
-    
-    # Connect to the database
+
     conn = psycopg2.connect(**DB_PARAMS)
     cursor = conn.cursor()
-    
+
     try:
-        # Transform jobs data with random company IDs
         transformed_jobs = transform_jobs_data(jobs_data)
         print(f"Transformed {len(transformed_jobs)} jobs")
-        
-        # Insert jobs
+
         inserted_job_ids = insert_jobs(conn, cursor, transformed_jobs)
         print(f"Successfully inserted {len(inserted_job_ids)} jobs")
-        
+
     except Exception as e:
         print(f"Error: {e}")
     finally:

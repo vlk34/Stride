@@ -13,6 +13,8 @@ from langchain import hub
 from langchain_core.messages import HumanMessage
 from langgraph.prebuilt import create_react_agent
 import json
+import ast
+
 
 
 
@@ -214,17 +216,43 @@ def agent_invoke(user_input: str):
         print("\n\n")
         print(sql_query)
         print(result)
+
+        columns = [
+            "title",
+            "job_location",
+            "job_type",
+            "workstyle",
+            "experience",
+            "education",
+            "skills",
+            "languages",
+            "job_description"
+        ]
+
+
+        # If 'result' is a string, convert it to a list of tuples
+        if isinstance(result, str):
+            result = ast.literal_eval(result)
+
+
+
+
+
+        # Convert each tuple row into a dictionary
+        json_ready_results = [dict(zip(columns, row)) for row in result]
+
     
         return {
             "sql_query": sql_query,
-            "result": result
+            "result": json_ready_results
         }
         
     except (KeyError, IndexError, json.JSONDecodeError) as e:
         print(f"An error occurred while extracting the SQL query: {e}")
+    return None
 
 
 if __name__ == "__main__":
-    user_input = "i am looking for a software engineer position with experience in Python and machine learning"
+    user_input = "engineering"
     # generate_sql_result(user_input)
     agent_invoke(user_input)

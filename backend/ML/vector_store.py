@@ -39,107 +39,66 @@ vector_store = FAISS(
 # Example Documents with structured metadata and associated SQL queries for job-related context
 documents = [
     Document(
-        page_content="I'm a software developer with over 3 years of experience in Node.js and React. I'm passionate about building responsive web applications and prefer working in collaborative teams.",
+        page_content="I'm a software engineer with 2+ years of experience in Python and Django. I'm looking for a hybrid full-time position in San Francisco where I can contribute to backend development and RESTful APIs.",
         metadata={
-            "id": "1",
-            "location": "New York",
-            "field": "software",
-            "type": "full-time",
-            "sql_query": "SELECT * FROM jobs WHERE title ILIKE '%software developer%' AND job_location = 'New York' AND type = 'full-time' AND overview ILIKE '%Node.js%' AND overview ILIKE '%React%';"
+            "sql_query": "SELECT * FROM jobs WHERE title ILIKE '%software engineer%' AND job_location ILIKE '%San Francisco%' AND job_type = 'Full-time' AND workstyle = 'Hybrid' AND ARRAY['Python', 'Django', 'REST APIs'] <@ skills;"
         }
     ),
     Document(
-        page_content="I'm a data scientist specializing in natural language processing and deep learning. I enjoy working remotely and am seeking flexible working hours to balance my research projects.",
+        page_content="I'm a civil engineer with over 3 years of experience in AutoCAD and project management. I'm seeking a full-time on-site role in Austin where I can work on infrastructure design and inspections.",
         metadata={
-            "id": "2",
-            "location": "Remote",
-            "field": "AI",
-            "type": "full-time",
-            "sql_query": "SELECT * FROM jobs WHERE title ILIKE '%data scientist%' AND type = 'full-time' AND job_location = 'Remote' AND overview ILIKE '%natural language processing%' AND overview ILIKE '%deep learning%';"
+            "sql_query": "SELECT * FROM jobs WHERE title ILIKE '%civil engineer%' AND job_location ILIKE '%Austin%' AND job_type = 'Full-time' AND workstyle = 'On-site' AND ARRAY['AutoCAD', 'Project Management'] <@ skills;"
         }
     ),
     Document(
-        page_content="As an HR manager with 5+ years of experience, I have successfully managed recruitment and employee relations. I'm looking to continue my career in a vibrant office environment in San Francisco.",
+        page_content="I'm a data engineer who enjoys building data pipelines with SQL and Airflow. I prefer remote contract roles where I can support analytics and machine learning teams.",
         metadata={
-            "id": "3",
-            "location": "San Francisco",
-            "field": "HR",
-            "type": "on-site",
-            "sql_query": "SELECT * FROM jobs WHERE title ILIKE '%HR manager%' AND type = 'on-site' AND job_location = 'San Francisco';"
+            "sql_query": "SELECT * FROM jobs WHERE title ILIKE '%data engineer%' AND job_type = 'Contract' AND workstyle = 'Remote' AND ARRAY['SQL', 'ETL', 'Airflow'] <@ skills;"
         }
     ),
     Document(
-        page_content="I'm a marketing coordinator skilled in social media management and content creation. I prefer part-time opportunities where I can contribute to innovative online campaigns.",
+        page_content="I'm a mechanical engineer experienced in CAD and prototyping. I'm interested in a full-time on-site role in Detroit focused on designing components for automotive R&D.",
         metadata={
-            "id": "4",
-            "location": "Chicago",
-            "field": "Marketing",
-            "type": "part-time",
-            "sql_query": "SELECT * FROM jobs WHERE title ILIKE '%marketing coordinator%' AND type = 'part-time' AND job_location = 'Chicago' AND overview ILIKE '%social media%';"
+            "sql_query": "SELECT * FROM jobs WHERE title ILIKE '%mechanical engineer%' AND job_location ILIKE '%Detroit%' AND job_type = 'Full-time' AND workstyle = 'On-site' AND ARRAY['CAD', 'Prototyping'] <@ skills;"
         }
     ),
     Document(
-        page_content="As a financial analyst based in London, my strengths include advanced Excel skills and comprehensive knowledge of financial markets. I'm seeking a full-time role to leverage my analytical abilities.",
+        page_content="As an electrical engineer with 3+ years of experience in circuit design and embedded systems, I'm looking for a hybrid role in Boston to contribute to high-tech medical devices.",
         metadata={
-            "id": "5",
-            "location": "London",
-            "field": "Finance",
-            "type": "full-time",
-            "sql_query": "SELECT * FROM jobs WHERE title ILIKE '%financial analyst%' AND type = 'full-time' AND job_location = 'London' AND overview ILIKE '%Excel%';"
+            "sql_query": "SELECT * FROM jobs WHERE title ILIKE '%electrical engineer%' AND job_location ILIKE '%Boston%' AND job_type = 'Full-time' AND workstyle = 'Hybrid' AND ARRAY['Circuit Design', 'PCB Layout'] <@ skills;"
         }
     ),
     Document(
-        page_content="I'm a cybersecurity specialist with extensive experience in protecting digital assets and conducting penetration testing. I prefer remote work opportunities that offer contract-based employment.",
+        page_content="I'm a marketing manager with over 5 years of experience in SEO and brand strategy. I'm looking for a hybrid full-time opportunity in New York to lead digital campaigns.",
         metadata={
-            "id": "6",
-            "location": "Remote",
-            "field": "Cybersecurity",
-            "type": "contract",
-            "sql_query": "SELECT * FROM jobs WHERE title ILIKE '%cybersecurity%' AND type = 'contract' AND job_location = 'Remote' AND overview ILIKE '%penetration testing%';"
+            "sql_query": "SELECT * FROM jobs WHERE title ILIKE '%marketing manager%' AND job_location ILIKE '%New York%' AND job_type = 'Full-time' AND workstyle = 'Hybrid' AND ARRAY['SEO', 'Brand Strategy'] <@ skills;"
         }
     ),
     Document(
-        page_content="I am a UI/UX designer passionate about creating user-centered designs and proficient with Figma. I'm looking to join a creative design team in Austin for a full-time position.",
+        page_content="I’m a creative graphic designer proficient in Photoshop, Illustrator, and Figma. I’m seeking a part-time remote position where I can help shape brand visuals and social content.",
         metadata={
-            "id": "7",
-            "location": "Austin",
-            "field": "Design",
-            "type": "full-time",
-            "sql_query": "SELECT * FROM jobs WHERE title ILIKE '%UI/UX designer%' AND type = 'full-time' AND job_location = 'Austin' AND overview ILIKE '%Figma%';"
+            "sql_query": "SELECT * FROM jobs WHERE title ILIKE '%graphic designer%' AND job_type = 'Part-time' AND workstyle = 'Remote' AND ARRAY['Photoshop', 'Illustrator', 'Figma'] <@ skills;"
         }
     ),
     Document(
-        page_content="As a database administrator, I specialize in PostgreSQL and Elasticsearch, ensuring databases run efficiently and securely. I prefer full-time remote positions that offer technical challenges.",
+        page_content="I'm a bilingual customer support specialist fluent in English and Spanish. I’m looking for a remote full-time role where I can resolve customer inquiries using tools like Zendesk.",
         metadata={
-            "id": "8",
-            "location": "Remote",
-            "field": "Database",
-            "type": "full-time",
-            "sql_query": "SELECT * FROM jobs WHERE title ILIKE '%database administrator%' AND type = 'full-time' AND job_location = 'Remote' AND (overview ILIKE '%PostgreSQL%' OR overview ILIKE '%Elasticsearch%');"
+            "sql_query": "SELECT * FROM jobs WHERE title ILIKE '%customer support%' AND job_type = 'Full-time' AND workstyle = 'Remote' AND ARRAY['English', 'Spanish'] <@ languages;"
         }
     ),
     Document(
-        page_content="I am a cybersecurity expert experienced in penetration testing and security assessments. I'm seeking hybrid or remote roles where I can apply my expertise on flexible, contract terms.",
+        page_content="As a UX researcher with 3+ years of experience in user interviews and persona building, I’m looking for a full-time hybrid role in Seattle to help improve product usability.",
         metadata={
-            "id": "9",
-            "location": "Hybrid",
-            "field": "Cybersecurity",
-            "type": "contract",
-            "sql_query": "SELECT * FROM jobs WHERE title ILIKE '%cybersecurity%' AND type = 'contract' AND (job_location = 'Hybrid' OR job_location = 'Remote') AND overview ILIKE '%penetration testing%';"
+            "sql_query": "SELECT * FROM jobs WHERE title ILIKE '%UX researcher%' AND job_location ILIKE '%Seattle%' AND job_type = 'Full-time' AND workstyle = 'Hybrid' AND ARRAY['User Interviews', 'Persona Building'] <@ skills;"
         }
     ),
     Document(
-        page_content="I'm a business student looking for an analyst internship opportunity in Toronto. I'm eager to apply my academic knowledge to real-world business challenges and learn in a professional setting.",
+        page_content="I'm a data scientist with a master's degree and 3+ years of experience in machine learning and Python. I'm looking for a remote full-time job where I can build predictive models.",
         metadata={
-            "id": "10",
-            "location": "Toronto",
-            "field": "Business",
-            "type": "internship",
-            "sql_query": "SELECT * FROM jobs WHERE title ILIKE '%analyst intern%' AND type = 'internship' AND job_location = 'Toronto';"
+            "sql_query": "SELECT * FROM jobs WHERE title ILIKE '%data scientist%' AND job_type = 'Full-time' AND workstyle = 'Remote' AND ARRAY['Python', 'Machine Learning'] <@ skills;"
         }
     ),
 ]
-
 
 vector_store.add_documents(documents=documents,)
 
