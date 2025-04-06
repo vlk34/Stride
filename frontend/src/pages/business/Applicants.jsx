@@ -12,6 +12,10 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { Link } from "react-router";
+import {
+  useCompanyJobs,
+  useRecentApplicants,
+} from "../../hooks/tanstack/useBusinessDashboard";
 
 const Applicants = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -19,14 +23,27 @@ const Applicants = () => {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState(null);
 
-  // Simulate data fetching
+  // Use the hooks to fetch real data when available
+  const {
+    data: realJobs,
+    isLoading: jobsLoading,
+    error: jobsError,
+  } = useCompanyJobs();
+
+  const {
+    data: realRecentApplicants,
+    isLoading: applicantsLoading,
+    error: applicantsError,
+  } = useRecentApplicants();
+
+  // Simulate data fetching and merge with real data when available
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       // Simulate API call with 500ms delay
       await new Promise((resolve) => setTimeout(resolve, 500));
 
-      // Dummy data - replace with real data from your backend
+      // Dummy data - preserve for UI demo purposes
       const jobListings = [
         {
           id: 1,
@@ -85,6 +102,21 @@ const Applicants = () => {
         },
       ];
 
+      // Use real jobs data if available, otherwise use dummy data
+      const finalJobListings = realJobs
+        ? realJobs.map((job) => ({
+            id: job.job_id,
+            title: job.title,
+            department: job.department || "General",
+            location: job.location || job.workstyle || "On-site",
+            applicants: 24, // Keep dummy count for UI demo
+            newApplicants: 5, // Keep dummy count for UI demo
+            status: new Date(job.deadline) > new Date() ? "Active" : "Closed",
+            posted: "2 days ago", // Keep dummy text for UI demo
+            topMatch: 92, // Keep dummy percentage for UI demo
+          }))
+        : jobListings;
+
       // Recent applicants across all jobs
       const recentApplicants = [
         {
@@ -113,31 +145,52 @@ const Applicants = () => {
         },
       ];
 
+      // Use real applicants data if available, otherwise use dummy data
+      const finalRecentApplicants =
+        realRecentApplicants && realRecentApplicants.length > 0
+          ? realRecentApplicants.map((applicant) => ({
+              id: applicant.id || 1,
+              name: applicant.name || "Unknown Applicant",
+              jobTitle: "Applied Position", // We don't have this info in real data
+              status: applicant.status || "New",
+              applied: applicant.applied || "Recently",
+              match_score: applicant.match_score || 85,
+            }))
+          : recentApplicants;
+
       // Stats for the dashboard
       const stats = [
         {
           title: "Total Applicants",
-          value: jobListings.reduce((sum, job) => sum + job.applicants, 0),
+          value: finalJobListings.reduce((sum, job) => sum + job.applicants, 0),
           icon: <Users className="w-6 h-6 text-blue-600" />,
         },
         {
           title: "New This Week",
-          value: jobListings.reduce((sum, job) => sum + job.newApplicants, 0),
+          value: finalJobListings.reduce(
+            (sum, job) => sum + job.newApplicants,
+            0
+          ),
           icon: <TrendingUp className="w-6 h-6 text-green-600" />,
         },
         {
           title: "Active Jobs",
-          value: jobListings.filter((job) => job.status === "Active").length,
+          value: finalJobListings.filter((job) => job.status === "Active")
+            .length,
           icon: <Briefcase className="w-6 h-6 text-purple-600" />,
         },
       ];
 
-      setData({ jobListings, recentApplicants, stats });
+      setData({
+        jobListings: finalJobListings,
+        recentApplicants: finalRecentApplicants,
+        stats,
+      });
       setLoading(false);
     };
 
     fetchData();
-  }, []);
+  }, [realJobs, realRecentApplicants]);
 
   // Filter job listings based on search term and status
   const filteredJobs = !loading
@@ -152,6 +205,30 @@ const Applicants = () => {
         return matchesSearch && matchesStatus;
       })
     : [];
+
+  // Check if there was an error in fetching real data
+  const hasError = jobsError || applicantsError;
+  if (hasError) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+          <h2 className="text-lg font-semibold text-red-800 mb-2">
+            Error Loading Data
+          </h2>
+          <p className="text-red-600 mb-4">
+            {(jobsError || applicantsError).message ||
+              "There was an error loading your data. Please try again."}
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">

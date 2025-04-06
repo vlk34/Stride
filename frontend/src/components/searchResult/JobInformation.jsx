@@ -181,7 +181,7 @@ const JobInformation = ({ job }) => {
   };
 
   const handleApplicationSubmit = (applicationData) => {
-    applyJobMutation.mutate(displayJob.job_id, {
+    applyJobMutation.mutate(applicationData, {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["appliedJobs"] });
         setIsModalOpen(false);

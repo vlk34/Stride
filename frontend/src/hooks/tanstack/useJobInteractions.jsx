@@ -78,16 +78,18 @@ export const useApplyToJob = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (jobId) => {
-      await axios.post(
-        "http://localhost:8080/apply",
-        { job_id: jobId },
-        {
-          headers: {
-            Authorization: `Bearer ${getSessionToken()}`,
-          },
-        }
-      );
+    mutationFn: async (applicationData) => {
+      // Extract just the job_id and cv properties needed by the API
+      const payload = {
+        job_id: applicationData.job_id,
+        cv: applicationData.cv, // This is the CV ID from the resume upload
+      };
+
+      await axios.post("http://localhost:8080/apply", payload, {
+        headers: {
+          Authorization: `Bearer ${getSessionToken()}`,
+        },
+      });
     },
     onSuccess: () => {
       // Invalidate applied jobs query to refresh data
