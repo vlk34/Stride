@@ -6,12 +6,14 @@ from psycopg2.extras import RealDictCursor
 import torch
 from transformers import AutoModel, AutoTokenizer
 from sklearn.metrics.pairwise import cosine_similarity
-from fastapi import FastAPI
+from fastapi import FastAPI, APIRouter
 from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
 
 
+router = APIRouter()
 
-app = FastAPI()
+
 
 
 DB_HOST = "localhost"
@@ -74,7 +76,7 @@ def calculate_match(resume_text, job_description_text):
 class Application_id(BaseModel):
     application_id: int
 
-@app.post("/match-resume-job")
+@router.post("/match-resume-job")
 async def match_resume_job(request: Application_id):
     """Match a resume with a job description based on application ID."""
     conn = get_db_connection()
