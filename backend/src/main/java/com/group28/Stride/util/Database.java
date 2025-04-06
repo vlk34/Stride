@@ -773,7 +773,7 @@ public class Database {
             res.close();
             statement.close();
 
-            String query = "SELECT user_id, application_date FROM applications WHERE 1=1";
+            String query = "SELECT user_id, application_date FROM applications WHERE 1=2";
             List<Integer> params = new ArrayList<>();
 
             PreparedStatement job_statement = connection.prepareStatement("SELECT job_id FROM jobs WHERE company_id = ?");
