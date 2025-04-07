@@ -101,4 +101,17 @@ public class AdminController {
 
         return Database.allJobs();
     }
+
+    @CrossOrigin
+    @GetMapping("/adminstats")
+    public Map<String, Integer> adminstats(@RequestHeader("Authorization") String auth) {
+        Claims user_claims = Authentication.getClaims(auth);
+        if (user_claims == null)
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+        String role = (String) user_claims.get("metadata", HashMap.class).get("role");
+        if (!"admin".equalsIgnoreCase(role))
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+
+        return Database.adminstats();
+    }
 }

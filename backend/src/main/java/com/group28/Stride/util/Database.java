@@ -521,7 +521,9 @@ public class Database {
                 PreparedStatement st = connection.prepareStatement("SELECT COUNT(1) FROM applications WHERE job_id = ?");
                 st.setInt(1, job_res.getInt("job_id"));
                 ResultSet rs = st.executeQuery();
-                map.put("applicant_count", res.getInt(1));
+                if (rs.next()) {
+                    map.put("applicant_count", rs.getInt(1));
+                }
                 rs.close();
                 st.close();
                 list.add(map);
@@ -955,6 +957,51 @@ public class Database {
             }
             applicant_res.close();
             applicant_statement.close();
+            return map;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    public static Map<String, Integer> adminstats() {
+        try {
+            PreparedStatement statement = connection.prepareStatement("SELECT COUNT(1) FROM companies");
+            ResultSet res = statement.executeQuery();
+            int company_count = 0;
+            if (res.next()) {
+                company_count = res.getInt(1);
+            }
+            res.close();
+            statement.close();
+
+            PreparedStatement job_statement = connection.prepareStatement("SELECT COUNT(1) FROM jobs");
+            ResultSet job_res = job_statement.executeQuery();
+            int job_count = 0;
+            if (job_res.next()) {
+                job_count = job_res.getInt(1);
+            }
+            job_res.close();
+            job_statement.close();
+
+            PreparedStatement business_statement = connection.prepareStatement("SELECT COUNT(1) FROM jobs");
+            ResultSet business_res = business_statement.executeQuery();
+            int business_pending = 0;
+            if (business_res.next()) {
+                business_pending = business_res.getInt(1);
+            }
+            business_res.close();
+            business_statement.close();
+
+            Map<String, Integer> map = new HashMap<>();
+            int size = 0;
+            List<Map<String, Object>> users = GetUserInfo.users();
+            if (users != null)
+                size = users.size();
+            map.put("user_count", size);
+            map.put("company_count", company_count);
+            map.put("job_count", job_count);
+            map.put("business_pending", business_pending);
             return map;
         } catch (Exception ex) {
             ex.printStackTrace();
