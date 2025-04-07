@@ -1,132 +1,118 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useParams, Link } from "react-router";
 import {
   Users,
   Search,
-  Filter,
-  ChevronDown,
-  Brain,
-  FileText,
-  Mail,
-  Phone,
+  Briefcase,
   Calendar,
   Star,
-  MessageSquare,
-  ArrowUpRight,
+  Mail,
+  Phone,
   Download,
   ArrowLeft,
-  Briefcase,
 } from "lucide-react";
+import {
+  useJobDetails,
+  useJobApplicants,
+  getRelativeTime,
+} from "../../hooks/tanstack/useBusinessDashboard";
 
 const JobApplicants = () => {
   const { jobId } = useParams();
   const [activeTab, setActiveTab] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
-  const [jobDetails, setJobDetails] = useState(null);
 
-  // Fetch job details and applicants - replace with real API call
-  useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      setJobDetails({
-        id: jobId,
-        title: "Senior Frontend Developer",
-        department: "Engineering",
-        location: "Remote",
-        applicantsCount: 24,
-        status: "Active",
-        posted: "2023-09-15",
-        expires: "2023-10-15",
-      });
-    }, 500);
-  }, [jobId]);
+  // Fetch job details using TanStack Query
+  const {
+    data: jobDetails,
+    isLoading: jobDetailsLoading,
+    error: jobDetailsError,
+  } = useJobDetails(jobId);
 
-  // Dummy data - replace with real data
-  const topApplicants = [
-    {
-      id: 1,
-      name: "Sarah Johnson",
-      role: "Senior Frontend Developer",
-      status: "New",
-      applied: "2 hours ago",
-      email: "sarah.j@example.com",
-      phone: "+1 234 567 8900",
-      experience: "5 years",
-      match_score: 92,
-      skills: ["React", "TypeScript", "Node.js"],
-      hasAiAnalysis: true,
-    },
-    {
-      id: 2,
-      name: "Michael Chen",
-      role: "Senior Frontend Developer",
-      status: "Reviewed",
-      applied: "1 day ago",
-      email: "m.chen@example.com",
-      phone: "+1 234 567 8901",
-      experience: "6 years",
-      match_score: 89,
-      skills: ["React", "Vue.js", "JavaScript"],
-      hasAiAnalysis: true,
-    },
-  ];
+  // Fetch job applicants using TanStack Query
+  const {
+    data: applicants,
+    isLoading: applicantsLoading,
+    error: applicantsError,
+  } = useJobApplicants(jobId);
 
-  const otherApplicants = [
-    {
-      id: 3,
-      name: "Emily Davis",
-      role: "Senior Frontend Developer",
-      status: "New",
-      applied: "3 days ago",
-      match_score: 75,
-      email: "e.davis@example.com",
-      hasAiAnalysis: true,
-    },
-    {
-      id: 4,
-      name: "James Wilson",
-      role: "Senior Frontend Developer",
-      status: "New",
-      applied: "3 days ago",
-      match_score: 72,
-      email: "j.wilson@example.com",
-      hasAiAnalysis: true,
-    },
-    {
-      id: 5,
-      name: "Olivia Martinez",
-      role: "Senior Frontend Developer",
-      status: "New",
-      applied: "4 days ago",
-      match_score: 68,
-      email: "o.martinez@example.com",
-      hasAiAnalysis: true,
-    },
-  ];
-
+  // Simplified status tabs for filtering - only All, New and Reviewed
   const statusTabs = [
     { id: "all", label: "All" },
     { id: "new", label: "New" },
     { id: "reviewed", label: "Reviewed" },
-    { id: "shortlisted", label: "Shortlisted" },
-    { id: "offered", label: "Offered" },
-    { id: "rejected", label: "Rejected" },
   ];
 
-  // Filter applicants based on search term and status
-  const filteredTopApplicants = topApplicants.filter(
-    (applicant) =>
-      applicant.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-      (activeTab === "all" || applicant.status.toLowerCase() === activeTab)
-  );
+  // Loading or error states
+  const isLoading = jobDetailsLoading || applicantsLoading;
+  const hasError = jobDetailsError || applicantsError;
 
-  const filteredOtherApplicants = otherApplicants.filter(
-    (applicant) =>
-      applicant.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-      (activeTab === "all" || applicant.status.toLowerCase() === activeTab)
-  );
+  if (hasError) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+          <h2 className="text-lg font-semibold text-red-800 mb-2">
+            Error Loading Data
+          </h2>
+          <p className="text-red-600 mb-4">
+            {(jobDetailsError || applicantsError)?.message ||
+              "There was an error loading job data. Please try again."}
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
-  if (!jobDetails) {
+  // Process applicants data when available
+  const filteredApplicants =
+    !isLoading && applicants
+      ? applicants.filter((applicant) => {
+          const matchesSearch = applicant.name
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase());
+          let matchesStatus = true;
+
+          if (activeTab === "new") {
+            matchesStatus = !applicant.status || applicant.status === "New";
+          } else if (activeTab === "reviewed") {
+            matchesStatus = applicant.status === "Reviewed";
+          }
+
+          return matchesSearch && matchesStatus;
+        })
+      : [];
+
+  // Find top matches (applicants with highest match score)
+  const topApplicants =
+    !isLoading && applicants
+      ? [...filteredApplicants]
+          .sort((a, b) => (b.match_score || 0) - (a.match_score || 0))
+          .slice(0, 3)
+      : [];
+
+  // Prepare job display data
+  const jobDisplayData = jobDetails
+    ? {
+        title: jobDetails.title || "Job Title",
+        department: jobDetails.department || "Department",
+        location: jobDetails.job_location || jobDetails.workstyle || "Location",
+        applicantsCount: applicants?.length || 0,
+        status:
+          new Date(jobDetails.closes_at || jobDetails.deadline) > new Date()
+            ? "Active"
+            : "Closed",
+        posted: getRelativeTime(jobDetails.created_at),
+        deadline: getRelativeTime(jobDetails.closes_at || jobDetails.deadline),
+      }
+    : null;
+
+  if (isLoading) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Static back button - no skeleton needed */}
@@ -154,7 +140,7 @@ const JobApplicants = () => {
               </div>
               <div className="h-10 w-px bg-gray-200"></div>
               <Link
-                to="/result"
+                to="/jobs"
                 className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50"
               >
                 View Job Post
@@ -192,84 +178,13 @@ const JobApplicants = () => {
             <button className="px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap text-gray-600 hover:bg-gray-100">
               Reviewed
             </button>
-            <button className="px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap text-gray-600 hover:bg-gray-100">
-              Shortlisted
-            </button>
-            <button className="px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap text-gray-600 hover:bg-gray-100">
-              Offered
-            </button>
-            <button className="px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap text-gray-600 hover:bg-gray-100">
-              Rejected
-            </button>
           </div>
         </div>
 
-        {/* Top matches section */}
-        <div className="mb-8">
-          <div className="flex items-center gap-2 mb-4">
-            <Star className="w-5 h-5 text-yellow-500" />
-            <h2 className="text-xl font-semibold text-gray-900">Top Matches</h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {[1, 2].map((i) => (
-              <div
-                key={i}
-                className="bg-white rounded-xl border border-gray-200 p-6"
-              >
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <div className="h-5 w-32 bg-gray-200 rounded animate-pulse mb-2"></div>
-                    <div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
-                  </div>
-                  <div className="flex flex-col items-end">
-                    <div className="h-8 w-16 bg-gray-200 rounded animate-pulse mb-1"></div>
-                    <div className="text-xs text-purple-600">match score</div>
-                  </div>
-                </div>
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {[1, 2, 3].map((j) => (
-                    <div
-                      key={j}
-                      className="h-6 w-16 bg-gray-200 rounded-full animate-pulse"
-                    ></div>
-                  ))}
-                </div>
-                <div className="space-y-2 mb-4">
-                  <div className="flex items-center">
-                    <Mail className="w-4 h-4 mr-2 text-gray-400" />
-                    <div className="h-4 w-40 bg-gray-200 rounded animate-pulse"></div>
-                  </div>
-                  <div className="flex items-center">
-                    <Phone className="w-4 h-4 mr-2 text-gray-400" />
-                    <div className="h-4 w-32 bg-gray-200 rounded animate-pulse"></div>
-                  </div>
-                  <div className="flex items-center">
-                    <Calendar className="w-4 h-4 mr-2 text-gray-400" />
-                    <div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <div className="flex-1 px-3 py-2 bg-blue-600 text-white rounded-lg text-sm flex justify-center items-center opacity-70">
-                    Review Application
-                  </div>
-                  <button
-                    disabled
-                    className="px-3 py-2 bg-gray-100 text-gray-400 rounded-lg text-sm"
-                  >
-                    <Download className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* All applicants section */}
+        {/* Loading skeletons for applicants */}
         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
           <div className="p-4 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900">
-              All Applicants
-            </h2>
+            <h2 className="text-lg font-semibold text-gray-900">Applicants</h2>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -338,31 +253,31 @@ const JobApplicants = () => {
           <div>
             <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
               <Briefcase className="w-6 h-6 text-blue-600" />
-              {jobDetails.title}
+              {jobDisplayData.title}
             </h1>
             <p className="text-gray-600">
-              {jobDetails.department} • {jobDetails.location} •
+              {jobDisplayData.department} • {jobDisplayData.location} •
               <span
                 className={`ml-2 ${
-                  jobDetails.status === "Active"
+                  jobDisplayData.status === "Active"
                     ? "text-green-600"
                     : "text-gray-600"
                 }`}
               >
-                {jobDetails.status}
+                {jobDisplayData.status}
               </span>
             </p>
           </div>
           <div className="flex items-center gap-4">
             <div className="text-center">
               <div className="text-2xl font-bold text-gray-900">
-                {jobDetails.applicantsCount}
+                {jobDisplayData.applicantsCount}
               </div>
               <div className="text-sm text-gray-600">Applicants</div>
             </div>
             <div className="h-10 w-px bg-gray-200"></div>
             <Link
-              to="/result"
+              to={`/jobs/${jobDetails.job_id}`}
               className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50"
             >
               View Job Post
@@ -371,7 +286,7 @@ const JobApplicants = () => {
         </div>
       </div>
 
-      {/* Filters and Search */}
+      {/* Search box AND status tabs in the same container */}
       <div className="bg-white rounded-xl border border-gray-200 p-4 mb-6">
         <div className="flex flex-col md:flex-row gap-4">
           {/* Search */}
@@ -387,11 +302,9 @@ const JobApplicants = () => {
               />
             </div>
           </div>
-
-          {/* Additional filters could go here */}
         </div>
 
-        {/* Status Tabs */}
+        {/* Status Tabs - INSIDE the white container with simplified options */}
         <div className="flex gap-2 mt-4 overflow-x-auto">
           {statusTabs.map((tab) => (
             <button
@@ -409,44 +322,47 @@ const JobApplicants = () => {
         </div>
       </div>
 
-      {/* Top Matches Section */}
-      {filteredTopApplicants.length > 0 && (
-        <div className="mb-8">
-          <div className="flex items-center gap-2 mb-4">
-            <Star className="w-5 h-5 text-yellow-500" />
-            <h2 className="text-xl font-semibold text-gray-900">Top Matches</h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {filteredTopApplicants.map((applicant) => (
+      {/* Top Applicants Cards */}
+      {topApplicants.length > 0 && (
+        <div className="mb-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            Top Matches
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {topApplicants.map((applicant) => (
               <div
-                key={applicant.id}
-                className="bg-white rounded-xl border border-gray-200 p-6 hover:border-blue-500 transition-colors"
+                key={applicant.user_id}
+                className="bg-white rounded-xl border border-gray-200 p-4 hover:border-blue-500 transition-colors"
               >
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <h3 className="font-semibold text-gray-900">
-                      {applicant.name}
-                    </h3>
-                    <p className="text-sm text-gray-600">{applicant.role}</p>
-                  </div>
-                  <div className="flex flex-col items-end">
-                    <div className="text-2xl font-bold text-purple-700">
-                      {applicant.match_score}%
+                <div className="flex justify-between items-start mb-3">
+                  <div className="flex items-center">
+                    <img
+                      src={
+                        applicant.image ||
+                        "https://via.placeholder.com/150?text=Profile"
+                      }
+                      alt={applicant.name}
+                      className="w-10 h-10 rounded-full object-cover mr-3 border border-gray-200"
+                      onError={(e) => {
+                        e.target.src =
+                          "https://via.placeholder.com/150?text=Profile";
+                      }}
+                    />
+                    <div>
+                      <h3 className="font-medium text-gray-900">
+                        {applicant.name}
+                      </h3>
+                      <p className="text-sm text-gray-600">
+                        {applicant.experience_time}
+                      </p>
                     </div>
-                    <div className="text-xs text-purple-600">match score</div>
                   </div>
-                </div>
-
-                {/* Skills */}
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {applicant.skills.map((skill, index) => (
-                    <span
-                      key={index}
-                      className="px-2 py-1 bg-blue-50 text-blue-700 rounded-full text-xs"
-                    >
-                      {skill}
-                    </span>
-                  ))}
+                  <div className="text-center ml-4">
+                    <div className="text-lg font-bold text-purple-700">
+                      {applicant.match_score || 85}%
+                    </div>
+                    <div className="text-xs text-purple-600">match</div>
+                  </div>
                 </div>
 
                 <div className="space-y-2 mb-4">
@@ -456,24 +372,29 @@ const JobApplicants = () => {
                   </div>
                   <div className="flex items-center text-sm text-gray-600">
                     <Phone className="w-4 h-4 mr-2" />
-                    {applicant.phone}
+                    {applicant.phone || "No phone provided"}
                   </div>
                   <div className="flex items-center text-sm text-gray-600">
                     <Calendar className="w-4 h-4 mr-2" />
-                    Applied {applicant.applied}
+                    Applied {getRelativeTime(applicant.applied_at)}
                   </div>
                 </div>
 
                 <div className="flex gap-2">
                   <Link
-                    to={`/business/review-applicant/${applicant.id}?jobId=${jobId}`}
+                    to={`/business/review-applicant/${applicant.user_id}?jobId=${jobId}`}
                     className="flex-1 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
                   >
                     Review Application
                   </Link>
-                  <button className="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm">
+                  <a
+                    href={`/resume/${applicant.cv}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm"
+                  >
                     <Download className="w-4 h-4" />
-                  </button>
+                  </a>
                 </div>
               </div>
             ))}
@@ -488,10 +409,8 @@ const JobApplicants = () => {
             All Applicants
           </h2>
         </div>
-
-        {filteredTopApplicants.length === 0 &&
-        filteredOtherApplicants.length === 0 ? (
-          <div className="py-12 text-center">
+        {filteredApplicants.length === 0 ? (
+          <div className="p-8 text-center">
             <Users className="w-12 h-12 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-1">
               No applicants found
@@ -499,7 +418,7 @@ const JobApplicants = () => {
             <p className="text-gray-500">
               {searchTerm
                 ? `No applicants matching "${searchTerm}"`
-                : "No applicants for this job yet"}
+                : "There are no applicants for this job yet."}
             </p>
           </div>
         ) : (
@@ -525,49 +444,61 @@ const JobApplicants = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {[...filteredTopApplicants, ...filteredOtherApplicants].map(
-                  (applicant) => (
-                    <tr key={applicant.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="font-medium text-gray-900">
-                          {applicant.name}
+                {filteredApplicants.map((applicant) => (
+                  <tr key={applicant.user_id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <img
+                          src={
+                            applicant.image ||
+                            "https://via.placeholder.com/150?text=Profile"
+                          }
+                          alt={applicant.name}
+                          className="w-8 h-8 rounded-full mr-3 object-cover"
+                          onError={(e) => {
+                            e.target.src =
+                              "https://via.placeholder.com/150?text=Profile";
+                          }}
+                        />
+                        <div>
+                          <div className="font-medium text-gray-900">
+                            {applicant.name}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {applicant.email}
+                          </div>
                         </div>
-                        <div className="text-sm text-gray-500">
-                          {applicant.email}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-purple-700">
-                          {applicant.match_score}%
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span
-                          className={`px-2 py-1 text-xs rounded-full ${
-                            applicant.status === "New"
-                              ? "bg-blue-100 text-blue-700"
-                              : applicant.status === "Reviewed"
-                              ? "bg-yellow-100 text-yellow-700"
-                              : "bg-gray-100 text-gray-700"
-                          }`}
-                        >
-                          {applicant.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {applicant.applied}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
-                        <Link
-                          to={`/business/review-applicant/${applicant.id}?jobId=${jobId}`}
-                          className="text-blue-600 hover:text-blue-700 font-medium"
-                        >
-                          Review
-                        </Link>
-                      </td>
-                    </tr>
-                  )
-                )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-purple-700">
+                        {applicant.match_score || 85}%
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs ${
+                          !applicant.status || applicant.status === "New"
+                            ? "bg-blue-100 text-blue-700"
+                            : "bg-yellow-100 text-yellow-700"
+                        }`}
+                      >
+                        {applicant.status || "New"}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {getRelativeTime(applicant.applied_at)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
+                      <Link
+                        to={`/business/review-applicant/${applicant.user_id}?jobId=${jobId}`}
+                        className="text-blue-600 hover:text-blue-700 font-medium"
+                      >
+                        Review
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>

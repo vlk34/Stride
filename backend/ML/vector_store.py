@@ -1,4 +1,4 @@
-from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_openai import OpenAIEmbeddings
 import torch
 from langchain_core.documents import Document
 import faiss
@@ -6,27 +6,25 @@ from langchain_community.docstore.in_memory import InMemoryDocstore
 from langchain_community.vectorstores import FAISS
 from uuid import uuid4
 
+# Define your OpenAI key directly
+openai_api_key = ""
 
+print("Creating OpenAI embeddings...")
 
-print( "cuda avaliable:" + str(torch.cuda.is_available()))
-
-# Check CUDA availability
-device = "cuda" if torch.cuda.is_available() else "cpu"
-
-# Explicitly set device
-model_kwargs = {'device': device}
-
-print(f"Using device: {device}")
-
-embeddings = HuggingFaceEmbeddings(
-    model_name="sentence-transformers/all-mpnet-base-v2",
-    model_kwargs=model_kwargs
+# Use OpenAI embeddings instead
+embeddings = OpenAIEmbeddings(
+    openai_api_key=openai_api_key,
+    model="text-embedding-3-small"
 )
 
-size = len(embeddings.embed_query("hello world"))
+# Get embedding size from a sample query
+sample_text = "hello world"
+sample_embedding = embeddings.embed_query(sample_text)
+size = len(sample_embedding)
+print(f"Vector size: {size}")
 
+# Create FAISS index with the right dimensions
 index = faiss.IndexFlatL2(size)
-print("vector size: ", size)
 
 vector_store = FAISS(
     embedding_function=embeddings,
@@ -34,7 +32,6 @@ vector_store = FAISS(
     docstore=InMemoryDocstore(),
     index_to_docstore_id={},
 )
-
 
 # Example Documents with structured metadata and associated SQL queries for job-related context
 documents = [
@@ -75,19 +72,19 @@ documents = [
         }
     ),
     Document(
-        page_content="I’m a creative graphic designer proficient in Photoshop, Illustrator, and Figma. I’m seeking a part-time remote position where I can help shape brand visuals and social content.",
+        page_content="I'm a creative graphic designer proficient in Photoshop, Illustrator, and Figma. I'm seeking a part-time remote position where I can help shape brand visuals and social content.",
         metadata={
             "sql_query": "SELECT * FROM jobs WHERE title ILIKE '%graphic designer%' AND job_type = 'Part-time' AND workstyle = 'Remote' AND ARRAY['Photoshop', 'Illustrator', 'Figma'] <@ skills;"
         }
     ),
     Document(
-        page_content="I'm a bilingual customer support specialist fluent in English and Spanish. I’m looking for a remote full-time role where I can resolve customer inquiries using tools like Zendesk.",
+        page_content="I'm a bilingual customer support specialist fluent in English and Spanish. I'm looking for a remote full-time role where I can resolve customer inquiries using tools like Zendesk.",
         metadata={
             "sql_query": "SELECT * FROM jobs WHERE title ILIKE '%customer support%' AND job_type = 'Full-time' AND workstyle = 'Remote' AND ARRAY['English', 'Spanish'] <@ languages;"
         }
     ),
     Document(
-        page_content="As a UX researcher with 3+ years of experience in user interviews and persona building, I’m looking for a full-time hybrid role in Seattle to help improve product usability.",
+        page_content="As a UX researcher with 3+ years of experience in user interviews and persona building, I'm looking for a full-time hybrid role in Seattle to help improve product usability.",
         metadata={
             "sql_query": "SELECT * FROM jobs WHERE title ILIKE '%UX researcher%' AND job_location ILIKE '%Seattle%' AND job_type = 'Full-time' AND workstyle = 'Hybrid' AND ARRAY['User Interviews', 'Persona Building'] <@ skills;"
         }
@@ -100,8 +97,8 @@ documents = [
     ),
 ]
 
-vector_store.add_documents(documents=documents,)
+vector_store.add_documents(documents=documents)
 
-
+# Save with the same path that's used in rag_model.py
 vector_store.save_local("faiss_index")
 

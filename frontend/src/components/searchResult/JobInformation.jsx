@@ -331,18 +331,24 @@ const JobInformation = ({ job }) => {
           )}
 
           {/* Skills section */}
-          {displayJob.skills && displayJob.skills.length > 0 && (
+          {displayJob.skills && (
             <section>
               <h3 className="text-lg font-semibold mb-3">Skills</h3>
               <div className="flex flex-wrap gap-2">
-                {displayJob.skills.map((skill, index) => (
-                  <span
-                    key={index}
-                    className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm"
-                  >
-                    {skill}
-                  </span>
-                ))}
+                {Array.isArray(displayJob.skills)
+                  ? displayJob.skills.map((skill, index) => (
+                      <span
+                        key={index}
+                        className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm"
+                      >
+                        {skill}
+                      </span>
+                    ))
+                  : typeof displayJob.skills === "string" && (
+                      <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm">
+                        {displayJob.skills}
+                      </span>
+                    )}
               </div>
             </section>
           )}

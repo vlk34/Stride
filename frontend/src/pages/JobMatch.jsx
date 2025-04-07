@@ -1,5 +1,6 @@
 import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router";
+import { useMutation } from "@tanstack/react-query";
 import {
   Sparkles,
   ArrowRight,
@@ -11,67 +12,92 @@ import {
   AlertCircle,
 } from "lucide-react";
 
+// API functions
+const uploadText = async (description) => {
+  const response = await fetch("http://localhost:8000/upload-text", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ description }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to upload description");
+  }
+
+  return response.json();
+};
+
+const uploadPdf = async (file) => {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await fetch("http://localhost:8000/upload-pdf", {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.detail || "Failed to upload PDF");
+  }
+
+  return response.json();
+};
+
 const JobMatch = () => {
   const [userDescription, setUserDescription] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadedFileName, setUploadedFileName] = useState("");
   const [uploadError, setUploadError] = useState("");
-  const [uploadInProgress, setUploadInProgress] = useState(false);
-  const [resumeData, setResumeData] = useState(null);
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
+
+  // Text upload mutation
+  const textMutation = useMutation({
+    mutationFn: uploadText,
+    onSuccess: (data) => {
+      // Store results in localStorage for persistence
+      localStorage.setItem("recommendedJobs", JSON.stringify(data.results));
+      navigate("/recommended-jobs");
+    },
+    onError: (error) => {
+      console.error("Error uploading text:", error);
+      setUploadError("Failed to upload description. Please try again.");
+    },
+  });
+
+  // PDF upload mutation
+  const pdfMutation = useMutation({
+    mutationFn: uploadPdf,
+    onSuccess: (data) => {
+      // Store results in localStorage for persistence
+      localStorage.setItem("recommendedJobs", JSON.stringify(data.results));
+      navigate("/recommended-jobs");
+    },
+    onError: (error) => {
+      console.error("Error uploading PDF:", error);
+      setUploadError(
+        error.message || "Failed to upload PDF. Please try again."
+      );
+    },
+  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!userDescription.trim() && !resumeData) {
-      setUploadError("Please either enter a description or upload your CV");
+    if (!userDescription.trim()) {
+      setUploadError("Please enter a description or upload your CV");
       return;
     }
 
-    setIsSubmitting(true);
-
-    try {
-      let responseData = null;
-
-      if (resumeData) {
-        // Already handled in handleFileChange -> will navigate automatically
-        return;
-      } else {
-        // User submitted the description, send it to FastAPI
-        const response = await fetch("http://localhost:8000/upload-text", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ description: userDescription }),
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to upload description");
-        }
-
-        responseData = await response.json();
-      }
-
-      navigate("/recommended-jobs", {
-        state: { offers: responseData.results },
-      });
-
-    } catch (error) {
-      console.error("Error uploading text:", error);
-      setUploadError("Failed to upload description. Please try again.");
-    } finally {
-      setIsSubmitting(false);
-    }
+    textMutation.mutate(userDescription);
   };
 
   const handleFileChange = async (e) => {
-
     const file = e.target.files[0];
     if (!file) {
       setUploadedFileName("");
-      setResumeData(null);
       return;
     }
 
@@ -79,7 +105,6 @@ const JobMatch = () => {
     if (file.type !== "application/pdf") {
       setUploadError("Please upload a PDF file only");
       setUploadedFileName("");
-      setResumeData(null);
       return;
     }
 
@@ -87,42 +112,13 @@ const JobMatch = () => {
     if (file.size > 5 * 1024 * 1024) {
       setUploadError("File size should be less than 5MB");
       setUploadedFileName("");
-      setResumeData(null);
       return;
     }
 
     setUploadError("");
     setUploadedFileName(file.name);
-    setUploadInProgress(true);
 
-    try {
-      // Create form data to send the file
-      const formData = new FormData();
-      formData.append("file", file); // FastAPI typically uses "file" as the parameter name
-
-      // Send to FastAPI endpoint
-      const response = await fetch("http://localhost:8000/upload-pdf", {
-        method: "POST",
-        body: formData,
-        // No need to set Content-Type, browser will set it with boundary for multipart/form-data
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.detail || "Failed to upload PDF");
-      }
-
-      const data = await response.json();
-      navigate("/recommended-jobs", { state: { offers: data.results } });
-    } catch (error) {
-      console.error("Error uploading PDF:", error);
-      setUploadError(
-        error.message || "Failed to upload PDF. Please try again."
-      );
-      setResumeData(null);
-    } finally {
-      setUploadInProgress(false);
-    }
+    pdfMutation.mutate(file);
   };
 
   const triggerFileInput = () => {
@@ -216,16 +212,17 @@ const JobMatch = () => {
               <button
                 type="button"
                 onClick={triggerFileInput}
-                disabled={uploadInProgress}
-                className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${uploadInProgress
+                disabled={pdfMutation.isPending}
+                className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                  pdfMutation.isPending
                     ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                     : "text-blue-600 bg-blue-50 hover:bg-blue-100"
-                  }`}
+                }`}
               >
-                {uploadInProgress ? "Uploading..." : "Choose PDF"}
+                {pdfMutation.isPending ? "Uploading..." : "Choose PDF"}
               </button>
 
-              {uploadedFileName && resumeData && (
+              {uploadedFileName && (
                 <div className="mt-3 text-sm text-green-600 flex items-center justify-center gap-1">
                   <span>Uploaded: {uploadedFileName}</span>
                 </div>
@@ -259,7 +256,6 @@ const JobMatch = () => {
               placeholder="Example: I'm a recent computer science graduate looking for an entry-level software engineering role. I have experience with Java, Python, and React from my coursework and internship. I'm interested in fintech or healthtech companies where I can work on meaningful projects..."
               value={userDescription}
               onChange={(e) => setUserDescription(e.target.value)}
-              required
             />
           </div>
 
@@ -273,18 +269,19 @@ const JobMatch = () => {
           <button
             type="submit"
             disabled={
-              isSubmitting ||
-              (!userDescription.trim() && !resumeData) ||
-              uploadInProgress
+              textMutation.isPending ||
+              pdfMutation.isPending ||
+              !userDescription.trim()
             }
-            className={`flex items-center gap-2 px-6 py-2.5 rounded-lg font-medium text-white ${isSubmitting ||
-                (!userDescription.trim() && !resumeData) ||
-                uploadInProgress
+            className={`flex items-center gap-2 px-6 py-2.5 rounded-lg font-medium text-white ${
+              textMutation.isPending ||
+              pdfMutation.isPending ||
+              !userDescription.trim()
                 ? "bg-blue-400 cursor-not-allowed"
                 : "bg-blue-600 hover:bg-blue-700"
-              }`}
+            }`}
           >
-            {isSubmitting ? (
+            {textMutation.isPending ? (
               <>
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                 <span>Finding matches...</span>
