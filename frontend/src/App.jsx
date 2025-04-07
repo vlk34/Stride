@@ -211,10 +211,6 @@ const App = () => {
             path="/business/create-job-listing"
             element={<CreateJobListing />}
           />
-          <Route
-            path="/business/review-applicant/:id"
-            element={<ReviewApplicant />}
-          />
           <Route path="/business/profile" element={<BusinessProfile />} />
           <Route path="/business/help" element={<BusinessHelp />} />
           <Route
@@ -222,18 +218,18 @@ const App = () => {
             element={<SwitchToPersonal />}
           />
           <Route path="/business/manage/jobs" element={<ManageJobs />} />
+          <Route path="/business/edit-job/:jobId" element={<EditJob />} />
+          <Route path="/business/edit-company" element={<EditCompany />} />
           <Route path="/business/applicants" element={<Applicants />} />
-          <Route
-            path="/business/job-applicants/:jobId"
-            element={<JobApplicants />}
-          />
           <Route
             path="/business/applicants/:jobId"
             element={<JobApplicants />}
           />
-          <Route path="/business/edit-job/:jobId" element={<EditJob />} />
+          <Route
+            path="/business/applicants/:jobId/:userId"
+            element={<ReviewApplicant />}
+          />
           <Route path="/business/all-applicants" element={<AllApplicants />} />
-          <Route path="/business/edit-company" element={<EditCompany />} />
         </Route>
 
         {/* Admin routes */}

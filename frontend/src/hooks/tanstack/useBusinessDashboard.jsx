@@ -66,7 +66,7 @@ export const useJobApplicants = (jobId) => {
       }
 
       const response = await axios.get(
-        `http://localhost:8080/applicants?job=${jobId}`,
+        `http://localhost:8080/applicants/${jobId}`,
         {
           headers: {
             Authorization: `Bearer ${sessionToken}`,
@@ -99,21 +99,8 @@ export const useRecentApplicants = (limit = 5) => {
         }
       );
 
-      // Empty array is a valid response - transform it just like non-empty results
-      const applicants = response.data || [];
-      return applicants
-        .map((applicant) => ({
-          id: applicant.user_id,
-          job_id: applicant.job_id || 0,
-          name: applicant.name || "Unknown",
-          role: applicant.role || "Applicant",
-          status: "New",
-          applied: getRelativeTime(applicant.applied_at),
-          photo:
-            applicant.image || "https://via.placeholder.com/150?text=Profile",
-          match_score: Math.floor(Math.random() * 30) + 70,
-        }))
-        .slice(0, limit);
+      // Return the API response directly without modifying it
+      return response.data || [];
     },
     staleTime: 2 * 60 * 1000,
   });

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Users,
   Search,
@@ -10,6 +10,7 @@ import {
   Star,
   Clock,
   TrendingUp,
+  User,
 } from "lucide-react";
 import { Link } from "react-router";
 import {
@@ -35,6 +36,10 @@ const Applicants = () => {
     isLoading: applicantsLoading,
     error: applicantsError,
   } = useRecentApplicants();
+
+  useEffect(() => {
+    console.log(recentApplicants);
+  }, [recentApplicants]);
 
   const {
     data: statsData,
@@ -187,7 +192,7 @@ const Applicants = () => {
 
         <div className="space-y-4">
           {applicantsLoading
-            ? // Skeleton for recent applicants
+            ? // Skeleton for recent applicants with avatar
               Array(3)
                 .fill()
                 .map((_, index) => (
@@ -195,9 +200,12 @@ const Applicants = () => {
                     key={index}
                     className="flex items-center justify-between p-4 rounded-lg border border-gray-100"
                   >
-                    <div>
-                      <div className="h-5 w-32 bg-gray-200 rounded animate-pulse mb-2"></div>
-                      <div className="h-4 w-48 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-gray-200 animate-pulse"></div>
+                      <div>
+                        <div className="h-5 w-32 bg-gray-200 rounded animate-pulse mb-2"></div>
+                        <div className="h-4 w-48 bg-gray-200 rounded animate-pulse"></div>
+                      </div>
                     </div>
                     <div className="flex items-center gap-4">
                       <div className="text-center">
@@ -211,35 +219,45 @@ const Applicants = () => {
             : recentApplicants &&
               recentApplicants.map((applicant) => (
                 <div
-                  key={applicant.id}
-                  className="flex items-center justify-between p-4 rounded-lg border border-gray-100 transition-colors"
+                  key={applicant.user_id || applicant.id}
+                  className="flex items-center justify-between p-4 rounded-lg border border-gray-100 transition-colors hover:bg-gray-50"
                 >
-                  <div>
-                    <h3 className="font-medium text-gray-900">
-                      {applicant.name}
-                    </h3>
-                    <p className="text-sm text-gray-600">
-                      Applied for a position • {applicant.applied}
-                    </p>
+                  <div className="flex items-center gap-3">
+                    {applicant.image ? (
+                      <img
+                        src={applicant.image}
+                        alt={applicant.name}
+                        className="w-10 h-10 rounded-full object-cover border border-gray-200"
+                      />
+                    ) : (
+                      <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                        <User className="w-5 h-5 text-blue-600" />
+                      </div>
+                    )}
+                    <div>
+                      <h3 className="font-medium text-gray-900">
+                        {applicant.name}
+                      </h3>
+                      <p className="text-sm text-gray-600">
+                        {applicant.unsafeRole || "Applied for"} •{" "}
+                        {getRelativeTime(applicant.applied_at) ||
+                          applicant.applied}
+                      </p>
+                    </div>
                   </div>
                   <div className="flex items-center gap-4">
                     <div className="text-center">
                       <div className="text-lg font-bold text-purple-700">
-                        {applicant.match_score}%
+                        {applicant.match_score || "85"}%
                       </div>
                       <div className="text-xs text-purple-600">match</div>
                     </div>
-                    <span
-                      className={`px-3 py-1 rounded-full text-sm ${
-                        applicant.status === "New"
-                          ? "bg-blue-100 text-blue-700"
-                          : applicant.status === "Reviewed"
-                          ? "bg-yellow-100 text-yellow-700"
-                          : "bg-gray-100 text-gray-700"
-                      }`}
+                    <Link
+                      to={`/business/applicants/${applicant.job_id}/${applicant.user_id}`}
+                      className={`px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-700 hover:bg-blue-200`}
                     >
-                      {applicant.status}
-                    </span>
+                      {applicant.status || "Review"}
+                    </Link>
                   </div>
                 </div>
               ))}

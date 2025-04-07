@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useParams, useLocation } from "react-router";
+import React, { useState } from "react";
+import { useParams, useNavigate } from "react-router";
 import {
   Brain,
   Mail,
@@ -14,171 +14,99 @@ import {
   AlertCircle,
   ArrowLeft,
   ChevronRight,
+  User,
+  Info,
 } from "lucide-react";
-import { Link, useNavigate } from "react-router";
-
+import { Link } from "react-router";
+import { useApplicantDetails } from "../../hooks/tanstack/useCompanyAccount";
+import { getRelativeTime } from "../../hooks/tanstack/useBusinessDashboard";
+import { useJobDetails } from "../../hooks/tanstack/useBusinessDashboard";
 const ReviewApplicant = () => {
-  const { id } = useParams();
-  const location = useLocation();
+  // Extract parameters from URL path
+  const { jobId, userId } = useParams();
   const [activeTab, setActiveTab] = useState("profile");
-  const [applicant, setApplicant] = useState(null);
   const navigate = useNavigate();
-  // Dummy data - this would normally be fetched based on the id
-  const allApplicants = [
-    {
-      id: 1,
-      name: "Sarah Johnson",
-      role: "Senior Frontend Developer",
-      status: "New",
-      applied: "2 hours ago",
-      email: "sarah.j@example.com",
-      phone: "+1 234 567 8900",
-      experience: "5 years",
-      location: "San Francisco, CA",
-      match_score: 92,
-      skills: ["React", "TypeScript", "Node.js", "AWS", "REST APIs"],
-      education: [
-        {
-          degree: "B.S. Computer Science",
-          school: "University of California, Berkeley",
-          year: "2018",
-        },
-      ],
-      experience_history: [
-        {
-          role: "Frontend Developer",
-          company: "Tech Corp",
-          duration: "2018 - 2023",
-          description:
-            "Led development of multiple web applications using React and TypeScript.",
-        },
-      ],
-      ai_analysis: {
-        technical_match: 92,
-        soft_skills: 88,
-        culture_fit: 90,
-        key_strengths: [
-          "Strong React expertise",
-          "Team leadership experience",
-          "Problem-solving skills",
-        ],
-        potential_concerns: ["Remote work experience limited"],
-      },
-    },
-    {
-      id: 2,
-      name: "Michael Chen",
-      role: "Senior Frontend Developer",
-      status: "Reviewed",
-      applied: "1 day ago",
-      email: "m.chen@example.com",
-      phone: "+1 234 567 8901",
-      experience: "6 years",
-      location: "New York, NY",
-      match_score: 89,
-      skills: ["React", "Vue.js", "JavaScript", "GraphQL", "CSS"],
-      education: [
-        {
-          degree: "M.S. Computer Science",
-          school: "New York University",
-          year: "2017",
-        },
-      ],
-      experience_history: [
-        {
-          role: "Senior Developer",
-          company: "Web Solutions Inc",
-          duration: "2017 - 2023",
-          description:
-            "Developed and maintained multiple client websites and applications.",
-        },
-      ],
-      ai_analysis: {
-        technical_match: 89,
-        soft_skills: 92,
-        culture_fit: 85,
-        key_strengths: [
-          "Diverse framework experience",
-          "Strong communication skills",
-          "Client-facing experience",
-        ],
-        potential_concerns: ["Less experience with TypeScript"],
-      },
-    },
-    {
-      id: 3,
-      name: "Emily Davis",
-      role: "Senior Frontend Developer",
-      status: "New",
-      applied: "3 days ago",
-      match_score: 75,
-      email: "e.davis@example.com",
-      phone: "+1 234 567 8902",
-      location: "Chicago, IL",
-      experience: "4 years",
-      skills: ["JavaScript", "React", "CSS", "HTML"],
-      education: [
-        {
-          degree: "B.A. Web Development",
-          school: "University of Illinois",
-          year: "2019",
-        },
-      ],
-      experience_history: [
-        {
-          role: "Frontend Developer",
-          company: "Digital Agency",
-          duration: "2019 - 2023",
-          description: "Created responsive web designs and interactive UIs.",
-        },
-      ],
-      ai_analysis: {
-        technical_match: 75,
-        soft_skills: 80,
-        culture_fit: 82,
-        key_strengths: [
-          "UI/UX focus",
-          "Creative problem solver",
-          "Fast learner",
-        ],
-        potential_concerns: ["Less backend experience"],
-      },
-    },
-    // Add more applicants as needed
-  ];
 
-  // Simulate API call with a delay
-  useEffect(() => {
-    // Simulate API call with 500ms delay
-    const timer = setTimeout(() => {
-      // Find the applicant by ID from our dummy data
-      const foundApplicant = allApplicants.find((a) => a.id === parseInt(id));
-      setApplicant(foundApplicant || allApplicants[0]); // Fallback to first applicant if not found
-    }, 500);
+  // Fetch applicant details using the jobId and userId from the path
+  const {
+    data: applicant,
+    isLoading: applicantLoading,
+    error: applicantError,
+  } = useApplicantDetails(jobId, userId);
 
-    // Clean up timer
-    return () => clearTimeout(timer);
-  }, [id]);
+  // Fetch job details for context
+  const {
+    data: jobDetails,
+    isLoading: jobLoading,
+    error: jobError,
+  } = useJobDetails(jobId);
 
-  if (!applicant) {
+  const isLoading = applicantLoading || jobLoading;
+  const hasError = applicantError || jobError;
+
+  // Go back to applicants list for this job
+  const handleBack = () => {
+    if (jobId) {
+      navigate(`/business/applicants/${jobId}`);
+    } else {
+      window.history.back();
+    }
+  };
+
+  // Show error state
+  if (hasError && !isLoading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <button
+          onClick={handleBack}
+          className="flex items-center mb-4 text-blue-600 hover:text-blue-700"
+        >
+          <ArrowLeft className="w-5 h-5 mr-1" />
+          <span>Back to applicants</span>
+        </button>
+
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+          <h2 className="text-lg font-semibold text-red-800 mb-2">
+            Error Loading Applicant Data
+          </h2>
+          <p className="text-red-600 mb-4">
+            {(applicantError || jobError)?.message ||
+              "There was an error loading this applicant's details. Please try again."}
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Show loading state
+  if (isLoading || !applicant) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-4 sm:py-8">
         {/* Header with static back button */}
         <div className="mb-6 sm:mb-8">
           <button
-            onClick={() => window.history.back()}
+            onClick={handleBack}
             className="flex items-center mb-4 text-blue-600 hover:text-blue-700"
           >
             <ArrowLeft className="w-5 h-5 mr-1" />
-            <span className="hidden sm:inline">Back to the previous page</span>
+            <span className="hidden sm:inline">Back to applicants</span>
             <span className="sm:hidden">Back</span>
           </button>
 
           {/* Applicant name and role skeleton */}
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
-            <div>
-              <div className="h-7 sm:h-8 w-48 bg-gray-200 rounded animate-pulse mb-2"></div>
-              <div className="h-5 w-32 bg-gray-200 rounded animate-pulse"></div>
+            <div className="flex items-center gap-4">
+              <div className="h-14 w-14 rounded-full bg-gray-200 animate-pulse"></div>
+              <div>
+                <div className="h-7 sm:h-8 w-48 bg-gray-200 rounded animate-pulse mb-2"></div>
+                <div className="h-5 w-32 bg-gray-200 rounded animate-pulse"></div>
+              </div>
             </div>
             <div>
               <button className="px-3 sm:px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm">
@@ -190,7 +118,7 @@ const ReviewApplicant = () => {
 
         {/* Static tabs - Scrollable on mobile */}
         <div className="flex gap-2 sm:gap-4 border-b border-gray-200 mb-6 overflow-x-auto pb-1">
-          {["profile", "ai analysis", "notes"].map((tab) => (
+          {["profile", "ai analysis"].map((tab) => (
             <button
               key={tab}
               className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium capitalize whitespace-nowrap ${
@@ -282,39 +210,87 @@ const ReviewApplicant = () => {
     );
   }
 
+  // Get experience information from experiences if available
+  const getExperienceInfo = () => {
+    if (applicant.experiences && applicant.experiences.length > 0) {
+      const latestExperience = applicant.experiences[0];
+      return `${latestExperience.role} at ${latestExperience.company}`;
+    }
+    return "Experience not specified";
+  };
+
+  // Render the page with data
   return (
     <div className="max-w-7xl mx-auto px-4 py-4 sm:py-8">
       {/* Header */}
       <div className="mb-6 sm:mb-8">
         <button
-          onClick={() => window.history.back()}
+          onClick={handleBack}
           className="flex items-center mb-4 text-blue-600 hover:text-blue-700"
         >
           <ArrowLeft className="w-5 h-5 mr-1" />
-          <span className="hidden sm:inline">Back to the previous page</span>
+          <span className="hidden sm:inline">Back to applicants</span>
           <span className="sm:hidden">Back</span>
         </button>
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
-              {applicant.name}
-            </h1>
-            <p className="text-gray-600">{applicant.role}</p>
+          <div className="flex items-center gap-4">
+            {applicant.image ? (
+              <img
+                src={applicant.image}
+                alt={applicant.name}
+                className="w-16 h-16 rounded-full object-cover border border-gray-200"
+              />
+            ) : (
+              <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center">
+                <User className="w-8 h-8 text-blue-600" />
+              </div>
+            )}
+            <div>
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+                {applicant.name}
+              </h1>
+              <p className="text-gray-600 mb-2">
+                {jobDetails?.title || "Position"}
+              </p>
+              {jobDetails && (
+                <div className="flex items-center text-gray-900 text-sm">
+                  <Calendar className="w-4 h-4 mr-2" />
+                  {getRelativeTime(
+                    applicant?.applied_at || "2025-04-04T15:47:21.261+00:00"
+                  )}
+                </div>
+              )}
+            </div>
           </div>
           <div className="flex gap-2">
-            <button className="px-3 sm:px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm">
-              <span className="hidden sm:inline">Download CV</span>
-              <span className="sm:hidden flex items-center">
-                <Download className="w-4 h-4 mr-1" /> CV
-              </span>
-            </button>
+            {applicant.resume_url && (
+              <a
+                href={applicant.resume_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-3 sm:px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm"
+              >
+                <span className="hidden sm:inline">Download CV</span>
+                <span className="sm:hidden flex items-center">
+                  <Download className="w-4 h-4 mr-1" /> CV
+                </span>
+              </a>
+            )}
+            {!applicant.resume_url && (
+              <button className="px-3 sm:px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm">
+                <span className="hidden sm:inline">Download CV</span>
+                <span className="sm:hidden flex items-center">
+                  <Download className="w-4 h-4 mr-1" /> CV
+                </span>
+              </button>
+            )}
           </div>
         </div>
       </div>
 
       {/* Content Tabs - Scrollable on mobile */}
       <div className="flex gap-2 sm:gap-4 border-b border-gray-200 mb-6 overflow-x-auto pb-1">
-        {["profile", "ai analysis", "notes"].map((tab) => (
+        {["profile", "ai analysis"].map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -342,7 +318,7 @@ const ReviewApplicant = () => {
                 <div className="text-sm text-gray-600 mb-1">Applied</div>
                 <div className="flex items-center text-gray-900 text-sm">
                   <Calendar className="w-4 h-4 mr-2" />
-                  {applicant.applied}
+                  {getRelativeTime(applicant.applied_at)}
                 </div>
               </div>
 
@@ -350,7 +326,7 @@ const ReviewApplicant = () => {
                 <div className="text-sm text-gray-600 mb-1">Match Score</div>
                 <div className="flex items-center text-purple-700 text-sm">
                   <Brain className="w-4 h-4 mr-2" />
-                  {applicant.match_score}% match
+                  {applicant.match_score || 0}% match
                 </div>
               </div>
 
@@ -383,55 +359,116 @@ const ReviewApplicant = () => {
                     <span className="truncate">{applicant.email}</span>
                   </div>
                   <div className="flex items-center text-sm text-gray-600">
-                    <Phone className="w-4 h-4 sm:w-5 sm:h-5 mr-2 flex-shrink-0" />
-                    {applicant.phone}
-                  </div>
-                  <div className="flex items-center text-sm text-gray-600">
-                    <MapPin className="w-4 h-4 sm:w-5 sm:h-5 mr-2 flex-shrink-0" />
-                    {applicant.location}
-                  </div>
-                  <div className="flex items-center text-sm text-gray-600">
                     <Briefcase className="w-4 h-4 sm:w-5 sm:h-5 mr-2 flex-shrink-0" />
-                    {applicant.experience} experience
+                    {getExperienceInfo()}
+                  </div>
+                  <div className="flex items-center text-sm text-gray-600">
+                    <FileText className="w-4 h-4 sm:w-5 sm:h-5 mr-2 flex-shrink-0" />
+                    {applicant.unsafeRole || "Role not specified"}
+                  </div>
+                  <div className="flex items-center text-sm text-gray-600">
+                    <Info className="w-4 h-4 sm:w-5 sm:h-5 mr-2 flex-shrink-0" />
+                    {applicant.about || "No additional information"}
                   </div>
                 </div>
               </div>
 
               {/* Skills Card */}
-              <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
-                <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">
-                  Skills
-                </h2>
-                <div className="flex flex-wrap gap-2">
-                  {applicant.skills.map((skill, index) => (
-                    <span
-                      key={index}
-                      className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs sm:text-sm"
-                    >
-                      {skill}
-                    </span>
-                  ))}
+              {applicant.skills && applicant.skills.length > 0 && (
+                <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
+                  <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">
+                    Skills
+                  </h2>
+                  <div className="flex flex-wrap gap-2">
+                    {(applicant.skills || ["React"]).map((skill, index) => (
+                      <span
+                        key={index}
+                        className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs sm:text-sm"
+                      >
+                        {skill.charAt(0).toUpperCase() + skill.slice(1)}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Experience Card */}
-              <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
-                <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">
-                  Experience
-                </h2>
-                {applicant.experience_history.map((exp, index) => (
-                  <div key={index} className="mb-4">
-                    <h3 className="font-medium text-gray-900">{exp.role}</h3>
-                    <p className="text-sm text-gray-600">{exp.company}</p>
-                    <p className="text-xs sm:text-sm text-gray-500">
-                      {exp.duration}
-                    </p>
-                    <p className="text-sm text-gray-600 mt-2">
-                      {exp.description}
-                    </p>
-                  </div>
-                ))}
-              </div>
+              {applicant.experiences && applicant.experiences.length > 0 && (
+                <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
+                  <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">
+                    Experience
+                  </h2>
+                  {applicant.experiences.map((exp, index) => (
+                    <div key={index} className="mb-4">
+                      <h3 className="font-medium text-gray-900">
+                        {exp.role.charAt(0).toUpperCase() + exp.role.slice(1)}
+                      </h3>
+                      <p className="text-sm text-gray-600">
+                        {exp.company.charAt(0).toUpperCase() +
+                          exp.company.slice(1)}
+                        {exp.type && ` • ${exp.type}`}
+                      </p>
+                      <p className="text-xs sm:text-sm text-gray-500">
+                        {new Date(exp.startDate).toLocaleDateString("en-US", {
+                          month: "short",
+                          year: "numeric",
+                        })}{" "}
+                        -
+                        {exp.current
+                          ? " Present"
+                          : ` ${new Date(exp.endDate).toLocaleDateString(
+                              "en-US",
+                              { month: "short", year: "numeric" }
+                            )}`}
+                      </p>
+                      <p className="text-sm text-gray-600 mt-2">
+                        {exp.description}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Education Card */}
+              {applicant.education && applicant.education.length > 0 && (
+                <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
+                  <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">
+                    Education
+                  </h2>
+                  {applicant.education.map((edu, index) => (
+                    <div key={index} className="mb-4 last:mb-0">
+                      <h3 className="font-medium text-gray-900">
+                        {edu.degree.charAt(0).toUpperCase() +
+                          edu.degree.slice(1)}{" "}
+                        in{" "}
+                        {edu.field.charAt(0).toUpperCase() + edu.field.slice(1)}
+                      </h3>
+                      <p className="text-sm text-gray-600">
+                        {edu.school.charAt(0).toUpperCase() +
+                          edu.school.slice(1)}
+                      </p>
+                      <p className="text-xs sm:text-sm text-gray-500">
+                        {new Date(edu.startDate).toLocaleDateString("en-US", {
+                          month: "short",
+                          year: "numeric",
+                        })}{" "}
+                        -
+                        {edu.current
+                          ? " Present"
+                          : ` ${new Date(edu.endDate).toLocaleDateString(
+                              "en-US",
+                              { month: "short", year: "numeric" }
+                            )}`}
+                      </p>
+                      {edu.description && (
+                        <p className="text-sm text-gray-600 mt-1">
+                          {edu.description}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
@@ -444,87 +481,91 @@ const ReviewApplicant = () => {
                 </h2>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-6">
-                <div className="bg-purple-50 rounded-lg p-3 sm:p-4">
-                  <div className="text-xl sm:text-2xl font-bold text-purple-700 mb-1">
-                    {applicant.ai_analysis.technical_match}%
+              {applicant.ai_analysis ? (
+                <>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-6">
+                    <div className="bg-purple-50 rounded-lg p-3 sm:p-4">
+                      <div className="text-xl sm:text-2xl font-bold text-purple-700 mb-1">
+                        {applicant.ai_analysis.technical_match}%
+                      </div>
+                      <div className="text-xs sm:text-sm text-purple-600">
+                        Technical Match
+                      </div>
+                    </div>
+                    <div className="bg-purple-50 rounded-lg p-3 sm:p-4">
+                      <div className="text-xl sm:text-2xl font-bold text-purple-700 mb-1">
+                        {applicant.ai_analysis.soft_skills}%
+                      </div>
+                      <div className="text-xs sm:text-sm text-purple-600">
+                        Soft Skills
+                      </div>
+                    </div>
+                    <div className="bg-purple-50 rounded-lg p-3 sm:p-4">
+                      <div className="text-xl sm:text-2xl font-bold text-purple-700 mb-1">
+                        {applicant.ai_analysis.culture_fit}%
+                      </div>
+                      <div className="text-xs sm:text-sm text-purple-600">
+                        Culture Fit
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-xs sm:text-sm text-purple-600">
-                    Technical Match
-                  </div>
-                </div>
-                <div className="bg-purple-50 rounded-lg p-3 sm:p-4">
-                  <div className="text-xl sm:text-2xl font-bold text-purple-700 mb-1">
-                    {applicant.ai_analysis.soft_skills}%
-                  </div>
-                  <div className="text-xs sm:text-sm text-purple-600">
-                    Soft Skills
-                  </div>
-                </div>
-                <div className="bg-purple-50 rounded-lg p-3 sm:p-4">
-                  <div className="text-xl sm:text-2xl font-bold text-purple-700 mb-1">
-                    {applicant.ai_analysis.culture_fit}%
-                  </div>
-                  <div className="text-xs sm:text-sm text-purple-600">
-                    Culture Fit
-                  </div>
-                </div>
-              </div>
 
-              <div className="space-y-6">
-                <div>
-                  <h3 className="font-medium text-gray-900 mb-2">
-                    Key Strengths
-                  </h3>
-                  <ul className="space-y-2">
-                    {applicant.ai_analysis.key_strengths.map(
-                      (strength, index) => (
-                        <li
-                          key={index}
-                          className="flex items-center text-sm text-gray-600"
-                        >
-                          <ThumbsUp className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
-                          {strength}
-                        </li>
-                      )
-                    )}
-                  </ul>
-                </div>
+                  <div className="space-y-6">
+                    {applicant.ai_analysis.key_strengths &&
+                      applicant.ai_analysis.key_strengths.length > 0 && (
+                        <div>
+                          <h3 className="font-medium text-gray-900 mb-2">
+                            Key Strengths
+                          </h3>
+                          <ul className="space-y-2">
+                            {applicant.ai_analysis.key_strengths.map(
+                              (strength, index) => (
+                                <li
+                                  key={index}
+                                  className="flex items-center text-sm text-gray-600"
+                                >
+                                  <ThumbsUp className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
+                                  {strength}
+                                </li>
+                              )
+                            )}
+                          </ul>
+                        </div>
+                      )}
 
-                <div>
-                  <h3 className="font-medium text-gray-900 mb-2">
-                    Potential Concerns
-                  </h3>
-                  <ul className="space-y-2">
-                    {applicant.ai_analysis.potential_concerns.map(
-                      (concern, index) => (
-                        <li
-                          key={index}
-                          className="flex items-center text-sm text-gray-600"
-                        >
-                          <AlertCircle className="w-4 h-4 text-yellow-600 mr-2 flex-shrink-0" />
-                          {concern}
-                        </li>
-                      )
-                    )}
-                  </ul>
+                    {applicant.ai_analysis.potential_concerns &&
+                      applicant.ai_analysis.potential_concerns.length > 0 && (
+                        <div>
+                          <h3 className="font-medium text-gray-900 mb-2">
+                            Potential Concerns
+                          </h3>
+                          <ul className="space-y-2">
+                            {applicant.ai_analysis.potential_concerns.map(
+                              (concern, index) => (
+                                <li
+                                  key={index}
+                                  className="flex items-center text-sm text-gray-600"
+                                >
+                                  <AlertCircle className="w-4 h-4 text-yellow-600 mr-2 flex-shrink-0" />
+                                  {concern}
+                                </li>
+                              )
+                            )}
+                          </ul>
+                        </div>
+                      )}
+                  </div>
+                </>
+              ) : (
+                <div className="text-center py-8">
+                  <div className="text-gray-500 mb-2">
+                    AI analysis not available
+                  </div>
+                  <button className="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm">
+                    Generate Analysis
+                  </button>
                 </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === "notes" && (
-            <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
-              <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">
-                Notes
-              </h2>
-              <textarea
-                className="w-full h-32 sm:h-40 p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                placeholder="Add your notes about this candidate..."
-              />
-              <button className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
-                Save Notes
-              </button>
+              )}
             </div>
           )}
         </div>

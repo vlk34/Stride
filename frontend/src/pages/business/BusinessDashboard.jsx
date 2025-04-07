@@ -141,9 +141,7 @@ const BusinessDashboard = () => {
   };
 
   const handleApplicantCardClick = (userId, jobId) => {
-    navigate(`/business/review-applicant/${userId}`, {
-      state: { jobId: jobId },
-    });
+    navigate(`/business/applicants/${jobId}/${userId}`);
   };
 
   const isLoading = statsLoading || jobsLoading || applicantsLoading;
@@ -341,7 +339,7 @@ const BusinessDashboard = () => {
                       {job.status}
                     </span>
                     <Link
-                      to={`/business/job-applicants/${job.id}`}
+                      to={`/business/applicants/${job.id}`}
                       className="text-blue-600 hover:text-blue-700 text-xs md:text-sm mt-2 whitespace-nowrap"
                       onClick={(e) => e.stopPropagation()} // Prevent card click
                     >

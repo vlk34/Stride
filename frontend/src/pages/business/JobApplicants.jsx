@@ -382,7 +382,7 @@ const JobApplicants = () => {
 
                 <div className="flex gap-2">
                   <Link
-                    to={`/business/review-applicant/${applicant.user_id}?jobId=${jobId}`}
+                    to={`/business/applicants/${jobId}/${applicant.user_id}`}
                     className="flex-1 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
                   >
                     Review Application
@@ -491,7 +491,7 @@ const JobApplicants = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
                       <Link
-                        to={`/business/review-applicant/${applicant.user_id}?jobId=${jobId}`}
+                        to={`/business/applicants/${jobId}/${applicant.user_id}`}
                         className="text-blue-600 hover:text-blue-700 font-medium"
                       >
                         Review
