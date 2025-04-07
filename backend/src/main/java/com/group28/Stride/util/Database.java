@@ -779,7 +779,7 @@ public class Database {
             res.close();
             statement.close();
 
-            String query = "SELECT user_id, application_date FROM applications WHERE 1=2";
+            String query = "SELECT user_id, job_id, application_date FROM applications WHERE 1=2";
             List<Integer> params = new ArrayList<>();
 
             PreparedStatement job_statement = connection.prepareStatement("SELECT job_id FROM jobs WHERE company_id = ?");
@@ -806,6 +806,7 @@ public class Database {
                 if (map == null)
                     map = new HashMap<>();
                 map.put("user_id", applicant_res.getString("user_id"));
+                map.put("job_id", applicant_res.getString("job_id"));
                 map.put("applied_at", applicant_res.getTimestamp("application_date"));
                 list.add(map);
             }
@@ -849,6 +850,58 @@ public class Database {
             statement.close();
             return list;
         } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    public static List<Map<String, Object>> allApplicants(String user_id) {
+        try {
+            PreparedStatement statement = connection.prepareStatement("SELECT company_id FROM companies WHERE user_id = ?");
+            statement.setString(1, user_id);
+            ResultSet res = statement.executeQuery();
+            int company_id = 0;
+            if (res.next())
+                company_id = res.getInt("company_id");
+            res.close();
+            statement.close();
+
+            String query = "SELECT user_id, job_id, application_date FROM applications WHERE 1=2";
+            List<Integer> params = new ArrayList<>();
+
+            PreparedStatement job_statement = connection.prepareStatement("SELECT job_id FROM jobs WHERE company_id = ?");
+            job_statement.setInt(1, company_id);
+            ResultSet job_res = job_statement.executeQuery();
+            while (job_res.next()) {
+                query += " OR job_id = ?";
+                params.add(job_res.getInt("job_id"));
+            }
+            job_res.close();
+            job_statement.close();
+
+            query += " ORDER BY application_date DESC";
+
+            PreparedStatement applicant_statement = connection.prepareStatement(query);
+
+            for (int i = 0; i < params.size(); i++)
+                applicant_statement.setInt(i + 1, params.get(i));
+
+            ResultSet applicant_res = applicant_statement.executeQuery();
+            List<Map<String, Object>> list = new ArrayList<>();
+            while (applicant_res.next()) {
+                Map<String, Object> map = GetUserInfo.fromUserID(applicant_res.getString("user_id"));
+                if (map == null)
+                    map = new HashMap<>();
+                map.put("user_id", applicant_res.getString("user_id"));
+                map.put("job_id", applicant_res.getString("job_id"));
+                map.put("applied_at", applicant_res.getTimestamp("application_date"));
+                list.add(map);
+            }
+            applicant_res.close();
+            applicant_statement.close();
+
+            return list;
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
         return null;
