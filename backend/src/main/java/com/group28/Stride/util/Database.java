@@ -503,7 +503,7 @@ public class Database {
             statement.close();
 
             List<Map<String, Object>> list = new ArrayList<>();
-            PreparedStatement job_statement = connection.prepareStatement("SELECT job_id, title, job_description FROM jobs WHERE company_id = ?");
+            PreparedStatement job_statement = connection.prepareStatement("SELECT job_id, title, job_description, created_at, closes_at, workstyle, job_type, job_location FROM jobs WHERE company_id = ?");
             job_statement.setInt(1, company_id);
             ResultSet job_res = job_statement.executeQuery();
             while (job_res.next()) {
@@ -513,6 +513,11 @@ public class Database {
                 map.put("job_id", job_res.getInt("job_id"));
                 map.put("title", job_res.getString("title"));
                 map.put("description", job_res.getString("job_description"));
+                map.put("location", job_res.getString("job_location"));
+                map.put("jobtype", job_res.getString("job_type"));
+                map.put("workstyle", job_res.getString("workstyle"));
+                map.put("deadline", res.getTimestamp("closes_at"));
+                map.put("start", res.getTimestamp("created_at"));
                 list.add(map);
             }
             job_res.close();
@@ -532,6 +537,7 @@ public class Database {
             Map<String, Object> map = new HashMap<>();
             if (res.next()) {
                 map.put("job_id", res.getInt("job_id"));
+                map.put("company_id", res.getInt("company_id"));
                 map.put("title", res.getString("title"));
                 map.put("department", res.getString("department"));
                 map.put("location", res.getString("job_location"));
@@ -808,6 +814,41 @@ public class Database {
 
             return list;
         } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    public static List<Map<String, Object>> allJobs() {
+        try {
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM jobs");
+            ResultSet res = statement.executeQuery();
+            List<Map<String, Object>> list = new ArrayList<>();
+            while (res.next()) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("job_id", res.getInt("job_id"));
+                map.put("company_id", res.getInt("company_id"));
+                map.put("title", res.getString("title"));
+                map.put("department", res.getString("department"));
+                map.put("location", res.getString("job_location"));
+                map.put("workstyle", res.getString("workstyle"));
+                map.put("job_type", res.getString("job_type"));
+                map.put("experience", res.getString("experience"));
+                map.put("education", res.getString("education"));
+                map.put("skills", res.getArray("skills").getArray());
+                map.put("languages", res.getArray("languages").getArray());
+                map.put("description", res.getString("job_description"));
+                map.put("responsibilities", res.getString("responsibilities"));
+                map.put("qualifications", res.getString("qualifications"));
+                map.put("deadline", res.getTimestamp("closes_at"));
+                map.put("start", res.getTimestamp("created_at"));
+                map.put("openings", res.getInt("openings"));
+                list.add(map);
+            }
+            res.close();
+            statement.close();
+            return list;
+        } catch (SQLException ex) {
             ex.printStackTrace();
         }
         return null;
