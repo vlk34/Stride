@@ -516,8 +516,8 @@ public class Database {
                 map.put("location", job_res.getString("job_location"));
                 map.put("jobtype", job_res.getString("job_type"));
                 map.put("workstyle", job_res.getString("workstyle"));
-                map.put("deadline", res.getTimestamp("closes_at"));
-                map.put("start", res.getTimestamp("created_at"));
+                map.put("deadline", job_res.getTimestamp("closes_at"));
+                map.put("start", job_res.getTimestamp("created_at"));
                 PreparedStatement st = connection.prepareStatement("SELECT COUNT(1) FROM applications WHERE job_id = ?");
                 st.setInt(1, job_res.getInt("job_id"));
                 ResultSet rs = st.executeQuery();
@@ -561,6 +561,14 @@ public class Database {
                 map.put("deadline", res.getTimestamp("closes_at"));
                 map.put("start", res.getTimestamp("created_at"));
                 map.put("openings", res.getInt("openings"));
+                PreparedStatement st = connection.prepareStatement("SELECT COUNT(1) FROM applications WHERE job_id = ?");
+                st.setInt(1, res.getInt("job_id"));
+                ResultSet rs = st.executeQuery();
+                if (rs.next()) {
+                    map.put("applicant_count", rs.getInt(1));
+                }
+                rs.close();
+                st.close();
             }
             res.close();
             statement.close();
@@ -766,6 +774,14 @@ public class Database {
                 map.put("job_id", job_res.getInt("job_id"));
                 map.put("title", job_res.getString("title"));
                 map.put("description", job_res.getString("job_description"));
+                PreparedStatement st = connection.prepareStatement("SELECT COUNT(1) FROM applications WHERE job_id = ?");
+                st.setInt(1, job_res.getInt("job_id"));
+                ResultSet rs = st.executeQuery();
+                if (rs.next()) {
+                    map.put("applicant_count", rs.getInt(1));
+                }
+                rs.close();
+                st.close();
                 list.add(map);
             }
             job_res.close();
