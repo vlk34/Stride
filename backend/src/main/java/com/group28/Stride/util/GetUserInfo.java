@@ -53,8 +53,8 @@ public class GetUserInfo {
                 user.put("image", clerk_user.imageUrl().get());
             if (clerk_user.publicMetadata().isPresent() && clerk_user.publicMetadata().get().get("role") != null)
                 user.put("role", clerk_user.publicMetadata().get().get("role"));
-            if (clerk_user.unsafeMetadata().isPresent() && clerk_user.unsafeMetadata().get().get("unsafeRole") != null)
-                user.put("unsafeRole", clerk_user.unsafeMetadata().get().get("unsafeRole"));
+            if (clerk_user.unsafeMetadata().isPresent() && clerk_user.unsafeMetadata().get().get("role") != null)
+                user.put("unsafeRole", clerk_user.unsafeMetadata().get().get("role"));
             if (clerk_user.unsafeMetadata().isPresent() && clerk_user.unsafeMetadata().get().get("phone") != null)
                 user.put("phone", clerk_user.unsafeMetadata().get().get("phone"));
             if (clerk_user.unsafeMetadata().isPresent() && clerk_user.unsafeMetadata().get().get("about") != null)
