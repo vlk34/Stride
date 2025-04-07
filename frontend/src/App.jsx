@@ -224,7 +224,11 @@ const App = () => {
           <Route path="/business/manage/jobs" element={<ManageJobs />} />
           <Route path="/business/applicants" element={<Applicants />} />
           <Route
-            path="/business/job-applicants/:id"
+            path="/business/job-applicants/:jobId"
+            element={<JobApplicants />}
+          />
+          <Route
+            path="/business/applicants/:jobId"
             element={<JobApplicants />}
           />
           <Route path="/business/edit-job/:jobId" element={<EditJob />} />

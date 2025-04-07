@@ -15,28 +15,33 @@ from langgraph.prebuilt import create_react_agent
 import json
 import ast
 
+# Define your OpenAI key directly
+openai_api_key = ""
+# Initialize the LLM with your API key
+llm = init_chat_model("gpt-4o-mini", model_provider="openai", openai_api_key=openai_api_key)
 
-
-
-if not os.environ.get("STRIDE_OPENAI"):
-    raise EnvironmentError("OPENAI_API_KEY not found.")
-# Init LLM
-llm = init_chat_model("gpt-4o-mini", model_provider="openai")
 # Device check
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model_kwargs = {'device': device}
-# Load Embeddings and FAISS vector store
-embeddings = HuggingFaceEmbeddings(
-    model_name="sentence-transformers/all-mpnet-base-v2",
-    model_kwargs=model_kwargs
+
+# IMPORTANT: Remove the HuggingFace embeddings and use a simpler approach
+# Use OpenAI embeddings instead since you already have the API key
+from langchain_openai import OpenAIEmbeddings
+
+embeddings = OpenAIEmbeddings(
+    openai_api_key=openai_api_key,
+    model="text-embedding-3-small"
 )
+
+# Rest of your code stays the same
 vector_store = FAISS.load_local(
-    "C:/Users/mekin/OneDrive/Desktop/java/faiss_index", embeddings, allow_dangerous_deserialization=True
+    "C:/Users/volka/OneDrive/Belgeler/React-projects/cmpe356/backend/ML/faiss_index", embeddings, allow_dangerous_deserialization=True
+    
 )
 # Retrieve relevant docs
 retriever = vector_store.as_retriever(search_type="mmr", search_kwargs={"k": 5})
 
-db = SQLDatabase.from_uri("postgresql://postgres:rootadmin1@localhost:5432/java project")
+db = SQLDatabase.from_uri("postgresql://postgres:stride@localhost:5432/postgres")
 
 
 
@@ -181,16 +186,16 @@ def agent_invoke(user_input: str):
     
     examples_text = ""
     if examples:
-        examples_text = "\n\nHere are some examples of similar inputs and their queries:\n\n"
+        examples_text = "/n/nHere are some examples of similar inputs and their queries:/n/n"
         for i, example in enumerate(examples):
-            examples_text += f"Example {i+1}:\n"
-            examples_text += f"User input: {example['input']}\n"
-            examples_text += f"SQL query: {example['query']}\n\n"
+            examples_text += f"Example {i+1}:/n"
+            examples_text += f"User input: {example['input']}/n"
+            examples_text += f"SQL query: {example['query']}/n/n"
     
     # Integrate examples into the agent prompt
     enhanced_prompt = agent_prompt + examples_text
     print(enhanced_prompt)
-    print("\n")
+    print("/n")
 
 
 
@@ -213,7 +218,7 @@ def agent_invoke(user_input: str):
         sql_query = arguments_dict["query"]
         execute_query_tool = QuerySQLDatabaseTool(db=db)
         result = execute_query_tool.invoke(sql_query)
-        print("\n\n")
+        print("/n/n")
         print(sql_query)
         print(result)
 
