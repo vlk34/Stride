@@ -588,7 +588,7 @@ public class Database {
             if (!owner_id.equals(user_id))
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You do not own this job");
 
-            PreparedStatement applicant_statement = connection.prepareStatement("SELECT user_id, cv, application_date FROM applications WHERE job_id = ?");
+            PreparedStatement applicant_statement = connection.prepareStatement("SELECT user_id, job_id, cv, application_date FROM applications WHERE job_id = ?");
             applicant_statement.setInt(1, job_id);
             ResultSet applicant_res = applicant_statement.executeQuery();
             List<Map<String, Object>> list = new ArrayList<>();
@@ -597,6 +597,7 @@ public class Database {
                 if (map == null)
                     map = new HashMap<>();
                 map.put("user_id", applicant_res.getString("user_id"));
+                map.put("job_id", applicant_res.getString("job_id"));
                 map.put("cv", applicant_res.getInt("cv"));
                 map.put("applied_at", applicant_res.getTimestamp("application_date"));
                 list.add(map);
