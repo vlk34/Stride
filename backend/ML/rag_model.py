@@ -1,4 +1,3 @@
-from langchain_huggingface import HuggingFaceEmbeddings
 import torch
 from langchain_community.docstore.in_memory import InMemoryDocstore
 from langchain_community.vectorstores import FAISS
@@ -14,9 +13,12 @@ from langchain_core.messages import HumanMessage
 from langgraph.prebuilt import create_react_agent
 import json
 import ast
+import psycopg2
+import psycopg2.extras
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 # Define your OpenAI key directly
-openai_api_key = ""
+openai_api_key = os.getenv("STRIDE_OPENAI")  # Replace with your actual OpenAI API key
 # Initialize the LLM with your API key
 llm = init_chat_model("gpt-4o-mini", model_provider="openai", openai_api_key=openai_api_key)
 
@@ -35,13 +37,13 @@ embeddings = OpenAIEmbeddings(
 
 # Rest of your code stays the same
 vector_store = FAISS.load_local(
-    "C:/Users/volka/OneDrive/Belgeler/React-projects/cmpe356/backend/ML/faiss_index", embeddings, allow_dangerous_deserialization=True
+    "cmpe356/backend/ML/faiss_index", embeddings, allow_dangerous_deserialization=True
     
 )
 # Retrieve relevant docs
 retriever = vector_store.as_retriever(search_type="mmr", search_kwargs={"k": 5})
 
-db = SQLDatabase.from_uri("postgresql://postgres:stride@localhost:5432/postgres")
+db = SQLDatabase.from_uri("postgresql://postgres:rootadmin1@localhost:5432/java project")
 
 
 
@@ -167,6 +169,45 @@ def generate_sql_result(user_input: str):
     }
 
 
+def execute_sql_query(query):
+    """Execute SQL query directly using psycopg2"""
+    connection = None
+    try:
+        # Connect to the PostgreSQL database
+        connection = psycopg2.connect(
+            host="localhost",
+            port=5432,
+            database="java project",
+            user="postgres",
+            password="rootadmin1"  
+        )
+        
+        # Create a cursor
+        cursor = connection.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        
+        # Execute the query
+        cursor.execute(query)
+        
+        # Fetch results
+        results = cursor.fetchall()
+        
+        # Convert results to a list of dictionaries
+        column_names = [desc[0] for desc in cursor.description]
+        result_list = []
+        for row in results:
+            row_dict = {column_names[i]: value for i, value in enumerate(row)}
+            result_list.append(row_dict)
+            
+        return result_list
+        
+    except Exception as e:
+        print(f"Database error: {e}")
+        return []
+    finally:
+        if connection:
+            connection.close()
+
+
 def agent_invoke(user_input: str):
     from langchain_community.agent_toolkits import SQLDatabaseToolkit
 
@@ -216,40 +257,34 @@ def agent_invoke(user_input: str):
         arguments_dict = json.loads(arguments)
         # Access the query
         sql_query = arguments_dict["query"]
-        execute_query_tool = QuerySQLDatabaseTool(db=db)
-        result = execute_query_tool.invoke(sql_query)
-        print("/n/n")
-        print(sql_query)
-        print(result)
+        
+        # Execute the SQL query using psycopg2 instead of langchain
+        results = execute_sql_query(sql_query)
+        
+        print(results[0])
 
-        columns = [
-            "title",
-            "job_location",
-            "job_type",
-            "workstyle",
-            "experience",
-            "education",
-            "skills",
-            "languages",
-            "job_description"
-        ]
+        formated_results = []
 
-
-        # If 'result' is a string, convert it to a list of tuples
-        if isinstance(result, str):
-            result = ast.literal_eval(result)
-
-
-
-
-
-        # Convert each tuple row into a dictionary
-        json_ready_results = [dict(zip(columns, row)) for row in result]
-
-    
+        for result in results:
+            company = execute_sql_query(f"SELECT * FROM company WHERE company_id = {result['company_id']}")
+            
+            formated_result = {
+                "job_id": result.get("job_id"),
+                "title": result.get("title"),
+                "company": company[0].get("company_name") if company else None,
+                "logo": company[0].get("logo") if company else None,
+                "location": result.get("job_location"),
+                "jobtype": result.get("job_type"),
+                "workstyle": result.get("workstyle")
+            }
+            
+            formated_results.append(formated_result)
+        
+        print("Formatted results:")
+        print(formated_results)
         return {
             "sql_query": sql_query,
-            "result": json_ready_results
+            "result": formated_results
         }
         
     except (KeyError, IndexError, json.JSONDecodeError) as e:
