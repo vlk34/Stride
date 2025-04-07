@@ -55,6 +55,14 @@ public class GetUserInfo {
                 user.put("role", clerk_user.publicMetadata().get().get("role"));
             if (clerk_user.unsafeMetadata().isPresent() && clerk_user.unsafeMetadata().get().get("phone") != null)
                 user.put("phone", clerk_user.unsafeMetadata().get().get("phone"));
+            if (clerk_user.unsafeMetadata().isPresent() && clerk_user.unsafeMetadata().get().get("about") != null)
+                user.put("about", clerk_user.unsafeMetadata().get().get("about"));
+            if (clerk_user.unsafeMetadata().isPresent() && clerk_user.unsafeMetadata().get().get("education") != null)
+                user.put("education", clerk_user.unsafeMetadata().get().get("education"));
+            if (clerk_user.unsafeMetadata().isPresent() && clerk_user.unsafeMetadata().get().get("experiences") != null)
+                user.put("experiences", clerk_user.unsafeMetadata().get().get("experiences"));
+            if (clerk_user.unsafeMetadata().isPresent() && clerk_user.unsafeMetadata().get().get("skills") != null)
+                user.put("skills", clerk_user.unsafeMetadata().get().get("skills"));
             if (clerk_user.id().isPresent())
                 users.put(clerk_user.id().get(), user);
         }
