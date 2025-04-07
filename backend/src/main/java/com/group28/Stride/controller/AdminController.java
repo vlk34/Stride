@@ -32,6 +32,22 @@ public class AdminController {
     }
 
     @CrossOrigin
+    @PostMapping("/descenduser")
+    public ResponseEntity<String> descenduser(@RequestBody Map<String, Object> body, @RequestHeader("Authorization") String auth) throws Exception {
+        Claims user_claims = Authentication.getClaims(auth);
+        if (user_claims == null)
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+        String role = (String) user_claims.get("metadata", HashMap.class).get("role");
+        if (!"admin".equalsIgnoreCase(role))
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+
+        GetUserInfo.businessDowngrade(body.get("user_id").toString());
+        Database.removeCompany(body.get("user_id").toString());
+
+        return new ResponseEntity<>("Successful", HttpStatus.OK);
+    }
+
+    @CrossOrigin
     @PostMapping("/declineupgrade")
     public ResponseEntity<String> declineupgrade(@RequestBody Map<String, Object> body, @RequestHeader("Authorization") String auth) {
         Claims user_claims = Authentication.getClaims(auth);
