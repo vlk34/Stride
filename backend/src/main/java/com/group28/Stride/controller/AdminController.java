@@ -65,7 +65,7 @@ public class AdminController {
 
     @CrossOrigin
     @GetMapping("/applications")
-    public List<Map<String, Object>> applications(@RequestHeader("Authorization") String auth) throws Exception {
+    public List<Map<String, Object>> applications(@RequestHeader("Authorization") String auth) {
         Claims user_claims = Authentication.getClaims(auth);
         if (user_claims == null)
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");

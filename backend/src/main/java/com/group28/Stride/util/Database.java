@@ -518,6 +518,12 @@ public class Database {
                 map.put("workstyle", job_res.getString("workstyle"));
                 map.put("deadline", res.getTimestamp("closes_at"));
                 map.put("start", res.getTimestamp("created_at"));
+                PreparedStatement st = connection.prepareStatement("SELECT COUNT(1) FROM applications WHERE job_id = ?");
+                st.setInt(1, job_res.getInt("job_id"));
+                ResultSet rs = st.executeQuery();
+                map.put("applicant_count", res.getInt(1));
+                rs.close();
+                st.close();
                 list.add(map);
             }
             job_res.close();
@@ -902,6 +908,54 @@ public class Database {
             applicant_statement.close();
 
             return list;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    public static Map<String, Object> applicantInfo(String user_id, Integer job_id, String user) {
+        try {
+            PreparedStatement job_statement = connection.prepareStatement("SELECT company_id FROM jobs WHERE job_id = ?");
+            job_statement.setInt(1, job_id);
+            ResultSet job_res = job_statement.executeQuery();
+            int company_id = 0;
+            if (job_res.next()) {
+                company_id = job_res.getInt("company_id");
+            }
+            job_res.close();
+            job_statement.close();
+
+            PreparedStatement company_statement = connection.prepareStatement("SELECT user_id FROM companies WHERE company_id = ?");
+            company_statement.setInt(1, company_id);
+            ResultSet company_res = company_statement.executeQuery();
+            String owner_id = "";
+            if (company_res.next()) {
+                owner_id = company_res.getString("user_id");
+            }
+            company_res.close();
+            company_statement.close();
+
+            if (!owner_id.equals(user_id))
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You do not own this job");
+
+            PreparedStatement applicant_statement = connection.prepareStatement("SELECT user_id, job_id, cv, application_date FROM applications WHERE job_id = ? AND user_id = ?");
+            applicant_statement.setInt(1, job_id);
+            applicant_statement.setString(2, user);
+            ResultSet applicant_res = applicant_statement.executeQuery();
+            Map<String, Object> map = new HashMap<>();
+            if (applicant_res.next()) {
+                map = GetUserInfo.fromUserID(applicant_res.getString("user_id"));
+                if (map == null)
+                    map = new HashMap<>();
+                map.put("user_id", applicant_res.getString("user_id"));
+                map.put("job_id", applicant_res.getString("job_id"));
+                map.put("cv", applicant_res.getInt("cv"));
+                map.put("applied_at", applicant_res.getTimestamp("application_date"));
+            }
+            applicant_res.close();
+            applicant_statement.close();
+            return map;
         } catch (Exception ex) {
             ex.printStackTrace();
         }

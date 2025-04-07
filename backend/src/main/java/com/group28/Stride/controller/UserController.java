@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,7 +65,7 @@ public class UserController {
 
     @CrossOrigin
     @GetMapping("/details")
-    public Map<String, Object> details(@RequestParam Integer job) throws IOException {
+    public Map<String, Object> details(@RequestParam Integer job) {
         return Database.jobDetails(job);
     }
 
@@ -78,7 +77,7 @@ public class UserController {
 
     @CrossOrigin
     @PostMapping("/save")
-    public ResponseEntity<String> save(@RequestBody Map<String, Object> body, @RequestHeader("Authorization") String auth) throws IOException {
+    public ResponseEntity<String> save(@RequestBody Map<String, Object> body, @RequestHeader("Authorization") String auth) {
         Claims user_claims = Authentication.getClaims(auth);
         if (user_claims == null)
             return new ResponseEntity<>("Not authenticated", HttpStatus.UNAUTHORIZED);
@@ -104,7 +103,7 @@ public class UserController {
 
     @CrossOrigin
     @GetMapping("/saved")
-    public List<Map<String, Object>> saved(@RequestHeader("Authorization") String auth) throws IOException {
+    public List<Map<String, Object>> saved(@RequestHeader("Authorization") String auth) {
         Claims user_claims = Authentication.getClaims(auth);
         if (user_claims == null)
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
@@ -115,7 +114,7 @@ public class UserController {
 
     @CrossOrigin
     @PostMapping("/apply")
-    public ResponseEntity<String> apply(@RequestBody Map<String, Object> body, @RequestHeader("Authorization") String auth) throws IOException {
+    public ResponseEntity<String> apply(@RequestBody Map<String, Object> body, @RequestHeader("Authorization") String auth) {
         Claims user_claims = Authentication.getClaims(auth);
         if (user_claims == null)
             return new ResponseEntity<>("Not authenticated", HttpStatus.UNAUTHORIZED);
@@ -128,7 +127,7 @@ public class UserController {
 
     @CrossOrigin
     @GetMapping("/applied")
-    public List<Map<String, Object>> applied(@RequestHeader("Authorization") String auth) throws IOException {
+    public List<Map<String, Object>> applied(@RequestHeader("Authorization") String auth) {
         Claims user_claims = Authentication.getClaims(auth);
         if (user_claims == null)
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
@@ -139,7 +138,7 @@ public class UserController {
 
     @CrossOrigin
     @PostMapping("/upgrade")
-    public ResponseEntity<String> upgrade(@RequestBody Map<String, Object> body, @RequestHeader("Authorization") String auth) throws IOException {
+    public ResponseEntity<String> upgrade(@RequestBody Map<String, Object> body, @RequestHeader("Authorization") String auth) {
         Claims user_claims = Authentication.getClaims(auth);
         if (user_claims == null)
             return new ResponseEntity<>("Not authenticated", HttpStatus.UNAUTHORIZED);
