@@ -1029,4 +1029,55 @@ public class Database {
         }
         return null;
     }
+
+    public static List<Map<String, Object>> getNotifications(String user_id) {
+        try {
+            PreparedStatement statement = connection.prepareStatement("SELECT notification_id, title, content, is_read, created_at FROM notifications WHERE user_id = ?");
+            statement.setString(1, user_id);
+            ResultSet res = statement.executeQuery();
+
+            List<Map<String, Object>> list = new ArrayList<>();
+            while (res.next()) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("id", res.getInt("notification_id"));
+                map.put("title", res.getString("title"));
+                map.put("content", res.getString("content"));
+                map.put("is_read", res.getBoolean("is_read"));
+                map.put("sent_at", res.getTimestamp("created_at"));
+                list.add(map);
+            }
+            res.close();
+            statement.close();
+            return list;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    public static void sendNotification(String user_id, String title, String content) {
+        try {
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO notifications (user_id, title, content) VALUES (?, ?, ?)");
+            statement.setString(1, user_id);
+            statement.setString(2, title);
+            statement.setString(3, content);
+            statement.executeUpdate();
+            statement.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public static void markAsRead(String user_id, Integer notification) {
+        try {
+            PreparedStatement statement = connection.prepareStatement("UPDATE notifications SET is_read = ? WHERE user_id = ? AND notification_id = ?");
+            statement.setBoolean(1, true);
+            statement.setString(2, user_id);
+            statement.setInt(3, notification);
+            statement.executeUpdate();
+            statement.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
 }
