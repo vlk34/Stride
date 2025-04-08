@@ -1068,12 +1068,12 @@ public class Database {
         }
     }
 
-    public static void markAsRead(String user_id, Integer notification) {
+    public static void markAsRead(String user_id, Integer notification_id) {
         try {
             PreparedStatement statement = connection.prepareStatement("UPDATE notifications SET is_read = ? WHERE user_id = ? AND notification_id = ?");
             statement.setBoolean(1, true);
             statement.setString(2, user_id);
-            statement.setInt(3, notification);
+            statement.setInt(3, notification_id);
             statement.executeUpdate();
             statement.close();
         } catch (Exception ex) {

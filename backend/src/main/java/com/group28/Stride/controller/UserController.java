@@ -71,7 +71,7 @@ public class UserController {
             return new ResponseEntity<>("Not authenticated", HttpStatus.UNAUTHORIZED);
         String user_id = user_claims.getSubject();
 
-        Database.markAsRead(user_id, (int) body.get("notification_id"));
+        Database.markAsRead(user_id, (int) body.get("id"));
 
         return new ResponseEntity<>("Successful", HttpStatus.OK);
     }
