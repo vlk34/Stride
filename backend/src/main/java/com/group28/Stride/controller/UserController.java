@@ -1,5 +1,6 @@
 package com.group28.Stride.controller;
 
+import com.google.gson.Gson;
 import com.group28.Stride.util.Authentication;
 import com.group28.Stride.util.Database;
 import io.jsonwebtoken.Claims;
@@ -10,6 +11,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -138,13 +145,30 @@ public class UserController {
 
     @CrossOrigin
     @PostMapping("/apply")
-    public ResponseEntity<String> apply(@RequestBody Map<String, Object> body, @RequestHeader("Authorization") String auth) {
+    public ResponseEntity<String> apply(@RequestBody Map<String, Object> body, @RequestHeader("Authorization") String auth) throws URISyntaxException, IOException, InterruptedException {
         Claims user_claims = Authentication.getClaims(auth);
         if (user_claims == null)
             return new ResponseEntity<>("Not authenticated", HttpStatus.UNAUTHORIZED);
         String user_id = user_claims.getSubject();
 
-        Database.applyJob(user_id, body);
+        int id = Database.applyJob(user_id, body);
+
+        Gson gson = new Gson();
+
+        HttpClient client = HttpClient.newHttpClient();
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(new URI("http://localhost:8000/match-resume-job"))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(Map.of("application_id", id))))
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        client.close();
+
+        if (response.statusCode() != 200)
+            System.out.println("Fast API problem");
 
         return new ResponseEntity<>("Successful", HttpStatus.OK);
     }

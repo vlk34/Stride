@@ -230,17 +230,24 @@ public class Database {
         }
     }
 
-    public static void applyJob(String user_id, Map<String, Object> body) {
+    public static int applyJob(String user_id, Map<String, Object> body) {
         try {
-            PreparedStatement statement = connection.prepareStatement("INSERT INTO applications (user_id, job_id, cv) VALUES (?, ?, ?)");
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO applications (user_id, job_id, cv) VALUES (?, ?, ?) RETURNING application_id");
             statement.setString(1, user_id);
             statement.setInt(2, (int) body.get("job_id"));
             statement.setInt(3, (int) body.get("cv"));
-            statement.executeUpdate();
+            ResultSet res = statement.executeQuery();
+            int id = 0;
+            if (res.next()) {
+                id = res.getInt("application_id");
+            }
+            res.close();
             statement.close();
+            return id;
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
+        return 0;
     }
 
     public static List<Map<String, Object>> applied(String user_id) {
