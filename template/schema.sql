@@ -67,6 +67,7 @@ CREATE TABLE IF NOT EXISTS applications (
     user_id VARCHAR(255) NOT NULL,
     job_id INTEGER NOT NULL,
     cv INTEGER NOT NULL,
+    similarity FLOAT,
     application_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE (user_id, job_id),
     FOREIGN KEY (cv) REFERENCES resumes(id),
