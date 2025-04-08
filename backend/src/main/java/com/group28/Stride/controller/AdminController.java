@@ -59,6 +59,7 @@ public class AdminController {
 
         Database.removeCompany(body.get("user_id").toString());
         Database.removeBusinessApplication(body.get("user_id").toString());
+        Database.sendNotification(body.get("user_id").toString(), "Business Application Info", "Your business upgrade request is declined.");
 
         return new ResponseEntity<>("Successful", HttpStatus.OK);
     }

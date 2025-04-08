@@ -53,6 +53,30 @@ public class UserController {
     }
 
     @CrossOrigin
+    @PostMapping("/notifications")
+    public List<Map<String, Object>> notifications(@RequestHeader("Authorization") String auth) {
+        Claims user_claims = Authentication.getClaims(auth);
+        if (user_claims == null)
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+        String user_id = user_claims.getSubject();
+
+        return Database.getNotifications(user_id);
+    }
+
+    @CrossOrigin
+    @PostMapping("/read")
+    public ResponseEntity<String> read(@RequestBody Map<String, Object> body, @RequestHeader("Authorization") String auth) {
+        Claims user_claims = Authentication.getClaims(auth);
+        if (user_claims == null)
+            return new ResponseEntity<>("Not authenticated", HttpStatus.UNAUTHORIZED);
+        String user_id = user_claims.getSubject();
+
+        Database.markAsRead(user_id, (int) body.get("notification_id"));
+
+        return new ResponseEntity<>("Successful", HttpStatus.OK);
+    }
+
+    @CrossOrigin
     @GetMapping("/search")
     public List<Map<String, Object>> search(
             @RequestParam(required = false) String q,
