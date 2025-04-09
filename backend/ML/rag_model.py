@@ -37,7 +37,7 @@ embeddings = OpenAIEmbeddings(
 
 # Rest of your code stays the same
 vector_store = FAISS.load_local(
-    "cmpe356/backend/ML/faiss_index", embeddings, allow_dangerous_deserialization=True
+    "C:/Users/mekin/OneDrive/Desktop/java/cmpe356/backend/ML/faiss_index", embeddings, allow_dangerous_deserialization=True
     
 )
 # Retrieve relevant docs
