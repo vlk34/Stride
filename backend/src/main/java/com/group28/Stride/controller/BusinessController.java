@@ -196,7 +196,7 @@ public class BusinessController {
 
     @CrossOrigin
     @GetMapping("/company")
-    public Map<String, Object> company(@PathVariable int id, @RequestHeader("Authorization") String auth) {
+    public Map<String, Object> company(@RequestHeader("Authorization") String auth) {
         Claims user_claims = Authentication.getClaims(auth);
         if (user_claims == null)
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
