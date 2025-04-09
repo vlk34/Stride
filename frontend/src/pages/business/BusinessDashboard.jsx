@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   BarChart3,
   Users,
@@ -22,6 +22,7 @@ import {
   Filter,
   Download,
   AlertCircle,
+  User,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import {
@@ -29,6 +30,72 @@ import {
   useRecentJobs,
   useRecentApplicants,
 } from "../../hooks/tanstack/useBusinessDashboard";
+import { useImage } from "../../hooks/tanstack/useImageAndCompany";
+import ApplicantCard from "../../components/ApplicantCard";
+
+const JobCard = ({ job, handleJobCardClick, getRelativeTime }) => {
+  const { data: logoUrl } = useImage(job.logo);
+
+  return (
+    <div
+      key={job.job_id}
+      onClick={() => handleJobCardClick(job.job_id)}
+      className="flex items-center justify-between p-3 md:p-4 h-auto min-h-[5rem] md:h-24 rounded-lg border border-gray-100 hover:border-blue-500 hover:bg-blue-50/30 transition-colors cursor-pointer"
+    >
+      <div className="flex items-center flex-1 min-w-0">
+        {logoUrl ? (
+          <img
+            src={logoUrl}
+            alt={`${job.company} logo`}
+            className="w-10 h-10 rounded-full object-cover mr-3 border border-gray-200"
+            onError={(e) => {
+              e.target.src = "https://via.placeholder.com/40?text=Logo";
+            }}
+          />
+        ) : (
+          <Building2 className="w-10 h-10 text-gray-400 mr-3" />
+        )}
+        <div className="flex-1 min-w-0">
+          <h3 className="font-medium text-gray-900 truncate">{job.title}</h3>
+          <p className="text-sm text-gray-600 truncate">
+            {job.company || "General"} •{" "}
+            {job.location ||
+              (job.workstyle === "remote" ? "Remote" : "On-site")}
+          </p>
+          <div className="flex items-center mt-1 flex-wrap">
+            <Clock className="w-4 h-4 text-gray-400 mr-1 flex-shrink-0" />
+            <span className="text-sm text-gray-600 mr-3">
+              Posted {getRelativeTime(job.start || new Date())}
+            </span>
+            <Users className="w-4 h-4 text-gray-400 mr-1 flex-shrink-0" />
+            <span className="text-sm text-gray-600">
+              {job.applicant_count}{" "}
+              {job.applicant_count === 1 ? "applicant" : "applicants"}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div className="flex flex-col items-end ml-2">
+        <span
+          className={`px-2 md:px-3 py-1 rounded-full text-xs md:text-sm ${
+            new Date(job.deadline) > new Date()
+              ? "bg-green-100 text-green-700"
+              : "bg-gray-100 text-gray-700"
+          }`}
+        >
+          {new Date(job.deadline) > new Date() ? "Active" : "Closed"}
+        </span>
+        <Link
+          to={`/business/applicants/${job.job_id}`}
+          className="text-blue-600 hover:text-blue-700 text-xs md:text-sm mt-2 whitespace-nowrap"
+          onClick={(e) => e.stopPropagation()} // Prevent card click
+        >
+          View Applicants
+        </Link>
+      </div>
+    </div>
+  );
+};
 
 const BusinessDashboard = () => {
   const [timeRange, setTimeRange] = useState("week");
@@ -68,6 +135,9 @@ const BusinessDashboard = () => {
     "Profile Views",
     "Response Rate",
   ];
+  useEffect(() => {
+    console.log(jobsData);
+  }, [jobsData]);
 
   // Format stats data
   const getFormattedStats = () => {
@@ -102,23 +172,6 @@ const BusinessDashboard = () => {
     ];
   };
 
-  // Format jobs for display
-  const getFormattedJobs = () => {
-    if (!jobsData) return [];
-
-    return jobsData.map((job) => ({
-      id: job.job_id,
-      title: job.title,
-      department: job.department || "General",
-      location:
-        job.location || (job.workstyle === "remote" ? "Remote" : "On-site"),
-      applicants: 0, // This would need additional API calls to count applicants
-      newApplicants: 0,
-      status: new Date(job.deadline) > new Date() ? "Active" : "Closed",
-      posted: getRelativeTime(job.created_at || new Date()),
-    }));
-  };
-
   // Function to format relative time
   const getRelativeTime = (timestamp) => {
     const now = new Date();
@@ -136,8 +189,10 @@ const BusinessDashboard = () => {
   };
 
   // Handle card clicks
-  const handleJobCardClick = (jobId) => {
-    navigate(`/business/job-details/${jobId}`);
+  const handleJobCardClick = (jobId, jobTitle) => {
+    // Encode the job title to handle special characters in URLs
+    const encodedTitle = encodeURIComponent(jobTitle);
+    navigate(`/search?q=${encodedTitle}&jobId=${jobId}`);
   };
 
   const handleApplicantCardClick = (userId, jobId) => {
@@ -146,7 +201,6 @@ const BusinessDashboard = () => {
 
   const isLoading = statsLoading || jobsLoading || applicantsLoading;
   const stats = getFormattedStats();
-  const jobs = getFormattedJobs();
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
@@ -261,7 +315,7 @@ const BusinessDashboard = () => {
             </Link>
           </div>
 
-          {isLoading ? (
+          {jobsLoading ? (
             // Skeleton for recent jobs
             <div className="space-y-3 md:space-y-4">
               {Array(5)
@@ -271,12 +325,15 @@ const BusinessDashboard = () => {
                     key={index}
                     className="flex items-center justify-between p-3 md:p-4 h-auto min-h-[5rem] md:h-24 rounded-lg border border-gray-100"
                   >
-                    <div className="flex-1 min-w-0">
-                      <div className="h-5 w-full max-w-[10rem] bg-gray-200 rounded animate-pulse mb-2"></div>
-                      <div className="h-4 w-full max-w-[8rem] bg-gray-200 rounded animate-pulse mb-2"></div>
-                      <div className="flex items-center mt-1">
-                        <Users className="w-4 h-4 text-gray-400 mr-1 flex-shrink-0" />
-                        <div className="h-4 w-8 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="flex items-center flex-1 min-w-0">
+                      <div className="w-10 h-10 rounded-full bg-gray-200 animate-pulse mr-3"></div>
+                      <div className="flex-1">
+                        <div className="h-5 w-full max-w-[10rem] bg-gray-200 rounded animate-pulse mb-2"></div>
+                        <div className="h-4 w-full max-w-[8rem] bg-gray-200 rounded animate-pulse mb-2"></div>
+                        <div className="flex items-center mt-1">
+                          <Users className="w-4 h-4 text-gray-400 mr-1 flex-shrink-0" />
+                          <div className="h-4 w-8 bg-gray-200 rounded animate-pulse"></div>
+                        </div>
                       </div>
                     </div>
                     <div className="flex flex-col items-end ml-2">
@@ -288,7 +345,7 @@ const BusinessDashboard = () => {
                   </div>
                 ))}
             </div>
-          ) : jobs.length === 0 ? (
+          ) : !jobsData || jobsData.length === 0 ? (
             // No jobs message
             <div className="text-center py-10">
               <Briefcase className="w-12 h-12 text-gray-300 mx-auto mb-4" />
@@ -308,45 +365,15 @@ const BusinessDashboard = () => {
           ) : (
             // Actual jobs when loaded
             <div className="space-y-3 md:space-y-4">
-              {jobs.slice(0, 5).map((job) => (
-                <div
-                  key={job.id}
-                  onClick={() => handleJobCardClick(job.id)}
-                  className="flex items-center justify-between p-3 md:p-4 h-auto min-h-[5rem] md:h-24 rounded-lg border border-gray-100 hover:border-blue-500 hover:bg-blue-50/30 transition-colors cursor-pointer"
-                >
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-medium text-gray-900 truncate">
-                      {job.title}
-                    </h3>
-                    <p className="text-sm text-gray-600 truncate">
-                      {job.department} • {job.location}
-                    </p>
-                    <div className="flex items-center mt-1 flex-wrap">
-                      <Clock className="w-4 h-4 text-gray-400 mr-1 flex-shrink-0" />
-                      <span className="text-sm text-gray-600 mr-3">
-                        Posted {job.posted}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex flex-col items-end ml-2">
-                    <span
-                      className={`px-2 md:px-3 py-1 rounded-full text-xs md:text-sm ${
-                        job.status === "Active"
-                          ? "bg-green-100 text-green-700"
-                          : "bg-gray-100 text-gray-700"
-                      }`}
-                    >
-                      {job.status}
-                    </span>
-                    <Link
-                      to={`/business/applicants/${job.id}`}
-                      className="text-blue-600 hover:text-blue-700 text-xs md:text-sm mt-2 whitespace-nowrap"
-                      onClick={(e) => e.stopPropagation()} // Prevent card click
-                    >
-                      View Applicants
-                    </Link>
-                  </div>
-                </div>
+              {jobsData.slice(0, 5).map((job) => (
+                <JobCard
+                  key={job.job_id}
+                  job={job}
+                  handleJobCardClick={() =>
+                    handleJobCardClick(job.job_id, job.title)
+                  }
+                  getRelativeTime={getRelativeTime}
+                />
               ))}
             </div>
           )}
@@ -413,7 +440,7 @@ const BusinessDashboard = () => {
                 There was an error loading recent applicants data.
               </p>
             </div>
-          ) : recentApplicants?.length === 0 ? (
+          ) : !recentApplicants || recentApplicants.length === 0 ? (
             // No applicants message
             <div className="text-center py-10">
               <Users className="w-12 h-12 text-gray-300 mx-auto mb-4" />
@@ -427,53 +454,14 @@ const BusinessDashboard = () => {
           ) : (
             // Actual applicants when loaded
             <div className="space-y-3 md:space-y-4">
-              {recentApplicants?.map((applicant) => (
-                <div
-                  key={applicant.id}
-                  onClick={() =>
-                    handleApplicantCardClick(applicant.id, applicant.job_id)
-                  }
-                  className="flex items-center justify-between p-3 md:p-4 h-auto min-h-[5rem] md:h-24 rounded-lg border border-gray-100 hover:border-blue-500 hover:bg-blue-50/30 transition-colors cursor-pointer"
-                >
-                  <div className="flex items-center flex-1 min-w-0">
-                    <img
-                      src={applicant.photo}
-                      alt={applicant.name}
-                      className="w-8 h-8 md:w-10 md:h-10 rounded-full object-cover mr-2 md:mr-3 border border-gray-200 flex-shrink-0"
-                      onError={(e) => {
-                        e.target.src =
-                          "https://via.placeholder.com/150?text=Profile";
-                      }}
-                    />
-                    <div className="min-w-0">
-                      <h3 className="font-medium text-gray-900 truncate">
-                        {applicant.name}
-                      </h3>
-                      <p className="text-sm text-gray-600 truncate">
-                        {applicant.role}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        Applied {applicant.applied}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex flex-col items-end ml-2">
-                    <span
-                      className={`px-2 md:px-3 py-1 rounded-full text-xs ${
-                        applicant.status === "New"
-                          ? "bg-blue-100 text-blue-700"
-                          : applicant.status === "Reviewed"
-                          ? "bg-yellow-100 text-yellow-700"
-                          : "bg-gray-100 text-gray-700"
-                      }`}
-                    >
-                      {applicant.status}
-                    </span>
-                    <div className="text-xs md:text-sm font-medium text-purple-700 mt-2 whitespace-nowrap">
-                      {applicant.match_score}% match
-                    </div>
-                  </div>
-                </div>
+              {recentApplicants.map((applicant) => (
+                <ApplicantCard
+                  key={applicant.user_id}
+                  applicant={applicant}
+                  handleApplicantCardClick={handleApplicantCardClick}
+                  getRelativeTime={getRelativeTime}
+                  isCompact={true}
+                />
               ))}
             </div>
           )}

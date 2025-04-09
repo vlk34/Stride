@@ -11,6 +11,7 @@ import {
   Clock,
   TrendingUp,
   User,
+  MapPin,
 } from "lucide-react";
 import { Link } from "react-router";
 import {
@@ -19,6 +20,7 @@ import {
   useCompanyStats,
   getRelativeTime,
 } from "../../hooks/tanstack/useBusinessDashboard";
+import ApplicantCard from "../../components/ApplicantCard";
 
 const Applicants = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -218,48 +220,12 @@ const Applicants = () => {
                 ))
             : recentApplicants &&
               recentApplicants.map((applicant) => (
-                <div
+                <ApplicantCard
                   key={applicant.user_id || applicant.id}
-                  className="flex items-center justify-between p-4 rounded-lg border border-gray-100 transition-colors hover:bg-gray-50"
-                >
-                  <div className="flex items-center gap-3">
-                    {applicant.image ? (
-                      <img
-                        src={applicant.image}
-                        alt={applicant.name}
-                        className="w-10 h-10 rounded-full object-cover border border-gray-200"
-                      />
-                    ) : (
-                      <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                        <User className="w-5 h-5 text-blue-600" />
-                      </div>
-                    )}
-                    <div>
-                      <h3 className="font-medium text-gray-900">
-                        {applicant.name}
-                      </h3>
-                      <p className="text-sm text-gray-600">
-                        {applicant.unsafeRole || "Applied for"} •{" "}
-                        {getRelativeTime(applicant.applied_at) ||
-                          applicant.applied}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div className="text-center">
-                      <div className="text-lg font-bold text-purple-700">
-                        {applicant.match_score || "85"}%
-                      </div>
-                      <div className="text-xs text-purple-600">match</div>
-                    </div>
-                    <Link
-                      to={`/business/applicants/${applicant.job_id}/${applicant.user_id}`}
-                      className={`px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-700 hover:bg-blue-200`}
-                    >
-                      {applicant.status || "Review"}
-                    </Link>
-                  </div>
-                </div>
+                  applicant={applicant}
+                  getRelativeTime={getRelativeTime}
+                  isCompact={false}
+                />
               ))}
         </div>
       </div>
@@ -357,8 +323,7 @@ const Applicants = () => {
                         {job.title}
                       </h3>
                       <p className="text-sm text-gray-600">
-                        {job.department || "General"} •{" "}
-                        {job.location || job.workstyle || "On-site"}
+                        {job.company} • {job.department || "General"}
                       </p>
                     </div>
                     <span
@@ -374,35 +339,32 @@ const Applicants = () => {
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-4 mb-4">
+                  <div className="flex flex-wrap items-center gap-4 mb-4">
                     <div className="flex items-center text-gray-600 text-sm">
                       <Users className="w-4 h-4 mr-1" />
-                      {job.applicant_count || 0} applicants
+                      {job.applicant_count || 0}{" "}
+                      {job.applicant_count === 1 ? "applicant" : "applicants"}
                     </div>
-                    {job.new_applicants > 0 && (
-                      <div className="flex items-center text-blue-600 text-sm font-medium">
-                        <Clock className="w-4 h-4 mr-1" />
-                        {job.new_applicants || 0} new
-                      </div>
-                    )}
+                    <div className="flex items-center text-gray-600 text-sm">
+                      <Briefcase className="w-4 h-4 mr-1" />
+                      {job.jobtype
+                        ? job.jobtype.charAt(0).toUpperCase() +
+                          job.jobtype.slice(1)
+                        : "Full-time"}
+                    </div>
+                    <div className="flex items-center text-gray-600 text-sm">
+                      <MapPin className="w-4 h-4 mr-1" />
+                      {job.workstyle
+                        ? job.workstyle.charAt(0).toUpperCase() +
+                          job.workstyle.slice(1)
+                        : "On-site"}
+                    </div>
                   </div>
-
-                  {job.match_percentage > 0 && (
-                    <div className="flex items-center gap-2 mb-4">
-                      <Star className="w-4 h-4 text-yellow-500" />
-                      <span className="text-sm text-gray-600">
-                        Top match:{" "}
-                        <span className="font-medium text-purple-700">
-                          {job.match_percentage || 85}%
-                        </span>
-                      </span>
-                    </div>
-                  )}
 
                   <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
                     <div className="text-sm text-gray-500">
                       <Calendar className="w-4 h-4 inline mr-1" />
-                      Posted {getRelativeTime(job.created_at)}
+                      Posted {getRelativeTime(job.start)}
                     </div>
                     <Link
                       to={`/business/applicants/${job.job_id}`}

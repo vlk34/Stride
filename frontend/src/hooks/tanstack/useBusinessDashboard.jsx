@@ -122,22 +122,8 @@ export const useRecentJobs = (limit = 5) => {
         },
       });
 
-      // Transform the response data to match the expected format in the UI
-      return response.data
-        .map((job) => ({
-          id: job.job_id,
-          title: job.title,
-          company: job.company,
-          department: job.department || "General",
-          location:
-            job.location || (job.workstyle === "remote" ? "Remote" : "On-site"),
-          applicants: 0, // This would need additional API calls to count applicants
-          newApplicants: 0,
-          status: new Date(job.deadline) > new Date() ? "Active" : "Closed",
-          posted: getRelativeTime(job.created_at || new Date()),
-          description: job.description,
-        }))
-        .slice(0, limit);
+      // Return raw data
+      return response.data;
     },
     staleTime: 2 * 60 * 1000, // 2 minutes
   });
@@ -279,5 +265,26 @@ export const useUpdateJob = () => {
     onError: (error) => {
       console.error("Error updating job:", error);
     },
+  });
+};
+
+// Get all applicants for the business
+export const useAllApplicants = () => {
+  return useQuery({
+    queryKey: ["allApplicants"],
+    queryFn: async () => {
+      const sessionToken = getSessionToken();
+      if (!sessionToken) {
+        throw new Error("Session token not found");
+      }
+
+      const response = await axios.get("http://localhost:8080/applicants", {
+        headers: {
+          Authorization: `Bearer ${sessionToken}`,
+        },
+      });
+      return response.data;
+    },
+    staleTime: 2 * 60 * 1000, // 2 minutes
   });
 };

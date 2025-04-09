@@ -21,6 +21,8 @@ import { Link } from "react-router";
 import { useApplicantDetails } from "../../hooks/tanstack/useCompanyAccount";
 import { getRelativeTime } from "../../hooks/tanstack/useBusinessDashboard";
 import { useJobDetails } from "../../hooks/tanstack/useBusinessDashboard";
+import axios from "axios";
+
 const ReviewApplicant = () => {
   // Extract parameters from URL path
   const { jobId, userId } = useParams();
@@ -52,6 +54,61 @@ const ReviewApplicant = () => {
       window.history.back();
     }
   };
+
+  // Inside the ReviewApplicant component, add this function for downloading the CV
+  const downloadCV = async (cvId) => {
+    if (!cvId) {
+      alert("No CV available for this applicant");
+      return;
+    }
+
+    try {
+      const sessionToken = document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("__session="))
+        ?.split("=")[1];
+
+      if (!sessionToken) {
+        console.error("Session token not found");
+        return;
+      }
+
+      // Make request to get the CV file
+      const response = await axios.get(`http://localhost:8080/resume/${cvId}`, {
+        headers: {
+          Authorization: `Bearer ${sessionToken}`,
+        },
+        responseType: "blob", // Important for binary data
+      });
+
+      // Create blob URL and trigger download
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `${applicant.name || "applicant"}_CV.pdf`); // Set filename
+      document.body.appendChild(link);
+      link.click();
+
+      // Clean up
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Error downloading CV:", error);
+      alert("Failed to download CV. Please try again later.");
+    }
+  };
+
+  // Helper function to get CV ID from applicant data
+  const getCvId = (applicant) => {
+    // Check all possible locations for CV ID based on your API response
+    if (!applicant) return null;
+
+    // Check each possible property where CV ID might be stored
+    return applicant.cv || applicant.resume_id || applicant.resume || null;
+  };
+
+  // Check if applicant has a CV
+  const hasCv = applicant && getCvId(applicant);
 
   // Show error state
   if (hasError && !isLoading) {
@@ -109,9 +166,24 @@ const ReviewApplicant = () => {
               </div>
             </div>
             <div>
-              <button className="px-3 sm:px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm">
-                Download CV
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => downloadCV(getCvId(applicant))}
+                  disabled={!hasCv}
+                  className={`px-3 sm:px-4 py-2 rounded-lg transition-colors text-sm ${
+                    hasCv
+                      ? "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                  }`}
+                >
+                  <span className="hidden sm:inline">
+                    {hasCv ? "Download CV" : "No CV Available"}
+                  </span>
+                  <span className="sm:hidden flex items-center">
+                    <Download className="w-4 h-4 mr-1" /> CV
+                  </span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -263,27 +335,22 @@ const ReviewApplicant = () => {
             </div>
           </div>
           <div className="flex gap-2">
-            {applicant.resume_url && (
-              <a
-                href={applicant.resume_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-3 sm:px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm"
-              >
-                <span className="hidden sm:inline">Download CV</span>
-                <span className="sm:hidden flex items-center">
-                  <Download className="w-4 h-4 mr-1" /> CV
-                </span>
-              </a>
-            )}
-            {!applicant.resume_url && (
-              <button className="px-3 sm:px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm">
-                <span className="hidden sm:inline">Download CV</span>
-                <span className="sm:hidden flex items-center">
-                  <Download className="w-4 h-4 mr-1" /> CV
-                </span>
-              </button>
-            )}
+            <button
+              onClick={() => downloadCV(getCvId(applicant))}
+              disabled={!hasCv}
+              className={`px-3 sm:px-4 py-2 rounded-lg transition-colors text-sm ${
+                hasCv
+                  ? "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  : "bg-gray-100 text-gray-400 cursor-not-allowed"
+              }`}
+            >
+              <span className="hidden sm:inline">
+                {hasCv ? "Download CV" : "No CV Available"}
+              </span>
+              <span className="sm:hidden flex items-center">
+                <Download className="w-4 h-4 mr-1" /> CV
+              </span>
+            </button>
           </div>
         </div>
       </div>

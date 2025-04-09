@@ -56,7 +56,7 @@ const AdminDashboard = () => {
 
   // Handle review click to navigate to the review page
   const handleReviewClick = (companyId, userId) => {
-    navigate(`/admin/review/business/${companyId}`, {
+    navigate(`/admin/approvals/${companyId}`, {
       state: { userId, companyId },
     });
   };

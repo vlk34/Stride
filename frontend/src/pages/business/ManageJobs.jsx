@@ -110,8 +110,10 @@ const ManageJobs = () => {
   };
 
   // Function to handle view job click
-  const handleViewJobClick = (jobId) => {
-    navigate(`/business/job-details/${jobId}`);
+  const handleViewJobClick = (jobId, jobTitle) => {
+    // Encode the job title to handle special characters in URLs
+    const encodedTitle = encodeURIComponent(jobTitle);
+    navigate(`/search?q=${encodedTitle}&jobId=${jobId}`);
   };
 
   // Format job for display
@@ -328,7 +330,10 @@ const ManageJobs = () => {
                           <div className="flex justify-end gap-2">
                             <button
                               onClick={() =>
-                                handleViewJobClick(formattedJob.id)
+                                handleViewJobClick(
+                                  formattedJob.id,
+                                  formattedJob.title
+                                )
                               }
                               className="p-2 text-gray-600 hover:text-blue-600"
                             >
@@ -458,7 +463,12 @@ const ManageJobs = () => {
                     </div>
                     <div className="flex gap-1">
                       <button
-                        onClick={() => handleViewJobClick(formattedJob.id)}
+                        onClick={() =>
+                          handleViewJobClick(
+                            formattedJob.id,
+                            formattedJob.title
+                          )
+                        }
                         className="p-2 text-gray-600 hover:text-blue-600"
                       >
                         <Eye className="w-5 h-5" />

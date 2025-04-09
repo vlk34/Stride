@@ -10,12 +10,14 @@ import {
   Phone,
   Download,
   ArrowLeft,
+  User,
 } from "lucide-react";
 import {
   useJobDetails,
   useJobApplicants,
   getRelativeTime,
 } from "../../hooks/tanstack/useBusinessDashboard";
+import axios from "axios";
 
 const JobApplicants = () => {
   const { jobId } = useParams();
@@ -46,6 +48,55 @@ const JobApplicants = () => {
   // Loading or error states
   const isLoading = jobDetailsLoading || applicantsLoading;
   const hasError = jobDetailsError || applicantsError;
+
+  // Add this download CV function (similar to ReviewApplicant.jsx)
+  const downloadCV = async (cvId) => {
+    if (!cvId) {
+      alert("No CV available for this applicant");
+      return;
+    }
+
+    try {
+      const sessionToken = document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("__session="))
+        ?.split("=")[1];
+
+      if (!sessionToken) {
+        console.error("Session token not found");
+        return;
+      }
+
+      // Make request to get the CV file
+      const response = await axios.get(`http://localhost:8080/resume/${cvId}`, {
+        headers: {
+          Authorization: `Bearer ${sessionToken}`,
+        },
+        responseType: "blob", // Important for binary data
+      });
+
+      // Create blob URL and trigger download
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `applicant_CV.pdf`);
+      document.body.appendChild(link);
+      link.click();
+
+      // Clean up
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Error downloading CV:", error);
+      alert("Failed to download CV. Please try again later.");
+    }
+  };
+
+  // Helper function to get CV ID from applicant data
+  const getCvId = (applicant) => {
+    if (!applicant) return null;
+    return applicant.cv || applicant.resume_id || applicant.resume || null;
+  };
 
   if (hasError) {
     return (
@@ -88,11 +139,16 @@ const JobApplicants = () => {
         })
       : [];
 
-  // Find top matches (applicants with highest match score)
+  // Find top matches (applicants with highest similarity score)
   const topApplicants =
     !isLoading && applicants
       ? [...filteredApplicants]
-          .sort((a, b) => (b.match_score || 0) - (a.match_score || 0))
+          .sort((a, b) => {
+            // Sort by similarity correctly (higher is better)
+            const scoreA = typeof a.similarity === "number" ? a.similarity : 0;
+            const scoreB = typeof b.similarity === "number" ? b.similarity : 0;
+            return scoreB - scoreA;
+          })
           .slice(0, 3)
       : [];
 
@@ -118,13 +174,13 @@ const JobApplicants = () => {
         {/* Static back button - no skeleton needed */}
         <div className="mb-8">
           <div className="flex items-center gap-2 mb-4">
-            <button
-              onClick={() => window.history.back()}
+            <Link
+              to="/business/applicants"
               className="text-blue-600 hover:text-blue-700 flex items-center"
             >
               <ArrowLeft className="w-5 h-5 mr-1" />
-              Back to the previous page
-            </button>
+              Back to Applicants
+            </Link>
           </div>
 
           {/* Job title and details skeleton */}
@@ -140,7 +196,7 @@ const JobApplicants = () => {
               </div>
               <div className="h-10 w-px bg-gray-200"></div>
               <Link
-                to="/jobs"
+                to={`/search?q=${encodeURIComponent("Job Title")}&jobId=0`}
                 className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50"
               >
                 View Job Post
@@ -193,7 +249,7 @@ const JobApplicants = () => {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                     Name
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
                     Match Score
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
@@ -241,13 +297,13 @@ const JobApplicants = () => {
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-2 mb-4">
-          <button
-            onClick={() => window.history.back()}
+          <Link
+            to="/business/applicants"
             className="text-blue-600 hover:text-blue-700 flex items-center"
           >
             <ArrowLeft className="w-5 h-5 mr-1" />
-            Back to the previous page
-          </button>
+            Back to managing applicants
+          </Link>
         </div>
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
@@ -277,7 +333,9 @@ const JobApplicants = () => {
             </div>
             <div className="h-10 w-px bg-gray-200"></div>
             <Link
-              to={`/jobs/${jobDetails.job_id}`}
+              to={`/search?q=${encodeURIComponent(
+                jobDisplayData.title
+              )}&jobId=${jobDetails.job_id}`}
               className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50"
             >
               View Job Post
@@ -336,30 +394,35 @@ const JobApplicants = () => {
               >
                 <div className="flex justify-between items-start mb-3">
                   <div className="flex items-center">
-                    <img
-                      src={
-                        applicant.image ||
-                        "https://via.placeholder.com/150?text=Profile"
-                      }
-                      alt={applicant.name}
-                      className="w-10 h-10 rounded-full object-cover mr-3 border border-gray-200"
-                      onError={(e) => {
-                        e.target.src =
-                          "https://via.placeholder.com/150?text=Profile";
-                      }}
-                    />
+                    {applicant.image ? (
+                      <img
+                        src={applicant.image}
+                        alt={applicant.name}
+                        className="w-10 h-10 rounded-full object-cover mr-3 border border-gray-200"
+                        onError={(e) => {
+                          e.target.src =
+                            "https://via.placeholder.com/150?text=Profile";
+                        }}
+                      />
+                    ) : (
+                      <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                        <User className="w-5 h-5 text-blue-600" />
+                      </div>
+                    )}
                     <div>
                       <h3 className="font-medium text-gray-900">
                         {applicant.name}
                       </h3>
                       <p className="text-sm text-gray-600">
-                        {applicant.experience_time}
+                        {applicant.unsafeRole || "Applicant"}
                       </p>
                     </div>
                   </div>
                   <div className="text-center ml-4">
                     <div className="text-lg font-bold text-purple-700">
-                      {applicant.match_score || 85}%
+                      {typeof applicant.similarity === "number"
+                        ? `${(applicant.similarity * 100).toFixed(0)}%`
+                        : "—"}
                     </div>
                     <div className="text-xs text-purple-600">match</div>
                   </div>
@@ -371,13 +434,15 @@ const JobApplicants = () => {
                     {applicant.email}
                   </div>
                   <div className="flex items-center text-sm text-gray-600">
-                    <Phone className="w-4 h-4 mr-2" />
-                    {applicant.phone || "No phone provided"}
-                  </div>
-                  <div className="flex items-center text-sm text-gray-600">
                     <Calendar className="w-4 h-4 mr-2" />
                     Applied {getRelativeTime(applicant.applied_at)}
                   </div>
+                  {applicant.skills && applicant.skills.length > 0 && (
+                    <div className="text-sm text-gray-600">
+                      <span className="font-medium">Skills:</span>{" "}
+                      {applicant.skills.join(", ")}
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex gap-2">
@@ -387,14 +452,20 @@ const JobApplicants = () => {
                   >
                     Review Application
                   </Link>
-                  <a
-                    href={`/resume/${applicant.cv}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm"
+                  <button
+                    onClick={() => downloadCV(getCvId(applicant))}
+                    disabled={!getCvId(applicant)}
+                    className={`px-3 py-2 rounded-lg transition-colors text-sm ${
+                      getCvId(applicant)
+                        ? "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                        : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                    }`}
+                    title={
+                      getCvId(applicant) ? "Download CV" : "No CV Available"
+                    }
                   >
                     <Download className="w-4 h-4" />
-                  </a>
+                  </button>
                 </div>
               </div>
             ))}
@@ -429,7 +500,7 @@ const JobApplicants = () => {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                     Name
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
                     Match Score
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
@@ -448,18 +519,21 @@ const JobApplicants = () => {
                   <tr key={applicant.user_id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
-                        <img
-                          src={
-                            applicant.image ||
-                            "https://via.placeholder.com/150?text=Profile"
-                          }
-                          alt={applicant.name}
-                          className="w-8 h-8 rounded-full mr-3 object-cover"
-                          onError={(e) => {
-                            e.target.src =
-                              "https://via.placeholder.com/150?text=Profile";
-                          }}
-                        />
+                        {applicant.image ? (
+                          <img
+                            src={applicant.image}
+                            alt={applicant.name}
+                            className="w-8 h-8 rounded-full mr-3 object-cover"
+                            onError={(e) => {
+                              e.target.src =
+                                "https://via.placeholder.com/150?text=Profile";
+                            }}
+                          />
+                        ) : (
+                          <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                            <User className="w-4 h-4 text-blue-600" />
+                          </div>
+                        )}
                         <div>
                           <div className="font-medium text-gray-900">
                             {applicant.name}
@@ -470,9 +544,11 @@ const JobApplicants = () => {
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
                       <div className="text-sm font-medium text-purple-700">
-                        {applicant.match_score || 85}%
+                        {typeof applicant.similarity === "number"
+                          ? `${(applicant.similarity * 100).toFixed(0)}%`
+                          : "—"}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
