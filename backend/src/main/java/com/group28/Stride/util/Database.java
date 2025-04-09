@@ -693,6 +693,42 @@ public class Database {
         }
     }
 
+    public static Map<String, Object> companyDetails(String user_id) {
+        try {
+            PreparedStatement company_statement = connection.prepareStatement("SELECT * FROM companies WHERE user_id = ?");
+            company_statement.setString(1, user_id);
+            ResultSet company_res = company_statement.executeQuery();
+            Map<String, Object> map = new HashMap<>();
+            if (company_res.next()) {
+                map.put("user_id", company_res.getString("user_id"));
+                map.put("company_id", company_res.getInt("company_id"));
+                map.put("created_at", company_res.getTimestamp("created_at"));
+                map.put("company", company_res.getString("company_name"));
+                map.put("industry", company_res.getString("industry"));
+                map.put("size", company_res.getString("company_size"));
+                map.put("logo", company_res.getInt("logo"));
+                map.put("founded", company_res.getInt("founded"));
+                map.put("email", company_res.getString("email"));
+                map.put("phone", company_res.getString("phone"));
+                map.put("website", company_res.getString("website"));
+                map.put("address", company_res.getString("company_location"));
+                map.put("city", company_res.getString("company_city"));
+                map.put("state", company_res.getString("company_state"));
+                map.put("country", company_res.getString("company_country"));
+                map.put("postal_code", company_res.getString("postal_code"));
+                map.put("description", company_res.getString("about"));
+                map.put("mission", company_res.getString("mission"));
+                map.put("benefits", company_res.getString("benefits"));
+            }
+            company_res.close();
+            company_statement.close();
+            return map;
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
     public static Map<String, Object> companyDetails(Integer company_id) {
         try {
             PreparedStatement company_statement = connection.prepareStatement("SELECT * FROM companies WHERE company_id = ?");

@@ -193,4 +193,18 @@ public class BusinessController {
 
         return Database.applicantInfo(user_id, id, user);
     }
+
+    @CrossOrigin
+    @GetMapping("/company")
+    public Map<String, Object> company(@PathVariable int id, @RequestHeader("Authorization") String auth) {
+        Claims user_claims = Authentication.getClaims(auth);
+        if (user_claims == null)
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+        String user_id = user_claims.getSubject();
+        String role = (String) user_claims.get("metadata", HashMap.class).get("role");
+        if (!"business".equalsIgnoreCase(role))
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+
+        return Database.companyDetails(user_id);
+    }
 }
