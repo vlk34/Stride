@@ -642,6 +642,13 @@ response body:
     "business_pending": 1
 }
 
+POST /descenduser (admin)
+Authorization: Bearer session_jwt_here
+request body:
+{
+    "user_id": "user_asdqwe"
+}
+
 GET /notifications
 Authorization: Bearer session_jwt_here
 response body:
@@ -658,4 +665,11 @@ Authorization: Bearer session_jwt_here
 request body:
 {
     "id": 1
+}
+
+POST /declineupgrade (admin)
+Authorization: Bearer session_jwt_here
+request body:
+{
+    "user_id": "user_asdqwe"
 }
