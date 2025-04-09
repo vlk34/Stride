@@ -510,7 +510,7 @@ public class Database {
             statement.close();
 
             List<Map<String, Object>> list = new ArrayList<>();
-            PreparedStatement job_statement = connection.prepareStatement("SELECT job_id, title, job_description, created_at, closes_at, workstyle, job_type, job_location FROM jobs WHERE company_id = ?");
+            PreparedStatement job_statement = connection.prepareStatement("SELECT job_id, title, department, job_description, created_at, closes_at, workstyle, job_type, job_location FROM jobs WHERE company_id = ?");
             job_statement.setInt(1, company_id);
             ResultSet job_res = job_statement.executeQuery();
             while (job_res.next()) {
@@ -519,6 +519,7 @@ public class Database {
                 map.put("logo", logo);
                 map.put("job_id", job_res.getInt("job_id"));
                 map.put("title", job_res.getString("title"));
+                map.put("department", res.getString("department"));
                 map.put("description", job_res.getString("job_description"));
                 map.put("location", job_res.getString("job_location"));
                 map.put("jobtype", job_res.getString("job_type"));
@@ -772,7 +773,7 @@ public class Database {
             statement.close();
 
             List<Map<String, Object>> list = new ArrayList<>();
-            PreparedStatement job_statement = connection.prepareStatement("SELECT job_id, title, job_description, job_location, job_type, workstyle, closes_at, created_at FROM jobs WHERE company_id = ? ORDER BY created_at DESC LIMIT 5");
+            PreparedStatement job_statement = connection.prepareStatement("SELECT job_id, title, department, job_description, job_location, job_type, workstyle, closes_at, created_at FROM jobs WHERE company_id = ? ORDER BY created_at DESC LIMIT 5");
             job_statement.setInt(1, company_id);
             ResultSet job_res = job_statement.executeQuery();
             while (job_res.next()) {
@@ -781,6 +782,7 @@ public class Database {
                 map.put("logo", logo);
                 map.put("job_id", job_res.getInt("job_id"));
                 map.put("title", job_res.getString("title"));
+                map.put("department", res.getString("department"));
                 map.put("description", job_res.getString("job_description"));
                 map.put("location", job_res.getString("job_location"));
                 map.put("jobtype", job_res.getString("job_type"));
