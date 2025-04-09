@@ -519,7 +519,7 @@ public class Database {
                 map.put("logo", logo);
                 map.put("job_id", job_res.getInt("job_id"));
                 map.put("title", job_res.getString("title"));
-                map.put("department", res.getString("department"));
+                map.put("department", job_res.getString("department"));
                 map.put("description", job_res.getString("job_description"));
                 map.put("location", job_res.getString("job_location"));
                 map.put("jobtype", job_res.getString("job_type"));
@@ -782,7 +782,7 @@ public class Database {
                 map.put("logo", logo);
                 map.put("job_id", job_res.getInt("job_id"));
                 map.put("title", job_res.getString("title"));
-                map.put("department", res.getString("department"));
+                map.put("department", job_res.getString("department"));
                 map.put("description", job_res.getString("job_description"));
                 map.put("location", job_res.getString("job_location"));
                 map.put("jobtype", job_res.getString("job_type"));
