@@ -70,6 +70,7 @@ Your task:
 9. Never use DML statements (INSERT, UPDATE, DELETE, DROP, etc.)!!!!!.
 10. If you encounter an error while executing the query, rephrase and retry.
 11. Use the tools below
+12. Always Select Job_id and company_id it will be used later
 
 
 You have access to this PostgreSQL table schema:
@@ -169,7 +170,7 @@ def generate_sql_result(user_input: str):
     }
 
 
-def execute_sql_query(query):
+def execute_sql_query(query, params=None):
     """Execute SQL query directly using psycopg2"""
     connection = None
     try:
@@ -186,7 +187,7 @@ def execute_sql_query(query):
         cursor = connection.cursor(cursor_factory=psycopg2.extras.DictCursor)
         
         # Execute the query
-        cursor.execute(query)
+        cursor.execute(query, params)
         
         # Fetch results
         results = cursor.fetchall()
@@ -266,7 +267,7 @@ def agent_invoke(user_input: str):
         formated_results = []
 
         for result in results:
-            company = execute_sql_query(f"SELECT * FROM company WHERE company_id = {result['company_id']}")
+            company = execute_sql_query("SELECT * FROM companies WHERE company_id = %s", (result['company_id'],))
             
             formated_result = {
                 "job_id": result.get("job_id"),
