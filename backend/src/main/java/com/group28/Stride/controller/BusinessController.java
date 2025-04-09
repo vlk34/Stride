@@ -92,20 +92,6 @@ public class BusinessController {
     }
 
     @CrossOrigin
-    @GetMapping("/applicants/{id}")
-    public List<Map<String, Object>> applicants(@PathVariable Integer id, @RequestHeader("Authorization") String auth) {
-        Claims user_claims = Authentication.getClaims(auth);
-        if (user_claims == null)
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
-        String user_id = user_claims.getSubject();
-        String role = (String) user_claims.get("metadata", HashMap.class).get("role");
-        if (!"business".equalsIgnoreCase(role))
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
-
-        return Database.jobApplicants(user_id, id);
-    }
-
-    @CrossOrigin
     @PutMapping("/editcompany")
     public ResponseEntity<String> editcompany(@RequestBody Map<String, Object> body, @RequestHeader("Authorization") String auth) {
         Claims user_claims = Authentication.getClaims(auth);
@@ -178,6 +164,20 @@ public class BusinessController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
 
         return Database.allApplicants(user_id);
+    }
+
+    @CrossOrigin
+    @GetMapping("/applicants/{id}")
+    public List<Map<String, Object>> applicants(@PathVariable Integer id, @RequestHeader("Authorization") String auth) {
+        Claims user_claims = Authentication.getClaims(auth);
+        if (user_claims == null)
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+        String user_id = user_claims.getSubject();
+        String role = (String) user_claims.get("metadata", HashMap.class).get("role");
+        if (!"business".equalsIgnoreCase(role))
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+
+        return Database.jobApplicants(user_id, id);
     }
 
     @CrossOrigin

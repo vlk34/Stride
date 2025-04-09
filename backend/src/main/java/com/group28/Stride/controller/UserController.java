@@ -60,7 +60,7 @@ public class UserController {
     }
 
     @CrossOrigin
-    @PostMapping("/notifications")
+    @GetMapping("/notifications")
     public List<Map<String, Object>> notifications(@RequestHeader("Authorization") String auth) {
         Claims user_claims = Authentication.getClaims(auth);
         if (user_claims == null)
