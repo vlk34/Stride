@@ -819,7 +819,7 @@ public class Database {
             res.close();
             statement.close();
 
-            String query = "SELECT user_id, job_id, application_date FROM applications WHERE 1=2";
+            String query = "SELECT user_id, job_id, similarity, application_date FROM applications WHERE 1=2";
             List<Integer> params = new ArrayList<>();
 
             PreparedStatement job_statement = connection.prepareStatement("SELECT job_id FROM jobs WHERE company_id = ?");
@@ -847,6 +847,7 @@ public class Database {
                     map = new HashMap<>();
                 map.put("user_id", applicant_res.getString("user_id"));
                 map.put("job_id", applicant_res.getString("job_id"));
+                map.put("similarity", applicant_res.getFloat("similarity"));
                 map.put("applied_at", applicant_res.getTimestamp("application_date"));
                 list.add(map);
             }
@@ -906,7 +907,7 @@ public class Database {
             res.close();
             statement.close();
 
-            String query = "SELECT user_id, job_id, application_date FROM applications WHERE 1=2";
+            String query = "SELECT user_id, job_id, similarity, application_date FROM applications WHERE 1=2";
             List<Integer> params = new ArrayList<>();
 
             PreparedStatement job_statement = connection.prepareStatement("SELECT job_id FROM jobs WHERE company_id = ?");
@@ -934,6 +935,7 @@ public class Database {
                     map = new HashMap<>();
                 map.put("user_id", applicant_res.getString("user_id"));
                 map.put("job_id", applicant_res.getString("job_id"));
+                map.put("similarity", applicant_res.getFloat("similarity"));
                 map.put("applied_at", applicant_res.getTimestamp("application_date"));
                 list.add(map);
             }
