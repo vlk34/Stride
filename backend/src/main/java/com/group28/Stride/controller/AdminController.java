@@ -34,7 +34,7 @@ public class AdminController {
         if (map == null)
             map = Map.of("company", "Unknown");
         String company_name = map.get("company").toString();
-        Database.logActivity(String.format("%s approved the company named %s.", user_name, company_name), role);
+        Database.logActivity(String.format("%s approved the company named %s", user_name, company_name), role);
 
         GetUserInfo.businessUpgrade(body.get("user_id").toString());
         Database.removeBusinessApplication(body.get("user_id").toString());
@@ -61,7 +61,7 @@ public class AdminController {
         if (map == null)
             map = Map.of("company", "Unknown");
         String company_name = map.get("company").toString();
-        Database.logActivity(String.format("%s descended the company named %s.", user_name, company_name), role);
+        Database.logActivity(String.format("%s descended the company named %s", user_name, company_name), role);
 
         GetUserInfo.businessDowngrade(body.get("user_id").toString());
         Database.removeCompany(body.get("user_id").toString());
@@ -88,7 +88,7 @@ public class AdminController {
         if (map == null)
             map = Map.of("company", "Unknown");
         String company_name = map.get("company").toString();
-        Database.logActivity(String.format("%s declined the company named %s.", user_name, company_name), role);
+        Database.logActivity(String.format("%s declined the company named %s", user_name, company_name), role);
 
         Database.removeCompany(body.get("user_id").toString());
         Database.removeBusinessApplication(body.get("user_id").toString());
@@ -183,7 +183,7 @@ public class AdminController {
             user_details2 = Map.of("name", "Unknown");
         String delete_name = user_details2.get("name").toString();
 
-        Database.logActivity(String.format("%s deleted the user named %s.", user_name, delete_name), role);
+        Database.logActivity(String.format("%s deleted the user named %s", user_name, delete_name), role);
 
         GetUserInfo.deleteUser(body.get("user_id").toString());
 

@@ -45,7 +45,7 @@ public class BusinessController {
         if (map == null)
             map = Map.of("company", "Unknown");
         String company_name = map.get("company").toString();
-        Database.logActivity(String.format("%s created a new job post named %s.", company_name, job_name), role);
+        Database.logActivity(String.format("%s created a new job post named %s", company_name, job_name), role);
 
         return new ResponseEntity<>("Successful", HttpStatus.OK);
     }
@@ -103,7 +103,7 @@ public class BusinessController {
             company_name = user_details.get("name").toString();
         }
 
-        Database.logActivity(String.format("%s deleted a new job post named %s.", company_name, job_name), role);
+        Database.logActivity(String.format("%s deleted a new job post named %s", company_name, job_name), role);
 
         return new ResponseEntity<>("Successful", HttpStatus.OK);
     }
@@ -153,7 +153,7 @@ public class BusinessController {
         if (map == null)
             map = Map.of("company", "Unknown");
         String company_name = map.get("company").toString();
-        Database.logActivity(String.format("%s descended into a personal account!", company_name), role);
+        Database.logActivity(String.format("%s descended into a personal account", company_name), role);
 
         GetUserInfo.businessDowngrade(user_id);
         Database.removeCompany(user_id);
