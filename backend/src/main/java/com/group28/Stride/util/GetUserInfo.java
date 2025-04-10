@@ -154,4 +154,21 @@ public class GetUserInfo {
             throw new Exception("User not found");
         }
     }
+
+    public static void deleteUser(String user_id) throws Exception {
+        Dotenv dotenv = Dotenv.configure()
+                .directory("backend")
+                .load();
+
+        Clerk sdk = Clerk.builder()
+                .bearerAuth(dotenv.get("SECRET"))
+                .build();
+
+        DeleteUserResponse res = sdk.users().delete()
+                .userId(user_id)
+                .call();
+
+        if (res.deletedObject().isPresent())
+            Database.removeCompany(user_id);
+    }
 }

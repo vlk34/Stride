@@ -713,3 +713,10 @@ response body:
         "event_time": "date",
     },
 ]
+
+POST /deleteuser (admin)
+Authorization: Bearer session_jwt_here
+request body:
+{
+    "user_id": "user_asdqwe"
+}

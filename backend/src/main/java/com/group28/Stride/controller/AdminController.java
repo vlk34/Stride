@@ -161,4 +161,32 @@ public class AdminController {
 
         return Database.getActivities();
     }
+
+    @CrossOrigin
+    @PostMapping("/deleteuser")
+    public ResponseEntity<String> deleteuser(@RequestBody Map<String, Object> body, @RequestHeader("Authorization") String auth) throws Exception {
+        Claims user_claims = Authentication.getClaims(auth);
+        if (user_claims == null)
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+        String user_id = user_claims.getSubject();
+        String role = (String) user_claims.get("metadata", HashMap.class).get("role");
+        if (!"admin".equalsIgnoreCase(role))
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+
+        Map<String, Object> user_details = GetUserInfo.fromUserID(user_id);
+        if (user_details == null)
+            user_details = Map.of("name", "Unknown");
+        String user_name = user_details.get("name").toString();
+
+        Map<String, Object> user_details2 = GetUserInfo.fromUserID(body.get("user_id").toString());
+        if (user_details2 == null)
+            user_details2 = Map.of("name", "Unknown");
+        String delete_name = user_details2.get("name").toString();
+
+        Database.logActivity(String.format("%s descended the user named %s.", user_name, delete_name), role);
+
+        GetUserInfo.deleteUser(body.get("user_id").toString());
+
+        return new ResponseEntity<>("Successful", HttpStatus.OK);
+    }
 }
