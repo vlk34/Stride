@@ -701,8 +701,15 @@ request body:
 GET /activities (admin)
 Authorization: Bearer session_jwt_here
 response body:
-{
-    "activity": "",
-    "type": "",
-    "event_time": "date",
-}
+[
+    {
+        "activity": "",
+        "type": "",
+        "event_time": "date",
+    },
+    {
+        "activity": "",
+        "type": "",
+        "event_time": "date",
+    },
+]
