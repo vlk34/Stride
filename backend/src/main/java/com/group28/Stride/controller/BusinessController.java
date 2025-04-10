@@ -40,7 +40,12 @@ public class BusinessController {
         if (!"business".equalsIgnoreCase(role))
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
 
-        Database.createJob(user_id, body);
+        String job_name = Database.createJob(user_id, body);
+        Map<String, Object> map = Database.companyDetails(user_id);
+        if (map == null)
+            map = Map.of("company", "Unknown");
+        String company_name = map.get("company").toString();
+        Database.logActivity(String.format("%s created a new job post named %s.", company_name, job_name), role);
 
         return new ResponseEntity<>("Successful", HttpStatus.OK);
     }
@@ -53,26 +58,52 @@ public class BusinessController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
         String user_id = user_claims.getSubject();
         String role = (String) user_claims.get("metadata", HashMap.class).get("role");
-        if (!"business".equalsIgnoreCase(role))
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
 
-        Database.updateJob(user_id, body);
+        if ("business".equalsIgnoreCase(role))
+            Database.updateJob(user_id, body, true);
+        else if ("admin".equalsIgnoreCase(role))
+            Database.updateJob(user_id, body, false);
+        else
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
 
         return new ResponseEntity<>("Successful", HttpStatus.OK);
     }
 
     @CrossOrigin
     @DeleteMapping("/delete")
-    public ResponseEntity<String> delete(@RequestBody Map<String, Object> body, @RequestHeader("Authorization") String auth) {
+    public ResponseEntity<String> delete(@RequestBody Map<String, Object> body, @RequestHeader("Authorization") String auth) throws Exception {
         Claims user_claims = Authentication.getClaims(auth);
         if (user_claims == null)
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
         String user_id = user_claims.getSubject();
         String role = (String) user_claims.get("metadata", HashMap.class).get("role");
-        if (!"business".equalsIgnoreCase(role))
+
+        if ("business".equalsIgnoreCase(role))
+            Database.deleteJob(user_id, (int) body.get("job_id"), true);
+        else if ("admin".equalsIgnoreCase(role))
+            Database.deleteJob(user_id, (int) body.get("job_id"), false);
+        else
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
 
-        Database.deleteJob(user_id, (int) body.get("job_id"));
+        Map<String, Object> job_details = Database.jobDetails((int) body.get("job_id"));
+        if (job_details == null)
+            job_details = Map.of("title", "Unknown");
+        String job_name = job_details.get("title").toString();
+
+        String company_name;
+        if ("business".equalsIgnoreCase(role)) {
+            Map<String, Object> map = Database.companyDetails(user_id);
+            if (map == null)
+                map = Map.of("company", "Unknown");
+            company_name = map.get("company").toString();
+        } else {
+            Map<String, Object> user_details = GetUserInfo.fromUserID(user_id);
+            if (user_details == null)
+                user_details = Map.of("name", "Unknown");
+            company_name = user_details.get("name").toString();
+        }
+
+        Database.logActivity(String.format("%s deleted a new job post named %s.", company_name, job_name), role);
 
         return new ResponseEntity<>("Successful", HttpStatus.OK);
     }
@@ -117,6 +148,12 @@ public class BusinessController {
         String role = (String) user_claims.get("metadata", HashMap.class).get("role");
         if (!"business".equalsIgnoreCase(role))
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+
+        Map<String, Object> map = Database.companyDetails(user_id);
+        if (map == null)
+            map = Map.of("company", "Unknown");
+        String company_name = map.get("company").toString();
+        Database.logActivity(String.format("%s descended into a personal account!", company_name), role);
 
         GetUserInfo.businessDowngrade(user_id);
         Database.removeCompany(user_id);

@@ -376,7 +376,7 @@ public class Database {
         return null;
     }
 
-    public static void createJob(String user_id, Map<String, Object> body) {
+    public static String createJob(String user_id, Map<String, Object> body) {
         try {
             PreparedStatement company_statement = connection.prepareStatement("SELECT company_id FROM companies WHERE user_id = ?");
             company_statement.setString(1, user_id);
@@ -406,35 +406,39 @@ public class Database {
             statement.setInt(15, (int) body.get("openings"));
             statement.executeUpdate();
             statement.close();
+            return body.get("title").toString();
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
+        return null;
     }
 
-    public static void updateJob(String user_id, Map<String, Object> body) {
+    public static void updateJob(String user_id, Map<String, Object> body, boolean check_own) {
         try {
-            PreparedStatement job_statement = connection.prepareStatement("SELECT company_id FROM jobs WHERE job_id = ?");
-            job_statement.setInt(1, (int) body.get("job_id"));
-            ResultSet job_res = job_statement.executeQuery();
-            int company_id = 0;
-            if (job_res.next()) {
-                company_id = job_res.getInt("company_id");
-            }
-            job_res.close();
-            job_statement.close();
+            if (check_own) {
+                PreparedStatement job_statement = connection.prepareStatement("SELECT company_id FROM jobs WHERE job_id = ?");
+                job_statement.setInt(1, (int) body.get("job_id"));
+                ResultSet job_res = job_statement.executeQuery();
+                int company_id = 0;
+                if (job_res.next()) {
+                    company_id = job_res.getInt("company_id");
+                }
+                job_res.close();
+                job_statement.close();
 
-            PreparedStatement company_statement = connection.prepareStatement("SELECT user_id FROM companies WHERE company_id = ?");
-            company_statement.setInt(1, company_id);
-            ResultSet company_res = company_statement.executeQuery();
-            String owner_id = "";
-            if (company_res.next()) {
-                owner_id = company_res.getString("user_id");
-            }
-            company_res.close();
-            company_statement.close();
+                PreparedStatement company_statement = connection.prepareStatement("SELECT user_id FROM companies WHERE company_id = ?");
+                company_statement.setInt(1, company_id);
+                ResultSet company_res = company_statement.executeQuery();
+                String owner_id = "";
+                if (company_res.next()) {
+                    owner_id = company_res.getString("user_id");
+                }
+                company_res.close();
+                company_statement.close();
 
-            if (!owner_id.equals(user_id))
-                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You do not own this job");
+                if (!owner_id.equals(user_id))
+                    throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You do not own this job");
+            }
 
             PreparedStatement statement = connection.prepareStatement("UPDATE jobs SET title = ?, department = ?, job_location = ?, job_type = ?, workstyle = ?, skills = ?, languages = ?, experience = ?, education = ?, responsibilities = ?, qualifications = ?, job_description = ?, closes_at = ?, openings = ? WHERE job_id = ?");
             statement.setString(1, body.get("title").toString());
@@ -459,30 +463,32 @@ public class Database {
         }
     }
 
-    public static void deleteJob(String user_id, Integer job_id) {
+    public static void deleteJob(String user_id, Integer job_id, boolean check_own) {
         try {
-            PreparedStatement job_statement = connection.prepareStatement("SELECT company_id FROM jobs WHERE job_id = ?");
-            job_statement.setInt(1, job_id);
-            ResultSet job_res = job_statement.executeQuery();
-            int company_id = 0;
-            if (job_res.next()) {
-                company_id = job_res.getInt("company_id");
-            }
-            job_res.close();
-            job_statement.close();
+            if (check_own) {
+                PreparedStatement job_statement = connection.prepareStatement("SELECT company_id FROM jobs WHERE job_id = ?");
+                job_statement.setInt(1, job_id);
+                ResultSet job_res = job_statement.executeQuery();
+                int company_id = 0;
+                if (job_res.next()) {
+                    company_id = job_res.getInt("company_id");
+                }
+                job_res.close();
+                job_statement.close();
 
-            PreparedStatement company_statement = connection.prepareStatement("SELECT user_id FROM companies WHERE company_id = ?");
-            company_statement.setInt(1, company_id);
-            ResultSet company_res = company_statement.executeQuery();
-            String owner_id = "";
-            if (company_res.next()) {
-                owner_id = company_res.getString("user_id");
-            }
-            company_res.close();
-            company_statement.close();
+                PreparedStatement company_statement = connection.prepareStatement("SELECT user_id FROM companies WHERE company_id = ?");
+                company_statement.setInt(1, company_id);
+                ResultSet company_res = company_statement.executeQuery();
+                String owner_id = "";
+                if (company_res.next()) {
+                    owner_id = company_res.getString("user_id");
+                }
+                company_res.close();
+                company_statement.close();
 
-            if (!owner_id.equals(user_id))
-                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You do not own this job");
+                if (!owner_id.equals(user_id))
+                    throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You do not own this job");
+            }
 
             PreparedStatement statement = connection.prepareStatement("DELETE FROM jobs WHERE job_id = ?");
             statement.setInt(1, job_id);
@@ -1128,5 +1134,39 @@ public class Database {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+    }
+
+    public static void logActivity(String activity, String type) {
+        try {
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO activities (activity, type) VALUES (?, ?)");
+            statement.setString(1, activity);
+            statement.setString(2, type);
+            statement.executeUpdate();
+            statement.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public static List<Map<String, Object>> getActivities() {
+        try {
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM activities ORDER BY event_time DESC");
+            ResultSet res = statement.executeQuery();
+
+            List<Map<String, Object>> list = new ArrayList<>();
+            while (res.next()) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("activity", res.getString("activity"));
+                map.put("type", res.getString("type"));
+                map.put("event_time", res.getTimestamp("event_time"));
+                list.add(map);
+            }
+            res.close();
+            statement.close();
+            return list;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
     }
 }

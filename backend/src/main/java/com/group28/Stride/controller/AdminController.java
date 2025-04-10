@@ -21,9 +21,20 @@ public class AdminController {
         Claims user_claims = Authentication.getClaims(auth);
         if (user_claims == null)
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+        String user_id = user_claims.getSubject();
         String role = (String) user_claims.get("metadata", HashMap.class).get("role");
         if (!"admin".equalsIgnoreCase(role))
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+
+        Map<String, Object> user_details = GetUserInfo.fromUserID(user_id);
+        if (user_details == null)
+            user_details = Map.of("name", "Unknown");
+        String user_name = user_details.get("name").toString();
+        Map<String, Object> map = Database.companyDetails(body.get("user_id").toString());
+        if (map == null)
+            map = Map.of("company", "Unknown");
+        String company_name = map.get("company").toString();
+        Database.logActivity(String.format("%s approved the company named %s.", user_name, company_name), role);
 
         GetUserInfo.businessUpgrade(body.get("user_id").toString());
         Database.removeBusinessApplication(body.get("user_id").toString());
@@ -37,9 +48,20 @@ public class AdminController {
         Claims user_claims = Authentication.getClaims(auth);
         if (user_claims == null)
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+        String user_id = user_claims.getSubject();
         String role = (String) user_claims.get("metadata", HashMap.class).get("role");
         if (!"admin".equalsIgnoreCase(role))
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+
+        Map<String, Object> user_details = GetUserInfo.fromUserID(user_id);
+        if (user_details == null)
+            user_details = Map.of("name", "Unknown");
+        String user_name = user_details.get("name").toString();
+        Map<String, Object> map = Database.companyDetails(body.get("user_id").toString());
+        if (map == null)
+            map = Map.of("company", "Unknown");
+        String company_name = map.get("company").toString();
+        Database.logActivity(String.format("%s descended the company named %s.", user_name, company_name), role);
 
         GetUserInfo.businessDowngrade(body.get("user_id").toString());
         Database.removeCompany(body.get("user_id").toString());
@@ -49,13 +71,24 @@ public class AdminController {
 
     @CrossOrigin
     @PostMapping("/declineupgrade")
-    public ResponseEntity<String> declineupgrade(@RequestBody Map<String, Object> body, @RequestHeader("Authorization") String auth) {
+    public ResponseEntity<String> declineupgrade(@RequestBody Map<String, Object> body, @RequestHeader("Authorization") String auth) throws Exception {
         Claims user_claims = Authentication.getClaims(auth);
         if (user_claims == null)
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+        String user_id = user_claims.getSubject();
         String role = (String) user_claims.get("metadata", HashMap.class).get("role");
         if (!"admin".equalsIgnoreCase(role))
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+
+        Map<String, Object> user_details = GetUserInfo.fromUserID(user_id);
+        if (user_details == null)
+            user_details = Map.of("name", "Unknown");
+        String user_name = user_details.get("name").toString();
+        Map<String, Object> map = Database.companyDetails(body.get("user_id").toString());
+        if (map == null)
+            map = Map.of("company", "Unknown");
+        String company_name = map.get("company").toString();
+        Database.logActivity(String.format("%s declined the company named %s.", user_name, company_name), role);
 
         Database.removeCompany(body.get("user_id").toString());
         Database.removeBusinessApplication(body.get("user_id").toString());
@@ -114,5 +147,18 @@ public class AdminController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
 
         return Database.adminstats();
+    }
+
+    @CrossOrigin
+    @GetMapping("/activities")
+    public List<Map<String, Object>> activities(@RequestHeader("Authorization") String auth) {
+        Claims user_claims = Authentication.getClaims(auth);
+        if (user_claims == null)
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+        String role = (String) user_claims.get("metadata", HashMap.class).get("role");
+        if (!"admin".equalsIgnoreCase(role))
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+
+        return Database.getActivities();
     }
 }
