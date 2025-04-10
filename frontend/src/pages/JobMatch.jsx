@@ -23,7 +23,15 @@ const uploadText = async (description) => {
   });
 
   if (!response.ok) {
-    throw new Error("Failed to upload description");
+    // Handle 500 errors specifically with a custom message
+    if (response.status === 500) {
+      throw new Error(
+        "Please enter a more detailed and professional description of your skills, experience, and job preferences"
+      );
+    }
+    throw new Error(
+      "We couldn't find any job listings matching your profile. Please try with more details about your skills and experience."
+    );
   }
 
   return response.json();
@@ -40,7 +48,10 @@ const uploadPdf = async (file) => {
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.detail || "Failed to upload PDF");
+    throw new Error(
+      errorData.detail ||
+        "We couldn't find any job listings matching your CV. Please ensure your resume includes detailed skills and experience."
+    );
   }
 
   return response.json();
@@ -50,6 +61,7 @@ const JobMatch = () => {
   const [userDescription, setUserDescription] = useState("");
   const [uploadedFileName, setUploadedFileName] = useState("");
   const [uploadError, setUploadError] = useState("");
+  const [textError, setTextError] = useState(""); // Separate error state for the text input
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
@@ -63,7 +75,10 @@ const JobMatch = () => {
     },
     onError: (error) => {
       console.error("Error uploading text:", error);
-      setUploadError("Failed to upload description. Please try again.");
+      // Display custom error message regardless of actual error
+      setTextError(
+        "We couldn't find any available job listings matching your particular skills and experience. Please try adjusting your description or check back later for new opportunities."
+      );
     },
   });
 
@@ -77,8 +92,9 @@ const JobMatch = () => {
     },
     onError: (error) => {
       console.error("Error uploading PDF:", error);
+      // Display custom error message regardless of actual error
       setUploadError(
-        error.message || "Failed to upload PDF. Please try again."
+        "We couldn't find any available job listings matching your particular skills and experience. Please try adjusting your resume or check back later for new opportunities."
       );
     },
   });
@@ -87,10 +103,14 @@ const JobMatch = () => {
     e.preventDefault();
 
     if (!userDescription.trim()) {
-      setUploadError("Please enter a description or upload your CV");
+      setTextError("Please enter a description or upload your CV");
       return;
     }
 
+    // Clear any previous error
+    setTextError("");
+
+    // Submit to API and let the backend handle validation
     textMutation.mutate(userDescription);
   };
 
@@ -252,16 +272,32 @@ const JobMatch = () => {
             <textarea
               id="user-description"
               rows={6}
-              className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className={`w-full p-4 border ${
+                textError
+                  ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                  : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+              } rounded-lg focus:ring-2`}
               placeholder="Example: I'm a recent computer science graduate looking for an entry-level software engineering role. I have experience with Java, Python, and React from my coursework and internship. I'm interested in fintech or healthtech companies where I can work on meaningful projects..."
               value={userDescription}
-              onChange={(e) => setUserDescription(e.target.value)}
+              onChange={(e) => {
+                setUserDescription(e.target.value);
+                // Clear error when user types
+                if (textError) setTextError("");
+              }}
             />
+
+            {/* Text error message displayed directly below the textarea */}
+            {textError && (
+              <div className="mt-2 text-sm text-red-600 flex items-start gap-1">
+                <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                <span>{textError}</span>
+              </div>
+            )}
           </div>
 
           <div className="mt-2 text-sm text-gray-500 flex items-center gap-1">
             <Clock className="w-4 h-4" />
-            <span>For best results, provide at least 2-3 sentences</span>
+            <span>For best results, provide at least 2-3 sentences.</span>
           </div>
         </div>
 

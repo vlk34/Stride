@@ -83,7 +83,7 @@ const AdminDashboard = () => {
         </div>
 
         {/* Pending Approvals Section */}
-        <div className="mb-6">
+        <div>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
             <h2 className="text-lg font-semibold flex items-center mb-2 sm:mb-0">
               <AlertTriangle className="w-5 h-5 text-amber-500 mr-2" />
@@ -170,23 +170,6 @@ const AdminDashboard = () => {
                   {item.company}: {formatTimeAgo(item.applied_at)}
                 </div>
               ))}
-          </div>
-        </div>
-
-        {/* Recent Activities Section - Simplified since there's no endpoint for this */}
-        <div>
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
-            <h2 className="text-lg font-semibold mb-2 sm:mb-0">
-              Recent Activities
-            </h2>
-            <span className="text-sm text-gray-500">
-              Data not available from API
-            </span>
-          </div>
-
-          <div className="border rounded-lg p-4 text-center text-gray-500">
-            Activity tracking functionality will be implemented in future
-            updates.
           </div>
         </div>
       </div>

@@ -90,8 +90,13 @@ const Result = () => {
     }));
   };
 
-  // Apply filters to URL
-  const applyFilters = () => {
+  // Handle searching
+  const handleSearch = (e) => {
+    e.preventDefault();
+
+    // Unselect the current job when a new search is performed
+    setSelectedJob(null);
+
     // Create a new URLSearchParams instance
     const newParams = new URLSearchParams();
 
@@ -104,19 +109,8 @@ const Result = () => {
     if (filterState.experience)
       newParams.set("experience", filterState.experience);
 
-    // Preserve the jobId if one is selected
-    if (selectedJob) {
-      newParams.set("jobId", selectedJob.job_id);
-    }
-
-    // Update the URL parameters
+    // Update the URL parameters (without jobId)
     setSearchParams(newParams);
-  };
-
-  // Handle searching
-  const handleSearch = (e) => {
-    e.preventDefault();
-    applyFilters();
   };
 
   // Handle job selection

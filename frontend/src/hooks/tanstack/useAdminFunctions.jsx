@@ -155,3 +155,63 @@ export const useDeclineBusinessApplication = () => {
     },
   });
 };
+
+// Get all jobs (admin only)
+export const useAllJobs = () => {
+  return useQuery({
+    queryKey: ["allJobs"],
+    queryFn: async () => {
+      const sessionToken = getSessionToken();
+      const response = await axios.get("http://localhost:8080/alljobs", {
+        headers: {
+          Authorization: `Bearer ${sessionToken}`,
+        },
+      });
+      return response.data;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+// Update job (admin only)
+export const useUpdateAdminJob = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (jobData) => {
+      const sessionToken = getSessionToken();
+      await axios.put("http://localhost:8080/update", jobData, {
+        headers: {
+          Authorization: `Bearer ${sessionToken}`,
+        },
+      });
+    },
+    onSuccess: () => {
+      // Invalidate all jobs list
+      queryClient.invalidateQueries({ queryKey: ["allJobs"] });
+      queryClient.invalidateQueries({ queryKey: ["adminStats"] });
+    },
+  });
+};
+
+// Delete job (admin only)
+export const useDeleteAdminJob = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (jobId) => {
+      const sessionToken = getSessionToken();
+      await axios.delete("http://localhost:8080/delete", {
+        headers: {
+          Authorization: `Bearer ${sessionToken}`,
+        },
+        data: { job_id: jobId },
+      });
+    },
+    onSuccess: () => {
+      // Invalidate all jobs list
+      queryClient.invalidateQueries({ queryKey: ["allJobs"] });
+      queryClient.invalidateQueries({ queryKey: ["adminStats"] });
+    },
+  });
+};

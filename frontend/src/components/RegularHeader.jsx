@@ -12,9 +12,6 @@ import {
   LogOut,
   User,
   Building2,
-  MessageSquare,
-  Bell,
-  Briefcase,
   Sparkles,
 } from "lucide-react";
 import { useUser, useClerk } from "@clerk/clerk-react";
@@ -163,15 +160,7 @@ const RegularHeader = () => {
             >
               {user ? (
                 <>
-                  {/* Messages */}
-                  <Link
-                    to="/messages"
-                    className="flex items-center px-3 py-2 rounded-lg hover:bg-gray-50 text-gray-700 hover:text-gray-900 relative mx-2"
-                  >
-                    <MessageSquare className="w-5 h-5" />
-                  </Link>
-
-                  <div className="h-8 w-px bg-gray-200 ml-2" />
+                  {/* Removed Messages Link */}
                   <div className="relative mx-2">
                     <button
                       onClick={() => setIsProfileOpen(!isProfileOpen)}
