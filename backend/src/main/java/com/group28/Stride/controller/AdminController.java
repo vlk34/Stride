@@ -183,7 +183,7 @@ public class AdminController {
             user_details2 = Map.of("name", "Unknown");
         String delete_name = user_details2.get("name").toString();
 
-        Database.logActivity(String.format("%s descended the user named %s.", user_name, delete_name), role);
+        Database.logActivity(String.format("%s deleted the user named %s.", user_name, delete_name), role);
 
         GetUserInfo.deleteUser(body.get("user_id").toString());
 
