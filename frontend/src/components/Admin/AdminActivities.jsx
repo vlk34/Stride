@@ -3,7 +3,7 @@ import { Search, Clock, Activity, Filter } from "lucide-react";
 import { useActivities } from "../../hooks/tanstack/useAdminFunctions";
 import { format, formatDistanceToNow } from "date-fns";
 
-const ActivitiesList = () => {
+const AdminActivities = () => {
   const { data: activities = [], isLoading, error } = useActivities();
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState("All");
@@ -192,4 +192,4 @@ const ActivitiesList = () => {
   );
 };
 
-export default ActivitiesList;
+export default AdminActivities;

@@ -1,9 +1,6 @@
 import React, { useState } from "react";
-import { Search, Edit, Trash2, Plus, Filter, MoreVertical } from "lucide-react";
-import {
-  useAllUsers,
-  useUpdateUser,
-} from "../../hooks/tanstack/useAdminFunctions";
+import { Search, Trash2, Filter, MoreVertical } from "lucide-react";
+import { useAllUsers } from "../../hooks/tanstack/useAdminFunctions";
 import axios from "axios";
 
 // Helper function to get the session token from cookie
@@ -18,87 +15,41 @@ const getSessionToken = () => {
   return null;
 };
 
-// Modal component for editing a user
-const EditUserModal = ({ user, onClose, onSubmit }) => {
-  const [editedUser, setEditedUser] = useState({
-    name: user.name || "",
-    email: user.email || "",
-    role: user.role || "user",
-  });
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setEditedUser((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSubmit({ ...user, ...editedUser });
-  };
-
+// Confirmation Modal Component
+const DeleteConfirmationModal = ({ user, onClose, onConfirm }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50 px-4">
-      <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
-        <h3 className="text-lg font-semibold mb-4">Edit User</h3>
-        <form onSubmit={handleSubmit}>
-          <div className="mb-3">
-            <label className="block text-sm font-medium text-gray-700">
-              Name
-            </label>
-            <input
-              type="text"
-              name="name"
-              value={editedUser.name}
-              onChange={handleChange}
-              className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-              required
-            />
-          </div>
-          <div className="mb-3">
-            <label className="block text-sm font-medium text-gray-700">
-              Email
-            </label>
-            <input
-              type="email"
-              name="email"
-              value={editedUser.email}
-              onChange={handleChange}
-              className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-              required
-            />
-          </div>
-          <div className="mb-3">
-            <label className="block text-sm font-medium text-gray-700">
-              Role
-            </label>
-            <select
-              name="role"
-              value={editedUser.role}
-              onChange={handleChange}
-              className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-              required
-            >
-              <option value="user">User</option>
-              <option value="business">Business</option>
-              <option value="Admin">Admin</option>
-            </select>
-          </div>
-          <div className="flex justify-end space-x-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="py-2 px-4 bg-gray-300 rounded hover:bg-gray-400"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700"
-            >
-              Save
-            </button>
-          </div>
-        </form>
+      <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+        <h3 className="text-lg font-semibold text-red-600 mb-2">
+          Confirm Deletion
+        </h3>
+        <p className="mb-4 text-gray-700">
+          Are you sure you want to delete{" "}
+          <span className="font-medium">{user.name}</span>?
+        </p>
+        <div className="bg-red-50 p-3 rounded-md mb-4">
+          <p className="text-red-800 text-sm">
+            <strong>Warning:</strong> This action is destructive and cannot be
+            undone. All user data, applications, and history will be permanently
+            lost.
+          </p>
+        </div>
+        <div className="flex justify-end space-x-3">
+          <button
+            type="button"
+            onClick={onClose}
+            className="py-2 px-4 bg-gray-300 rounded hover:bg-gray-400"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            className="py-2 px-4 bg-red-600 text-white rounded hover:bg-red-700"
+          >
+            Delete User
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -106,13 +57,12 @@ const EditUserModal = ({ user, onClose, onSubmit }) => {
 
 const AdminUsers = () => {
   // Replace static data with useAllUsers hook
-  const { data: users = [], isLoading, error } = useAllUsers();
-  const updateUserMutation = useUpdateUser();
+  const { data: users = [], isLoading, error, refetch } = useAllUsers();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState("All");
-  const [userToEdit, setUserToEdit] = useState(null);
   const [activeActionMenu, setActiveActionMenu] = useState(null);
+  const [userToDelete, setUserToDelete] = useState(null);
 
   // Helper function to get role display color
   const getRoleColorClass = (role) => {
@@ -149,43 +99,34 @@ const AdminUsers = () => {
     setRoleFilter(e.target.value);
   };
 
-  const openEditModal = (user) => {
-    setUserToEdit(user);
+  const openDeleteModal = (user) => {
+    setUserToDelete(user);
     setActiveActionMenu(null);
   };
 
-  const closeEditModal = () => {
-    setUserToEdit(null);
+  const closeDeleteModal = () => {
+    setUserToDelete(null);
   };
 
-  const handleEditSubmit = async (updatedUser) => {
+  const confirmDelete = async () => {
     try {
-      await updateUserMutation.mutateAsync(updatedUser);
-      closeEditModal();
-    } catch (error) {
-      console.error("Error updating user:", error);
-      alert("Failed to update user. Please try again.");
-    }
-  };
-
-  const handleDelete = async (userId) => {
-    if (window.confirm("Are you sure you want to delete this user?")) {
-      try {
-        const sessionToken = getSessionToken();
-        await axios.delete("http://localhost:8080/deleteuser", {
+      const sessionToken = getSessionToken();
+      await axios.post(
+        "http://localhost:8080/deleteuser",
+        { user_id: userToDelete.user_id },
+        {
           headers: {
             Authorization: `Bearer ${sessionToken}`,
           },
-          data: { user_id: userId },
-        });
+        }
+      );
 
-        // Refetch users after deletion
-        useAllUsers.invalidate();
-        setActiveActionMenu(null);
-      } catch (error) {
-        console.error("Error deleting user:", error);
-        alert("Failed to delete user. Please try again.");
-      }
+      // Refetch users after deletion
+      refetch();
+      closeDeleteModal();
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      alert("Failed to delete user. Please try again.");
     }
   };
 
@@ -345,14 +286,7 @@ const AdminUsers = () => {
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap text-right">
                       <button
-                        onClick={() => openEditModal(user)}
-                        className="text-blue-600 hover:text-blue-800 p-1 mr-1"
-                        title="Edit"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(user.user_id)}
+                        onClick={() => openDeleteModal(user)}
                         className="text-red-600 hover:text-red-800 p-1"
                         title="Delete"
                       >
@@ -420,14 +354,7 @@ const AdminUsers = () => {
                     <td className="px-2 py-3 text-right">
                       <div className="flex justify-end">
                         <button
-                          onClick={() => openEditModal(user)}
-                          className="text-blue-600 hover:text-blue-800 p-1 mr-1"
-                          title="Edit"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(user.user_id)}
+                          onClick={() => openDeleteModal(user)}
                           className="text-red-600 hover:text-red-800 p-1"
                           title="Delete"
                         >
@@ -461,13 +388,7 @@ const AdminUsers = () => {
                     {activeActionMenu === user.user_id && (
                       <div className="absolute right-0 mt-1 bg-white shadow-lg rounded-lg py-1 w-32 z-10">
                         <button
-                          onClick={() => openEditModal(user)}
-                          className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center"
-                        >
-                          <Edit className="w-4 h-4 mr-2" /> Edit
-                        </button>
-                        <button
-                          onClick={() => handleDelete(user.user_id)}
+                          onClick={() => openDeleteModal(user)}
                           className="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600 flex items-center"
                         >
                           <Trash2 className="w-4 h-4 mr-2" /> Delete
@@ -511,12 +432,12 @@ const AdminUsers = () => {
         </div>
       )}
 
-      {/* Edit Modal */}
-      {userToEdit && (
-        <EditUserModal
-          user={userToEdit}
-          onClose={closeEditModal}
-          onSubmit={handleEditSubmit}
+      {/* Delete Confirmation Modal */}
+      {userToDelete && (
+        <DeleteConfirmationModal
+          user={userToDelete}
+          onClose={closeDeleteModal}
+          onConfirm={confirmDelete}
         />
       )}
     </div>

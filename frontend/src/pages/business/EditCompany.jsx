@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
-import { useUserData } from "../../contexts/UserDataContext";
 import {
   Building2,
   MapPin,
@@ -22,23 +21,37 @@ import {
   FileText,
   Share,
 } from "lucide-react";
+import {
+  useCompanyData,
+  useUpdateCompany,
+} from "../../hooks/tanstack/useCompanyAccount";
+import {
+  useImage,
+  useUploadImage,
+} from "../../hooks/tanstack/useImageAndCompany";
 
 const EditCompany = () => {
   const navigate = useNavigate();
-  const { localUserData, updateUserData } = useUserData();
   const [activeTab, setActiveTab] = useState("basic");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [logoPreview, setLogoPreview] = useState(null);
 
+  // Fetch company data
+  const { data: companyData, isLoading, error } = useCompanyData();
+  const updateCompany = useUpdateCompany();
+  const uploadImage = useUploadImage();
+
+  // If logo is available, fetch it
+  const { data: logoUrl } = useImage(companyData?.logo || null);
+
   // Form data state
   const [formData, setFormData] = useState({
     // Basic Info
-    companyName: "",
-    tagline: "",
+    company: "",
     industry: "",
-    companySize: "",
-    foundedYear: "",
+    size: "",
+    founded: "",
     logo: null,
 
     // Contact Info
@@ -51,60 +64,45 @@ const EditCompany = () => {
     city: "",
     state: "",
     country: "",
-    postalCode: "",
+    postal_code: "",
 
     // Company Details
     description: "",
-    about: "",
-    culture: "",
     mission: "",
 
-    // Benefits & Values
-    benefits: [],
-    values: [],
-
-    // Social Media
-    linkedin: "",
-    twitter: "",
-    facebook: "",
-    instagram: "",
+    // Benefits
+    benefits: "",
   });
 
-  // Initialize form with existing data
+  // Initialize form with existing data when it's loaded
   useEffect(() => {
-    // Populate form with existing company data
-    if (localUserData) {
+    if (companyData) {
       setFormData({
-        companyName: localUserData.companyName || "",
-        tagline: localUserData.tagline || "",
-        industry: localUserData.industry || "",
-        companySize: localUserData.companySize || "",
-        foundedYear: localUserData.foundedYear || "",
-        email: localUserData.email || "",
-        phone: localUserData.phone || "",
-        website: localUserData.website || "",
-        address: localUserData.address || "",
-        city: localUserData.city || "",
-        state: localUserData.state || "",
-        country: localUserData.country || "",
-        postalCode: localUserData.postalCode || "",
-        description: localUserData.description || "",
-        about: localUserData.about || "",
-        culture: localUserData.culture || "",
-        mission: localUserData.mission || "",
-        benefits: localUserData.benefits || [],
-        values: localUserData.values || [],
-        linkedin: localUserData.linkedin || "",
-        twitter: localUserData.twitter || "",
-        facebook: localUserData.facebook || "",
-        instagram: localUserData.instagram || "",
+        company: companyData.company || "",
+        industry: companyData.industry || "",
+        size: companyData.size || "",
+        founded: companyData.founded || "",
+        email: companyData.email || "",
+        phone: companyData.phone || "",
+        website: companyData.website || "",
+        address: companyData.address || "",
+        city: companyData.city || "",
+        state: companyData.state || "",
+        country: companyData.country || "",
+        postal_code: companyData.postal_code || "",
+        description: companyData.description || "",
+        mission: companyData.mission || "",
+        benefits: companyData.benefits || "",
       });
-
-      if (localUserData.imageUrl) {
-        setLogoPreview(localUserData.imageUrl);
-      }
     }
-  }, [localUserData]);
+  }, [companyData]);
+
+  // Set logo preview when logo URL is available
+  useEffect(() => {
+    if (logoUrl) {
+      setLogoPreview(logoUrl);
+    }
+  }, [logoUrl]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -131,48 +129,88 @@ const EditCompany = () => {
     }
   };
 
-  const handleArrayItemChange = (type, index, value) => {
-    const newArray = [...formData[type]];
-    newArray[index] = value;
-
-    setFormData((prev) => ({
-      ...prev,
-      [type]: newArray,
-    }));
-  };
-
-  const addArrayItem = (type) => {
-    setFormData((prev) => ({
-      ...prev,
-      [type]: [...prev[type], ""],
-    }));
-  };
-
-  const removeArrayItem = (type, index) => {
-    const newArray = [...formData[type]];
-    newArray.splice(index, 1);
-
-    setFormData((prev) => ({
-      ...prev,
-      [type]: newArray,
-    }));
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate form submission
-    setTimeout(() => {
+    try {
+      // If there's a new logo, upload it first
+      let logoId = companyData?.logo;
+      if (formData.logo && formData.logo instanceof File) {
+        const uploadResult = await uploadImage.mutateAsync(formData.logo);
+        logoId = uploadResult.id || uploadResult; // Adjust based on actual API response
+      }
+
+      // Prepare data for submission (matching the expected format)
+      const submissionData = {
+        company: formData.company,
+        industry: formData.industry,
+        size: formData.size,
+        logo: logoId,
+        founded: parseInt(formData.founded),
+        email: formData.email,
+        phone: formData.phone,
+        website: formData.website,
+        address: formData.address,
+        city: formData.city,
+        state: formData.state,
+        country: formData.country,
+        postal_code: formData.postal_code,
+        description: formData.description,
+        mission: formData.mission,
+        benefits: formData.benefits,
+      };
+
+      // Submit the updated data
+      await updateCompany.mutateAsync(submissionData);
+
       setSuccessMessage("Company profile updated successfully!");
-      setIsSubmitting(false);
 
       // Clear success message after 3 seconds
       setTimeout(() => {
         setSuccessMessage("");
       }, 3000);
-    }, 1000);
+    } catch (error) {
+      console.error("Error updating company profile:", error);
+      setSuccessMessage("Error updating company profile. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="max-w-5xl mx-auto px-4 py-8">
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="max-w-5xl mx-auto px-4 py-8">
+        <div className="bg-red-50 p-4 rounded-md">
+          <h3 className="text-red-800 font-medium">
+            Error loading company data
+          </h3>
+          <p className="text-red-700 mt-1">
+            {error.message ||
+              "Failed to load company data. Please try again later."}
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-3 bg-red-100 text-red-800 px-4 py-2 rounded-md hover:bg-red-200 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
@@ -187,9 +225,17 @@ const EditCompany = () => {
 
       {/* Success message */}
       {successMessage && (
-        <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center gap-3 text-green-700">
-          <CheckCircle className="w-5 h-5" />
-          <span>{successMessage}</span>
+        <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center justify-between gap-3 text-green-700">
+          <div className="flex items-center gap-2">
+            <CheckCircle className="w-5 h-5" />
+            <span>{successMessage}</span>
+          </div>
+          <button
+            onClick={() => navigate("/business/profile")}
+            className="px-4 py-1.5 bg-green-100 hover:bg-green-200 text-green-800 rounded-lg text-sm font-medium transition-colors"
+          >
+            View Profile
+          </button>
         </div>
       )}
 
@@ -213,16 +259,6 @@ const EditCompany = () => {
                 id: "details",
                 label: "Details",
                 icon: <FileText className="w-5 h-5" />,
-              },
-              {
-                id: "culture",
-                label: "Culture",
-                icon: <Heart className="w-5 h-5" />,
-              },
-              {
-                id: "social",
-                label: "Social",
-                icon: <Share className="w-5 h-5" />,
               },
             ].map((tab) => (
               <button
@@ -248,8 +284,6 @@ const EditCompany = () => {
               { id: "basic", label: "Basic Info" },
               { id: "contact", label: "Contact & Location" },
               { id: "details", label: "Company Details" },
-              { id: "culture", label: "Culture & Benefits" },
-              { id: "social", label: "Social Media" },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -311,7 +345,7 @@ const EditCompany = () => {
               {/* Company Name */}
               <div>
                 <label
-                  htmlFor="companyName"
+                  htmlFor="company"
                   className="block text-sm font-medium text-gray-700 mb-2"
                 >
                   Company Name <span className="text-red-500">*</span>
@@ -322,33 +356,14 @@ const EditCompany = () => {
                   </div>
                   <input
                     type="text"
-                    id="companyName"
-                    name="companyName"
-                    value={formData.companyName}
+                    id="company"
+                    name="company"
+                    value={formData.company}
                     onChange={handleInputChange}
                     className="block w-full rounded-lg border border-gray-300 pl-10 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     required
                   />
                 </div>
-              </div>
-
-              {/* Tagline */}
-              <div>
-                <label
-                  htmlFor="tagline"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Tagline
-                </label>
-                <input
-                  type="text"
-                  id="tagline"
-                  name="tagline"
-                  value={formData.tagline}
-                  onChange={handleInputChange}
-                  placeholder="A short slogan for your company"
-                  className="block w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
               </div>
 
               {/* Industry */}
@@ -388,7 +403,7 @@ const EditCompany = () => {
               {/* Company Size */}
               <div>
                 <label
-                  htmlFor="companySize"
+                  htmlFor="size"
                   className="block text-sm font-medium text-gray-700 mb-2"
                 >
                   Company Size <span className="text-red-500">*</span>
@@ -398,9 +413,9 @@ const EditCompany = () => {
                     <Users className="w-5 h-5 text-gray-400" />
                   </div>
                   <select
-                    id="companySize"
-                    name="companySize"
-                    value={formData.companySize}
+                    id="size"
+                    name="size"
+                    value={formData.size}
                     onChange={handleInputChange}
                     className="block w-full rounded-lg border border-gray-300 pl-10 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     required
@@ -419,16 +434,16 @@ const EditCompany = () => {
               {/* Founded Year */}
               <div>
                 <label
-                  htmlFor="foundedYear"
+                  htmlFor="founded"
                   className="block text-sm font-medium text-gray-700 mb-2"
                 >
                   Founded Year
                 </label>
                 <input
                   type="number"
-                  id="foundedYear"
-                  name="foundedYear"
-                  value={formData.foundedYear}
+                  id="founded"
+                  name="founded"
+                  value={formData.founded}
                   onChange={handleInputChange}
                   placeholder="YYYY"
                   min="1800"
@@ -599,16 +614,16 @@ const EditCompany = () => {
               {/* Postal Code */}
               <div>
                 <label
-                  htmlFor="postalCode"
+                  htmlFor="postal_code"
                   className="block text-sm font-medium text-gray-700 mb-2"
                 >
                   Postal Code
                 </label>
                 <input
                   type="text"
-                  id="postalCode"
-                  name="postalCode"
-                  value={formData.postalCode}
+                  id="postal_code"
+                  name="postal_code"
+                  value={formData.postal_code}
                   onChange={handleInputChange}
                   className="block w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
@@ -643,31 +658,8 @@ const EditCompany = () => {
                   required
                 />
                 <p className="text-xs text-gray-500 mt-1 text-right">
-                  {formData.description.length}/150 characters
+                  {formData.description ? formData.description.length : 0}/150
                 </p>
-              </div>
-
-              {/* About */}
-              <div>
-                <label
-                  htmlFor="about"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  About Us <span className="text-red-500">*</span>
-                </label>
-                <p className="text-xs text-gray-500 mb-2">
-                  Detailed information about your company, history, and what you
-                  do
-                </p>
-                <textarea
-                  id="about"
-                  name="about"
-                  value={formData.about}
-                  onChange={handleInputChange}
-                  rows={5}
-                  className="block w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  required
-                />
               </div>
 
               {/* Mission */}
@@ -678,6 +670,9 @@ const EditCompany = () => {
                 >
                   Company Mission
                 </label>
+                <p className="text-xs text-gray-500 mb-2">
+                  Share your company's mission and values
+                </p>
                 <textarea
                   id="mission"
                   name="mission"
@@ -688,18 +683,22 @@ const EditCompany = () => {
                 />
               </div>
 
-              {/* Culture */}
+              {/* Benefits */}
               <div>
                 <label
-                  htmlFor="culture"
+                  htmlFor="benefits"
                   className="block text-sm font-medium text-gray-700 mb-2"
                 >
-                  Company Culture
+                  Benefits & Perks
                 </label>
+                <p className="text-xs text-gray-500 mb-2">
+                  List benefits separated by commas (e.g., "Health insurance,
+                  Remote work, Flexible hours")
+                </p>
                 <textarea
-                  id="culture"
-                  name="culture"
-                  value={formData.culture}
+                  id="benefits"
+                  name="benefits"
+                  value={formData.benefits}
                   onChange={handleInputChange}
                   rows={3}
                   className="block w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -708,266 +707,39 @@ const EditCompany = () => {
             </div>
           )}
 
-          {/* Culture & Benefits Tab */}
-          {activeTab === "culture" && (
-            <div className="space-y-6">
-              <h2 className="text-xl font-semibold mb-4">Company Values</h2>
-              <p className="text-sm text-gray-600 mb-4">
-                Add the core values that define your company culture
-              </p>
-
-              {/* Values */}
-              <div className="space-y-3">
-                {formData.values.map((value, index) => (
-                  <div
-                    key={`value-${index}`}
-                    className="flex items-center gap-2"
-                  >
-                    <input
-                      type="text"
-                      value={value}
-                      onChange={(e) =>
-                        handleArrayItemChange("values", index, e.target.value)
-                      }
-                      className="flex-1 rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="e.g., Innovation, Teamwork, Excellence"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => removeArrayItem("values", index)}
-                      className="p-2 text-gray-400 hover:text-red-500"
-                    >
-                      <X className="w-5 h-5" />
-                    </button>
-                  </div>
-                ))}
-
-                <button
-                  type="button"
-                  onClick={() => addArrayItem("values")}
-                  className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center gap-1"
-                >
-                  <span>+ Add Value</span>
-                </button>
-              </div>
-
-              <h2 className="text-xl font-semibold mb-4 mt-8">
-                Benefits & Perks
-              </h2>
-              <p className="text-sm text-gray-600 mb-4">
-                List the benefits and perks you offer to employees
-              </p>
-
-              {/* Benefits */}
-              <div className="space-y-3">
-                {formData.benefits.map((benefit, index) => (
-                  <div
-                    key={`benefit-${index}`}
-                    className="flex items-center gap-2"
-                  >
-                    <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                      {index % 4 === 0 && (
-                        <Heart className="w-4 h-4 text-blue-600" />
-                      )}
-                      {index % 4 === 1 && (
-                        <Award className="w-4 h-4 text-blue-600" />
-                      )}
-                      {index % 4 === 2 && (
-                        <Coffee className="w-4 h-4 text-blue-600" />
-                      )}
-                      {index % 4 === 3 && (
-                        <Calendar className="w-4 h-4 text-blue-600" />
-                      )}
-                    </div>
-                    <input
-                      type="text"
-                      value={benefit}
-                      onChange={(e) =>
-                        handleArrayItemChange("benefits", index, e.target.value)
-                      }
-                      className="flex-1 rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="e.g., Health insurance, Remote work, Professional development"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => removeArrayItem("benefits", index)}
-                      className="p-2 text-gray-400 hover:text-red-500"
-                    >
-                      <X className="w-5 h-5" />
-                    </button>
-                  </div>
-                ))}
-
-                <button
-                  type="button"
-                  onClick={() => addArrayItem("benefits")}
-                  className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center gap-1"
-                >
-                  <span>+ Add Benefit</span>
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Social Media Tab */}
-          {activeTab === "social" && (
-            <div className="space-y-6">
-              <h2 className="text-xl font-semibold mb-4">
-                Social Media Profiles
-              </h2>
-              <p className="text-sm text-gray-600 mb-4">
-                Connect your social media accounts to enhance your company
-                profile
-              </p>
-
-              {/* LinkedIn */}
-              <div>
-                <label
-                  htmlFor="linkedin"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  LinkedIn
-                </label>
-                <input
-                  type="url"
-                  id="linkedin"
-                  name="linkedin"
-                  value={formData.linkedin}
-                  onChange={handleInputChange}
-                  placeholder="https://linkedin.com/company/yourcompany"
-                  className="block w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-
-              {/* Twitter */}
-              <div>
-                <label
-                  htmlFor="twitter"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Twitter
-                </label>
-                <input
-                  type="url"
-                  id="twitter"
-                  name="twitter"
-                  value={formData.twitter}
-                  onChange={handleInputChange}
-                  placeholder="https://twitter.com/yourcompany"
-                  className="block w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-
-              {/* Facebook */}
-              <div>
-                <label
-                  htmlFor="facebook"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Facebook
-                </label>
-                <input
-                  type="url"
-                  id="facebook"
-                  name="facebook"
-                  value={formData.facebook}
-                  onChange={handleInputChange}
-                  placeholder="https://facebook.com/yourcompany"
-                  className="block w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-
-              {/* Instagram */}
-              <div>
-                <label
-                  htmlFor="instagram"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Instagram
-                </label>
-                <input
-                  type="url"
-                  id="instagram"
-                  name="instagram"
-                  value={formData.instagram}
-                  onChange={handleInputChange}
-                  placeholder="https://instagram.com/yourcompany"
-                  className="block w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Navigation and Submit Buttons */}
-        <div className="flex justify-between items-center">
-          <div className="flex gap-3">
-            {activeTab !== "basic" && (
-              <button
-                type="button"
-                onClick={() => {
-                  const tabs = [
-                    "basic",
-                    "contact",
-                    "details",
-                    "culture",
-                    "social",
-                  ];
-                  const currentIndex = tabs.indexOf(activeTab);
-                  setActiveTab(tabs[currentIndex - 1]);
-                }}
-                className="flex items-center gap-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
-              >
-                <ChevronLeft className="w-4 h-4" />
-                <span>Previous</span>
-              </button>
-            )}
-
-            {activeTab !== "social" && (
-              <button
-                type="button"
-                onClick={() => {
-                  const tabs = [
-                    "basic",
-                    "contact",
-                    "details",
-                    "culture",
-                    "social",
-                  ];
-                  const currentIndex = tabs.indexOf(activeTab);
-                  setActiveTab(tabs[currentIndex + 1]);
-                }}
-                className="flex items-center gap-1 px-4 py-2 bg-blue-50 border border-blue-100 rounded-lg text-blue-600 hover:bg-blue-100"
-              >
-                <span>Next</span>
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            )}
+          {/* Form actions */}
+          <div className="mt-8 flex justify-between items-center">
+            <button
+              type="button"
+              onClick={() => navigate(-1)}
+              className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className={`px-6 py-2 bg-blue-600 text-white rounded-lg flex items-center gap-2 ${
+                isSubmitting
+                  ? "opacity-70 cursor-not-allowed"
+                  : "hover:bg-blue-700"
+              } transition-colors`}
+            >
+              {isSubmitting ? (
+                <>
+                  <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4" />
+                  Save Changes
+                </>
+              )}
+            </button>
           </div>
-
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-white ${
-              isSubmitting ? "bg-blue-400" : "bg-blue-600 hover:bg-blue-700"
-            }`}
-          >
-            <Save className="w-5 h-5" />
-            <span>{isSubmitting ? "Saving..." : "Save Changes"}</span>
-          </button>
         </div>
       </form>
-
-      {/* Cancel Button */}
-      <div className="mt-6 text-center">
-        <button
-          type="button"
-          onClick={() => navigate("/business/profile")}
-          className="text-gray-500 hover:text-gray-700 text-sm"
-        >
-          Cancel and return to profile
-        </button>
-      </div>
     </div>
   );
 };

@@ -1,116 +1,45 @@
-import React, { useState, useEffect } from "react";
-import {
-  Search,
-  Edit,
-  Trash2,
-  Plus,
-  Filter,
-  MoreVertical,
-  Loader,
-} from "lucide-react";
+import React, { useState } from "react";
+import { Search, Trash2, Filter, MoreVertical, Loader } from "lucide-react";
 import {
   useAllJobs,
-  useUpdateAdminJob,
   useDeleteAdminJob,
 } from "../../hooks/tanstack/useAdminFunctions";
 
-// Modal component for editing a job
-const EditJobModal = ({ job, onClose, onSubmit }) => {
-  const [editedJob, setEditedJob] = useState({
-    job_id: job.job_id,
-    title: job.title || "",
-    company: job.company || "",
-    location: job.location || "",
-    status: job.status || "Active",
-  });
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setEditedJob((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSubmit(editedJob);
-  };
-
+// Custom Delete Confirmation Modal
+const DeleteConfirmationModal = ({ job, onClose, onConfirm }) => {
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50 px-4">
       <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
-        <h3 className="text-lg font-semibold mb-4">Edit Job</h3>
-        <form onSubmit={handleSubmit}>
-          <div className="mb-3">
-            <label className="block text-sm font-medium text-gray-700">
-              Title
-            </label>
-            <input
-              type="text"
-              name="title"
-              value={editedJob.title}
-              onChange={handleChange}
-              className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-              required
-            />
-          </div>
-          <div className="mb-3">
-            <label className="block text-sm font-medium text-gray-700">
-              Company
-            </label>
-            <input
-              type="text"
-              name="company"
-              value={editedJob.company}
-              onChange={handleChange}
-              className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-              required
-            />
-          </div>
-          <div className="mb-3">
-            <label className="block text-sm font-medium text-gray-700">
-              Location
-            </label>
-            <input
-              type="text"
-              name="location"
-              value={editedJob.location}
-              onChange={handleChange}
-              className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-              required
-            />
-          </div>
-          <div className="mb-3">
-            <label className="block text-sm font-medium text-gray-700">
-              Status
-            </label>
-            <select
-              name="status"
-              value={editedJob.status}
-              onChange={handleChange}
-              className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-              required
-            >
-              <option value="Active">Active</option>
-              <option value="Pending">Pending</option>
-              <option value="Closed">Closed</option>
-              <option value="Rejected">Rejected</option>
-            </select>
-          </div>
-          <div className="flex justify-end space-x-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="py-2 px-4 bg-gray-300 rounded hover:bg-gray-400"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700"
-            >
-              Save
-            </button>
-          </div>
-        </form>
+        <h3 className="text-lg font-semibold text-red-600 mb-2">
+          Confirm Job Deletion
+        </h3>
+        <p className="mb-4 text-gray-700">
+          Are you sure you want to delete the job{" "}
+          <span className="font-medium">"{job.title}"</span>?
+        </p>
+        <div className="bg-red-50 p-3 rounded-md mb-4">
+          <p className="text-red-800 text-sm">
+            <strong>Warning:</strong> This action is destructive and cannot be
+            undone. All job data, applications, and related information will be
+            permanently lost.
+          </p>
+        </div>
+        <div className="flex justify-end space-x-3">
+          <button
+            type="button"
+            onClick={onClose}
+            className="py-2 px-4 bg-gray-300 rounded hover:bg-gray-400"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            className="py-2 px-4 bg-red-600 text-white rounded hover:bg-red-700"
+          >
+            Delete Job
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -119,14 +48,13 @@ const EditJobModal = ({ job, onClose, onSubmit }) => {
 const AdminJobs = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
-  const [jobToEdit, setJobToEdit] = useState(null);
   const [activeActionMenu, setActiveActionMenu] = useState(null);
+  const [jobToDelete, setJobToDelete] = useState(null);
 
   // Fetch all jobs using TanStack Query
   const { data: allJobs = [], isLoading, error } = useAllJobs();
 
-  // Mutations for updating and deleting jobs
-  const updateJobMutation = useUpdateAdminJob();
+  // Mutation for deleting jobs
   const deleteJobMutation = useDeleteAdminJob();
 
   // Process the fetched jobs data to match our component's format
@@ -185,41 +113,22 @@ const AdminJobs = () => {
     setStatusFilter(e.target.value);
   };
 
-  const openEditModal = (job) => {
-    setJobToEdit(job);
+  const openDeleteModal = (job) => {
+    setJobToDelete(job);
     setActiveActionMenu(null); // Close action menu if open
   };
 
-  const closeEditModal = () => {
-    setJobToEdit(null);
+  const closeDeleteModal = () => {
+    setJobToDelete(null);
   };
 
-  const handleEditSubmit = async (updatedJob) => {
+  const confirmDelete = async () => {
     try {
-      // Call the update job mutation with properly formatted data
-      await updateJobMutation.mutateAsync({
-        job_id: updatedJob.job_id,
-        title: updatedJob.title,
-        // Include other required fields from the API schema
-        // We might need to keep existing data for fields we don't edit in the form
-      });
-
-      closeEditModal();
+      await deleteJobMutation.mutateAsync(jobToDelete.job_id);
+      closeDeleteModal();
     } catch (error) {
-      console.error("Error updating job:", error);
-      alert("Failed to update job");
-    }
-  };
-
-  const handleDeleteClick = async (jobId) => {
-    if (window.confirm("Are you sure you want to delete this job?")) {
-      try {
-        await deleteJobMutation.mutateAsync(jobId);
-        setActiveActionMenu(null); // Close action menu after deletion
-      } catch (error) {
-        console.error("Error deleting job:", error);
-        alert("Failed to delete job");
-      }
+      console.error("Error deleting job:", error);
+      alert("Failed to delete job. Please try again.");
     }
   };
 
@@ -242,7 +151,7 @@ const AdminJobs = () => {
     return (
       <div className="bg-white rounded-lg border border-gray-200 p-6">
         <div className="text-red-500 flex items-center">
-          <AlertCircle className="w-5 h-5 mr-2" />
+          <div className="w-5 h-5 mr-2" />
           Error loading jobs: {error.message}
         </div>
       </div>
@@ -253,9 +162,6 @@ const AdminJobs = () => {
     <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold">Manage Jobs</h2>
-        <button className="flex items-center bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-          <Plus className="w-4 h-4 mr-2" /> Add Job
-        </button>
       </div>
 
       {/* Search and Filter Bar */}
@@ -279,9 +185,7 @@ const AdminJobs = () => {
           >
             <option value="All">All Statuses</option>
             <option value="Active">Active</option>
-            <option value="Pending">Pending</option>
             <option value="Closed">Closed</option>
-            <option value="Rejected">Rejected</option>
           </select>
         </div>
       </div>
@@ -357,10 +261,6 @@ const AdminJobs = () => {
                         className={`px-2 py-1 rounded-full text-xs font-medium ${
                           job.status === "Active"
                             ? "bg-green-100 text-green-800"
-                            : job.status === "Pending"
-                            ? "bg-yellow-100 text-yellow-800"
-                            : job.status === "Rejected"
-                            ? "bg-red-100 text-red-800"
                             : "bg-gray-100 text-gray-800"
                         }`}
                       >
@@ -370,14 +270,7 @@ const AdminJobs = () => {
                     <td className="px-4 py-3 whitespace-nowrap">{job.date}</td>
                     <td className="px-4 py-3 whitespace-nowrap text-right">
                       <button
-                        onClick={() => openEditModal(job)}
-                        className="text-blue-600 hover:text-blue-800 mr-3"
-                        title="Edit"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteClick(job.id)}
+                        onClick={() => openDeleteModal(job)}
                         className="text-red-600 hover:text-red-800"
                         title="Delete"
                       >
@@ -425,10 +318,6 @@ const AdminJobs = () => {
                         className={`px-2 py-1 rounded-full text-xs font-medium ${
                           job.status === "Active"
                             ? "bg-green-100 text-green-800"
-                            : job.status === "Pending"
-                            ? "bg-yellow-100 text-yellow-800"
-                            : job.status === "Rejected"
-                            ? "bg-red-100 text-red-800"
                             : "bg-gray-100 text-gray-800"
                         }`}
                       >
@@ -441,10 +330,6 @@ const AdminJobs = () => {
                           className={`px-2 py-1 rounded-full text-xs font-medium ${
                             job.status === "Active"
                               ? "bg-green-100 text-green-800"
-                              : job.status === "Pending"
-                              ? "bg-yellow-100 text-yellow-800"
-                              : job.status === "Rejected"
-                              ? "bg-red-100 text-red-800"
                               : "bg-gray-100 text-gray-800"
                           }`}
                         >
@@ -458,14 +343,7 @@ const AdminJobs = () => {
                     <td className="px-4 py-3 text-right">
                       <div className="flex justify-end space-x-2">
                         <button
-                          onClick={() => openEditModal(job)}
-                          className="text-blue-600 hover:text-blue-800 p-1"
-                          title="Edit"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteClick(job.id)}
+                          onClick={() => openDeleteModal(job)}
                           className="text-red-600 hover:text-red-800 p-1"
                           title="Delete"
                         >
@@ -499,13 +377,7 @@ const AdminJobs = () => {
                     {activeActionMenu === job.id && (
                       <div className="absolute right-0 mt-1 bg-white shadow-lg rounded-lg py-1 w-32 z-10">
                         <button
-                          onClick={() => openEditModal(job)}
-                          className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center"
-                        >
-                          <Edit className="w-4 h-4 mr-2" /> Edit
-                        </button>
-                        <button
-                          onClick={() => handleDeleteClick(job.id)}
+                          onClick={() => openDeleteModal(job)}
                           className="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600 flex items-center"
                         >
                           <Trash2 className="w-4 h-4 mr-2" /> Delete
@@ -525,10 +397,6 @@ const AdminJobs = () => {
                       className={`px-2 py-1 rounded-full text-xs font-medium ${
                         job.status === "Active"
                           ? "bg-green-100 text-green-800"
-                          : job.status === "Pending"
-                          ? "bg-yellow-100 text-yellow-800"
-                          : job.status === "Rejected"
-                          ? "bg-red-100 text-red-800"
                           : "bg-gray-100 text-gray-800"
                       }`}
                     >
@@ -543,12 +411,12 @@ const AdminJobs = () => {
         </div>
       )}
 
-      {/* Edit Modal */}
-      {jobToEdit && (
-        <EditJobModal
-          job={jobToEdit}
-          onClose={closeEditModal}
-          onSubmit={handleEditSubmit}
+      {/* Delete Confirmation Modal */}
+      {jobToDelete && (
+        <DeleteConfirmationModal
+          job={jobToDelete}
+          onClose={closeDeleteModal}
+          onConfirm={confirmDelete}
         />
       )}
     </div>

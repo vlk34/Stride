@@ -7,10 +7,14 @@ import {
   Search,
   Filter,
   MoreVertical,
+  XCircle,
+  CheckCircle,
 } from "lucide-react";
 import {
   useBusinessApplications,
   useCompanyDetails,
+  useUpgradeUser,
+  useDeclineBusinessApplication,
 } from "../../hooks/tanstack/useAdminFunctions";
 import { useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
@@ -27,15 +31,56 @@ const getSessionToken = () => {
   return null;
 };
 
+// Decline Confirmation Modal
+const DeclineConfirmationModal = ({ application, onClose, onConfirm }) => {
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50 px-4">
+      <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+        <h3 className="text-lg font-semibold text-red-600 mb-2">
+          Confirm Decline
+        </h3>
+        <p className="mb-4 text-gray-700">
+          Are you sure you want to decline the business application for{" "}
+          <span className="font-medium">{application.company}</span>?
+        </p>
+
+        <div className="bg-red-50 p-3 rounded-md mb-4">
+          <p className="text-red-800 text-sm">
+            <strong>Note:</strong> This action will reject the business upgrade
+            request. The user will remain as a regular user.
+          </p>
+        </div>
+        <div className="flex justify-end space-x-3">
+          <button
+            type="button"
+            onClick={onClose}
+            className="py-2 px-4 bg-gray-300 rounded hover:bg-gray-400"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            className="py-2 px-4 bg-red-600 text-white rounded hover:bg-red-700"
+          >
+            Decline Application
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const ApprovalsList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [activeActionMenu, setActiveActionMenu] = useState(null);
   const [selectingCompanyId, setSelectingCompanyId] = useState(null);
+  const [applicationToDecline, setApplicationToDecline] = useState(null);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  // Use the TanStack query hook for applications
+  // Use the hooks for business applications
   const {
     data: applications = [],
     isLoading: isLoadingApplications,
@@ -48,6 +93,10 @@ const ApprovalsList = () => {
     isLoading: isLoadingDetails,
     error: detailsError,
   } = useCompanyDetails(selectingCompanyId);
+
+  // Use the upgrade and decline mutation hooks
+  const upgradeUserMutation = useUpgradeUser();
+  const declineApplicationMutation = useDeclineBusinessApplication();
 
   // When company details are loaded, navigate to the review page
   useEffect(() => {
@@ -100,6 +149,28 @@ const ApprovalsList = () => {
         return response.data;
       },
     });
+  };
+
+  const handleDeclineClick = (application) => {
+    setApplicationToDecline(application);
+    setActiveActionMenu(null);
+  };
+
+  const closeDeclineModal = () => {
+    setApplicationToDecline(null);
+  };
+
+  const confirmDecline = async () => {
+    try {
+      // Call the decline mutation with the user_id
+      await declineApplicationMutation.mutateAsync(
+        applicationToDecline.user_id
+      );
+      closeDeclineModal();
+    } catch (error) {
+      console.error("Error declining business application:", error);
+      alert("Failed to decline application. Please try again.");
+    }
   };
 
   const getStatusColor = (status) => {
@@ -248,7 +319,7 @@ const ApprovalsList = () => {
                     Status
                   </th>
                   <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Action
+                    Actions
                   </th>
                 </tr>
               </thead>
@@ -303,22 +374,34 @@ const ApprovalsList = () => {
                       </span>
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap text-right">
-                      <button
-                        onClick={() =>
-                          handleReviewClick(application.company_id)
-                        }
-                        className="text-blue-600 hover:text-blue-800 p-1"
-                        title="Review"
-                        disabled={
-                          isLoadingDetails &&
+                      <div className="flex justify-end space-x-2">
+                        <button
+                          onClick={() =>
+                            handleReviewClick(application.company_id)
+                          }
+                          className="text-blue-600 hover:text-blue-800 p-1"
+                          title="Review"
+                          disabled={
+                            isLoadingDetails &&
+                            selectingCompanyId === application.company_id
+                          }
+                        >
+                          {isLoadingDetails &&
                           selectingCompanyId === application.company_id
-                        }
-                      >
-                        {isLoadingDetails &&
-                        selectingCompanyId === application.company_id
-                          ? "Loading..."
-                          : "Review"}
-                      </button>
+                            ? "Loading..."
+                            : "Review"}
+                        </button>
+                        {(!application.status ||
+                          application.status === "Pending") && (
+                          <button
+                            onClick={() => handleDeclineClick(application)}
+                            className="text-red-600 hover:text-red-800 p-1"
+                            title="Decline"
+                          >
+                            Decline
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -326,7 +409,7 @@ const ApprovalsList = () => {
             </table>
           </div>
 
-          {/* Medium screen simplified table - similar updates as above */}
+          {/* Medium screen simplified table */}
           <div className="hidden md:block lg:block custom-md-visible">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
@@ -341,7 +424,7 @@ const ApprovalsList = () => {
                     Status
                   </th>
                   <th className="px-2 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-1/5">
-                    Action
+                    Actions
                   </th>
                 </tr>
               </thead>
@@ -397,26 +480,36 @@ const ApprovalsList = () => {
                       </div>
                     </td>
                     <td className="px-2 py-3 text-right">
-                      <button
-                        onClick={() =>
-                          handleReviewClick(application.company_id)
-                        }
-                        className="inline-flex items-center text-blue-600 hover:text-blue-800 p-1"
-                        disabled={
-                          isLoadingDetails &&
-                          selectingCompanyId === application.company_id
-                        }
-                      >
-                        {isLoadingDetails &&
-                        selectingCompanyId === application.company_id ? (
-                          "Loading..."
-                        ) : (
-                          <>
-                            Review
-                            <ArrowRight className="ml-1 h-4 w-4" />
-                          </>
+                      <div className="flex justify-end space-x-2">
+                        <button
+                          onClick={() =>
+                            handleReviewClick(application.company_id)
+                          }
+                          className="inline-flex items-center text-blue-600 hover:text-blue-800 p-1"
+                          disabled={
+                            isLoadingDetails &&
+                            selectingCompanyId === application.company_id
+                          }
+                        >
+                          {isLoadingDetails &&
+                          selectingCompanyId === application.company_id ? (
+                            "Loading..."
+                          ) : (
+                            <>
+                              <ArrowRight className="ml-1 h-4 w-4" /> Review
+                            </>
+                          )}
+                        </button>
+                        {(!application.status ||
+                          application.status === "Pending") && (
+                          <button
+                            onClick={() => handleDeclineClick(application)}
+                            className="inline-flex items-center text-red-600 hover:text-red-800 p-1"
+                          >
+                            <XCircle className="h-4 w-4" /> Decline
+                          </button>
                         )}
-                      </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -424,7 +517,7 @@ const ApprovalsList = () => {
             </table>
           </div>
 
-          {/* Small screen card layout with similar updates */}
+          {/* Small screen card layout */}
           <div className="md:hidden">
             <div className="divide-y divide-gray-200">
               {filteredApplications.map((application) => (
@@ -462,6 +555,15 @@ const ApprovalsList = () => {
                             </>
                           )}
                         </button>
+                        {(!application.status ||
+                          application.status === "Pending") && (
+                          <button
+                            onClick={() => handleDeclineClick(application)}
+                            className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center text-red-600"
+                          >
+                            <XCircle className="w-4 h-4 mr-2" /> Decline
+                          </button>
+                        )}
                       </div>
                     )}
                   </div>
@@ -515,6 +617,15 @@ const ApprovalsList = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Decline Confirmation Modal */}
+      {applicationToDecline && (
+        <DeclineConfirmationModal
+          application={applicationToDecline}
+          onClose={closeDeclineModal}
+          onConfirm={confirmDecline}
+        />
       )}
     </div>
   );

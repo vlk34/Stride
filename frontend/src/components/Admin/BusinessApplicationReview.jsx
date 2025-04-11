@@ -39,7 +39,6 @@ const BusinessApplicationReview = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [feedback, setFeedback] = useState("");
   const [application, setApplication] = useState(null);
 
   // Use the hook to fetch company details
@@ -156,11 +155,6 @@ const BusinessApplicationReview = () => {
   };
 
   const handleReject = async () => {
-    if (!feedback.trim()) {
-      alert("Please provide feedback for rejection");
-      return;
-    }
-
     try {
       setIsSubmitting(true);
 
@@ -191,7 +185,6 @@ const BusinessApplicationReview = () => {
       setApplication((prev) => ({
         ...prev,
         status: "Declined",
-        declineReason: feedback,
       }));
 
       setTimeout(() => {
@@ -597,25 +590,9 @@ const BusinessApplicationReview = () => {
         </div>
       </div>
 
-      {/* Feedback and Actions - Responsive buttons */}
+      {/* Actions - Responsive buttons */}
       {(application.status === "Pending" || !application.status) && (
         <div className="border-t border-gray-200 pt-4 sm:pt-6">
-          <div className="mb-4">
-            <label
-              htmlFor="feedback"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Feedback (required for rejection)
-            </label>
-            <textarea
-              id="feedback"
-              rows="4"
-              className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter feedback for the applicant..."
-              value={feedback}
-              onChange={(e) => setFeedback(e.target.value)}
-            ></textarea>
-          </div>
           <div className="flex flex-col sm:flex-row justify-end gap-3">
             <button
               onClick={handleReject}
@@ -634,18 +611,6 @@ const BusinessApplicationReview = () => {
               Approve Application
             </button>
           </div>
-        </div>
-      )}
-
-      {/* Rejection Reason (if already rejected) */}
-      {application.status === "Declined" && application.declineReason && (
-        <div className="border-t border-gray-200 pt-4 sm:pt-6">
-          <h4 className="text-md font-medium text-gray-700 mb-2">
-            Rejection Reason
-          </h4>
-          <p className="text-gray-600 bg-red-50 p-3 rounded-lg border border-red-200">
-            {application.declineReason}
-          </p>
         </div>
       )}
     </div>

@@ -166,3 +166,58 @@ export const useApplicantDetails = (jobId, userId) => {
     staleTime: 2 * 60 * 1000, // 2 minutes
   });
 };
+
+// Get company data for the current user
+export const useCompanyData = () => {
+  return useQuery({
+    queryKey: ["myCompany"],
+    queryFn: async () => {
+      const token = getSessionToken();
+      if (!token) {
+        throw new Error("Session token not found");
+      }
+
+      const response = await axios.get("http://localhost:8080/company", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+};
+
+// Update company data
+export const useUpdateCompany = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (companyData) => {
+      const token = getSessionToken();
+      if (!token) {
+        throw new Error("Session token not found");
+      }
+
+      const response = await axios.put(
+        "http://localhost:8080/editcompany",
+        companyData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      // Invalidate company data cache
+      queryClient.invalidateQueries({ queryKey: ["myCompany"] });
+      queryClient.invalidateQueries({ queryKey: ["companyDetails"] });
+    },
+    onError: (error) => {
+      console.error("Error updating company:", error);
+    },
+  });
+};

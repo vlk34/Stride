@@ -15,11 +15,25 @@ const EditProfileModal = ({ isOpen, onClose, onUpdate, userData }) => {
   // Update form data when modal opens or user data changes
   useEffect(() => {
     if (isOpen && userData) {
+      // Only set actual values, don't include placeholders in form data
       setFormData({
         name: user.fullName || "",
-        role: userData.role || "",
-        description: userData.description || "",
-        about: userData.about || "",
+        // Only set the role if it exists and isn't the placeholder text
+        role:
+          userData.role && !userData.role.startsWith("No role")
+            ? userData.role
+            : "",
+        // Only set the description if it exists and isn't the placeholder text
+        description:
+          userData.description &&
+          !userData.description.startsWith("No description")
+            ? userData.description
+            : "",
+        // Only set the about if it exists and isn't the placeholder text
+        about:
+          userData.about && !userData.about.startsWith("No about")
+            ? userData.about
+            : "",
       });
     }
   }, [isOpen, userData, user.fullName]);
@@ -80,6 +94,7 @@ const EditProfileModal = ({ isOpen, onClose, onUpdate, userData }) => {
                 onChange={(e) =>
                   setFormData({ ...formData, role: e.target.value })
                 }
+                placeholder="No role set"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
                 required
               />
@@ -95,6 +110,7 @@ const EditProfileModal = ({ isOpen, onClose, onUpdate, userData }) => {
                 onChange={(e) =>
                   setFormData({ ...formData, description: e.target.value })
                 }
+                placeholder="No description set"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
                 required
               />
@@ -109,6 +125,7 @@ const EditProfileModal = ({ isOpen, onClose, onUpdate, userData }) => {
                 onChange={(e) =>
                   setFormData({ ...formData, about: e.target.value })
                 }
+                placeholder="No about information set"
                 rows={4}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
               />

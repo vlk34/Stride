@@ -32,8 +32,8 @@ const CreateJobListing = () => {
     // Requirements
     experience: "",
     education: "",
-    skills: [],
-    languages: [],
+    skills: "",
+    languages: "",
 
     // Description
     description: "",
@@ -59,6 +59,14 @@ const CreateJobListing = () => {
           placeholder: "e.g., Senior Software Engineer",
           icon: <Briefcase className="w-5 h-5 text-gray-400" />,
           required: true,
+          validation: (value) =>
+            !value
+              ? "Job title is required"
+              : value.length < 3
+              ? "Job title must be at least 3 characters"
+              : value.length > 100
+              ? "Job title must be less than 100 characters"
+              : null,
         },
         {
           name: "department",
@@ -67,6 +75,12 @@ const CreateJobListing = () => {
           placeholder: "e.g., Engineering",
           icon: <Building2 className="w-5 h-5 text-gray-400" />,
           required: true,
+          validation: (value) =>
+            !value
+              ? "Department is required"
+              : value.length < 2
+              ? "Department must be at least 2 characters"
+              : null,
         },
         {
           name: "location",
@@ -75,6 +89,12 @@ const CreateJobListing = () => {
           placeholder: "e.g., New York, NY",
           icon: <MapPin className="w-5 h-5 text-gray-400" />,
           required: true,
+          validation: (value) =>
+            !value
+              ? "Location is required"
+              : value.length < 2
+              ? "Please enter a valid location"
+              : null,
         },
         {
           name: "locationType",
@@ -82,6 +102,7 @@ const CreateJobListing = () => {
           type: "select",
           options: ["Remote", "Hybrid", "On-site"],
           required: true,
+          validation: (value) => (!value ? "Location type is required" : null),
         },
         {
           name: "employmentType",
@@ -89,6 +110,8 @@ const CreateJobListing = () => {
           type: "select",
           options: ["Full-time", "Part-time", "Contract", "Internship"],
           required: true,
+          validation: (value) =>
+            !value ? "Employment type is required" : null,
         },
       ],
     },
@@ -110,6 +133,8 @@ const CreateJobListing = () => {
           ],
           icon: <Clock className="w-5 h-5 text-gray-400" />,
           required: true,
+          validation: (value) =>
+            !value ? "Experience level is required" : null,
         },
         {
           name: "education",
@@ -124,6 +149,8 @@ const CreateJobListing = () => {
           ],
           icon: <GraduationCap className="w-5 h-5 text-gray-400" />,
           required: true,
+          validation: (value) =>
+            !value ? "Education level is required" : null,
         },
         {
           name: "skills",
@@ -131,6 +158,16 @@ const CreateJobListing = () => {
           type: "tags",
           placeholder: "Add skills",
           required: true,
+          validation: (value) => {
+            if (!value) return "At least one skill is required";
+            const skills = value
+              .split(",")
+              .map((s) => s.trim())
+              .filter((s) => s);
+            return skills.length === 0
+              ? "At least one skill is required"
+              : null;
+          },
         },
         {
           name: "languages",
@@ -138,6 +175,7 @@ const CreateJobListing = () => {
           type: "tags",
           placeholder: "Add languages",
           required: false,
+          validation: (value) => null, // Optional field
         },
       ],
     },
@@ -153,6 +191,14 @@ const CreateJobListing = () => {
           placeholder: "Describe the role and its impact...",
           required: true,
           rows: 4,
+          validation: (value) =>
+            !value
+              ? "Job description is required"
+              : value.length < 50
+              ? "Description must be at least 50 characters"
+              : value.length > 2000
+              ? "Description must be less than 2000 characters"
+              : null,
         },
         {
           name: "responsibilities",
@@ -161,6 +207,14 @@ const CreateJobListing = () => {
           placeholder: "List the main responsibilities...",
           required: true,
           rows: 4,
+          validation: (value) =>
+            !value
+              ? "Responsibilities are required"
+              : value.length < 50
+              ? "Responsibilities must be at least 50 characters"
+              : value.length > 1000
+              ? "Responsibilities must be less than 1000 characters"
+              : null,
         },
         {
           name: "qualifications",
@@ -169,6 +223,12 @@ const CreateJobListing = () => {
           placeholder: "Any additional qualifications...",
           required: false,
           rows: 4,
+          validation: (value) => {
+            if (!value) return null; // Optional field
+            return value.length > 1000
+              ? "Qualifications must be less than 1000 characters"
+              : null;
+          },
         },
       ],
     },
@@ -183,6 +243,27 @@ const CreateJobListing = () => {
           type: "date",
           icon: <Calendar className="w-5 h-5 text-gray-400" />,
           required: true,
+          validation: (value) => {
+            if (!value) return "Application deadline is required";
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            const deadline = new Date(value);
+            if (isNaN(deadline.getTime())) return "Invalid date format";
+
+            // Deadline must be in the future
+            if (deadline < today) return "Deadline cannot be in the past";
+
+            // Deadline should not be more than 6 months in the future
+            const sixMonthsFromNow = new Date();
+            sixMonthsFromNow.setMonth(sixMonthsFromNow.getMonth() + 6);
+            if (deadline > sixMonthsFromNow) {
+              return "Deadline should not be more than 6 months in the future";
+            }
+
+            return null;
+          },
         },
         {
           name: "startDate",
@@ -190,6 +271,43 @@ const CreateJobListing = () => {
           type: "date",
           icon: <Calendar className="w-5 h-5 text-gray-400" />,
           required: true,
+          validation: (value) => {
+            if (!value) return "Start date is required";
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            const startDate = new Date(value);
+            if (isNaN(startDate.getTime())) return "Invalid date format";
+
+            // Start date should not be in the past
+            if (startDate < today) return "Start date cannot be in the past";
+
+            // Start date should be after application deadline
+            const deadline = new Date(formData.applicationDeadline);
+            if (!isNaN(deadline.getTime()) && startDate < deadline) {
+              return "Start date must be after application deadline";
+            }
+
+            // Start date should be within reasonable range (1 year from now)
+            const oneYearFromNow = new Date();
+            oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() + 1);
+            if (startDate > oneYearFromNow) {
+              return "Start date should be within one year from now";
+            }
+
+            // Start date should be at least 1 week after deadline to allow for review
+            if (!isNaN(deadline.getTime())) {
+              const minStartDate = new Date(deadline);
+              minStartDate.setDate(minStartDate.getDate() + 7);
+
+              if (startDate < minStartDate) {
+                return "Start date should be at least 1 week after application deadline";
+              }
+            }
+
+            return null;
+          },
         },
         {
           name: "numberOfOpenings",
@@ -197,6 +315,14 @@ const CreateJobListing = () => {
           type: "number",
           icon: <Users className="w-5 h-5 text-gray-400" />,
           required: true,
+          validation: (value) => {
+            if (!value) return "Number of openings is required";
+            const num = parseInt(value);
+            if (isNaN(num)) return "Please enter a valid number";
+            if (num <= 0) return "Number must be greater than 0";
+            if (num > 100) return "Number must be less than 100";
+            return null;
+          },
         },
       ],
     },
@@ -219,14 +345,58 @@ const CreateJobListing = () => {
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
+
+    // Validate the field on change
+    validateField(name, value);
+  };
+
+  // Validate a single field
+  const validateField = (name, value) => {
+    const field = steps
+      .flatMap((step) => step.fields || [])
+      .find((f) => f.name === name);
+
+    if (field && field.validation) {
+      const error = field.validation(value);
+      setValidationErrors((prev) => ({
+        ...prev,
+        [name]: error,
+      }));
+      return !error;
+    }
+    return true;
+  };
+
+  // Validate all fields in current step
+  const validateStep = () => {
+    const currentFields = currentStepData.fields || [];
+    let isValid = true;
+    let newErrors = { ...validationErrors };
+
+    currentFields.forEach((field) => {
+      if (field.validation) {
+        const error = field.validation(formData[field.name]);
+        newErrors[field.name] = error;
+        if (error) isValid = false;
+      }
+    });
+
+    setValidationErrors(newErrors);
+    return isValid;
   };
 
   const handleNext = () => {
-    setCurrentStep(currentStep + 1);
+    if (validateStep() && currentStep < steps.length - 1) {
+      setCurrentStep(currentStep + 1);
+      window.scrollTo(0, 0);
+    }
   };
 
   const handleBack = () => {
-    setCurrentStep(currentStep - 1);
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+      window.scrollTo(0, 0);
+    }
   };
 
   // Format date for Timestamp (yyyy-MM-dd HH:mm:ss)
@@ -246,74 +416,33 @@ const CreateJobListing = () => {
     return `${year}-${month}-${day} 23:59:59`;
   };
 
-  // Validate form data before submission
-  const validateForm = () => {
-    const errors = {};
-
-    // Check required fields
-    if (!formData.title) errors.title = "Job title is required";
-    if (!formData.department) errors.department = "Department is required";
-    if (!formData.location) errors.location = "Location is required";
-    if (!formData.locationType)
-      errors.locationType = "Location type is required";
-    if (!formData.employmentType)
-      errors.employmentType = "Employment type is required";
-    if (!formData.experience)
-      errors.experience = "Experience level is required";
-    if (!formData.education) errors.education = "Education level is required";
-
-    // Validate arrays
-    if (
-      !formData.skills ||
-      (Array.isArray(formData.skills) && formData.skills.length === 0)
-    ) {
-      errors.skills = "At least one skill is required";
-    }
-
-    // Validate text fields
-    if (!formData.description)
-      errors.description = "Job description is required";
-    if (!formData.responsibilities)
-      errors.responsibilities = "Responsibilities are required";
-
-    // Validate date fields
-    if (!formData.applicationDeadline) {
-      errors.applicationDeadline = "Application deadline is required";
-    } else {
-      const formattedDate = formatDateForTimestamp(
-        formData.applicationDeadline
-      );
-      if (!formattedDate) {
-        errors.applicationDeadline = "Invalid date format";
-      }
-    }
-
-    // Validate number fields
-    if (!formData.numberOfOpenings) {
-      errors.numberOfOpenings = "Number of openings is required";
-    } else if (
-      isNaN(parseInt(formData.numberOfOpenings)) ||
-      parseInt(formData.numberOfOpenings) <= 0
-    ) {
-      errors.numberOfOpenings = "Number of openings must be a positive number";
-    }
-
-    return errors;
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate form data
-    const errors = validateForm();
-    if (Object.keys(errors).length > 0) {
-      setValidationErrors(errors);
-      alert("Please fix the validation errors before submitting");
+    // Validate all fields in the form
+    let isValid = true;
+    let newErrors = {};
+
+    steps.forEach((step) => {
+      if (step.fields) {
+        step.fields.forEach((field) => {
+          if (field.validation) {
+            const error = field.validation(formData[field.name]);
+            newErrors[field.name] = error;
+            if (error) isValid = false;
+          }
+        });
+      }
+    });
+
+    setValidationErrors(newErrors);
+
+    if (!isValid) {
+      alert("Please fix all errors before submitting");
       return;
     }
 
     setIsSubmitting(true);
-    setValidationErrors({});
 
     try {
       // Format skills and languages
@@ -379,12 +508,22 @@ const CreateJobListing = () => {
 
   const currentStepData = steps.find((step) => step.id === currentStep);
 
-  // Check if all required fields in the current step are filled
-  const isNextDisabled = currentStepData.fields
-    ? currentStepData.fields.some(
-        (field) => field.required && !formData[field.name]
-      )
-    : false;
+  // Check if all required fields in the current step are filled and valid
+  const isNextDisabled = () => {
+    if (!currentStepData.fields) return false;
+
+    // Check if there are any validation errors in the current step
+    const hasErrors = currentStepData.fields.some(
+      (field) => validationErrors[field.name]
+    );
+
+    // Check if required fields are filled
+    const missingRequired = currentStepData.fields.some(
+      (field) => field.required && !formData[field.name]
+    );
+
+    return hasErrors || missingRequired;
+  };
 
   const renderSuccessStep = () => (
     <div className="text-center py-8">
@@ -410,19 +549,28 @@ const CreateJobListing = () => {
     </div>
   );
 
+  // Error message component
+  const ErrorMessage = ({ message }) => (
+    <div className="text-sm text-red-500 mt-1 flex items-center gap-1">
+      <AlertCircle className="w-3 h-3" />
+      <span>{message}</span>
+    </div>
+  );
+
   const renderField = (field) => {
     const hasError = validationErrors[field.name];
 
     return (
-      <div className="relative">
-        {field.icon && (
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            {field.icon}
-          </div>
-        )}
-        {field.type === "select" ? (
-          <>
+      <>
+        <div className="relative">
+          {field.icon && (
+            <div className="absolute top-0 left-0 pl-3 h-[38px] flex items-center pointer-events-none">
+              {field.icon}
+            </div>
+          )}
+          {field.type === "select" ? (
             <select
+              id={field.name}
               name={field.name}
               value={formData[field.name]}
               onChange={handleInputChange}
@@ -434,6 +582,7 @@ const CreateJobListing = () => {
                 hasError ? "focus:ring-red-500" : "focus:ring-blue-500"
               } ${hasError ? "focus:border-red-500" : "focus:border-blue-500"}`}
               required={field.required}
+              onBlur={() => validateField(field.name, formData[field.name])}
             >
               <option value="">Select {field.label}</option>
               {field.options.map((option) => (
@@ -442,31 +591,30 @@ const CreateJobListing = () => {
                 </option>
               ))}
             </select>
-            {hasError && (
-              <p className="mt-1 text-sm text-red-600 flex items-center">
-                <AlertCircle className="w-3 h-3 mr-1" />{" "}
-                {validationErrors[field.name]}
-              </p>
-            )}
-          </>
-        ) : field.type === "multiselect" ? (
-          <select
-            multiple
-            name={field.name}
-            value={formData[field.name] || []}
-            onChange={handleInputChange}
-            className="block w-full rounded-lg border border-gray-300 p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            required={field.required}
-          >
-            {field.options.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
-        ) : field.type === "textarea" ? (
-          <>
+          ) : field.type === "multiselect" ? (
+            <select
+              multiple
+              id={field.name}
+              name={field.name}
+              value={formData[field.name] || []}
+              onChange={handleInputChange}
+              className={`block w-full rounded-lg border ${
+                hasError ? "border-red-500" : "border-gray-300"
+              } p-3 focus:outline-none focus:ring-2 ${
+                hasError ? "focus:ring-red-500" : "focus:ring-blue-500"
+              } ${hasError ? "focus:border-red-500" : "focus:border-blue-500"}`}
+              required={field.required}
+              onBlur={() => validateField(field.name, formData[field.name])}
+            >
+              {field.options.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          ) : field.type === "textarea" ? (
             <textarea
+              id={field.name}
               name={field.name}
               value={formData[field.name]}
               onChange={handleInputChange}
@@ -478,18 +626,12 @@ const CreateJobListing = () => {
                 hasError ? "focus:ring-red-500" : "focus:ring-blue-500"
               } ${hasError ? "focus:border-red-500" : "focus:border-blue-500"}`}
               required={field.required}
+              onBlur={() => validateField(field.name, formData[field.name])}
             />
-            {hasError && (
-              <p className="mt-1 text-sm text-red-600 flex items-center">
-                <AlertCircle className="w-3 h-3 mr-1" />{" "}
-                {validationErrors[field.name]}
-              </p>
-            )}
-          </>
-        ) : field.type === "tags" ? (
-          <>
+          ) : field.type === "tags" ? (
             <input
               type="text"
+              id={field.name}
               name={field.name}
               value={formData[field.name]}
               onChange={handleInputChange}
@@ -502,21 +644,12 @@ const CreateJobListing = () => {
                 hasError ? "focus:ring-red-500" : "focus:ring-blue-500"
               } ${hasError ? "focus:border-red-500" : "focus:border-blue-500"}`}
               required={field.required}
+              onBlur={() => validateField(field.name, formData[field.name])}
             />
-            <small className="text-gray-500 block mt-1">
-              Enter values separated by commas
-            </small>
-            {hasError && (
-              <p className="mt-1 text-sm text-red-600 flex items-center">
-                <AlertCircle className="w-3 h-3 mr-1" />{" "}
-                {validationErrors[field.name]}
-              </p>
-            )}
-          </>
-        ) : (
-          <>
+          ) : (
             <input
               type={field.type}
+              id={field.name}
               name={field.name}
               value={formData[field.name]}
               onChange={handleInputChange}
@@ -529,16 +662,20 @@ const CreateJobListing = () => {
                 hasError ? "focus:ring-red-500" : "focus:ring-blue-500"
               } ${hasError ? "focus:border-red-500" : "focus:border-blue-500"}`}
               required={field.required}
+              onBlur={() => validateField(field.name, formData[field.name])}
+              min={field.type === "number" ? "1" : undefined}
             />
-            {hasError && (
-              <p className="mt-1 text-sm text-red-600 flex items-center">
-                <AlertCircle className="w-3 h-3 mr-1" />{" "}
-                {validationErrors[field.name]}
-              </p>
-            )}
-          </>
+          )}
+        </div>
+
+        {field.type === "tags" && (
+          <small className="text-gray-500 block mt-1">
+            Enter values separated by commas
+          </small>
         )}
-      </div>
+
+        {hasError && <ErrorMessage message={validationErrors[field.name]} />}
+      </>
     );
   };
 
@@ -619,9 +756,9 @@ const CreateJobListing = () => {
                   <button
                     type="button"
                     onClick={handleNext}
-                    disabled={isNextDisabled}
+                    disabled={isNextDisabled()}
                     className={`flex items-center gap-2 px-6 py-2 ${
-                      isNextDisabled
+                      isNextDisabled()
                         ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                         : "bg-blue-600 text-white hover:bg-blue-700 transition-colors"
                     } rounded-lg ml-auto`}
@@ -632,8 +769,8 @@ const CreateJobListing = () => {
                 ) : (
                   <button
                     type="submit"
-                    disabled={isSubmitting}
-                    className="flex items-center gap-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors ml-auto px-6 py-2 disabled:bg-blue-400 disabled:cursor-not-allowed"
+                    disabled={isSubmitting || isNextDisabled()}
+                    className="flex items-center gap-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors ml-auto px-6 py-2 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
                   >
                     {isSubmitting ? (
                       <>

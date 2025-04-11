@@ -74,8 +74,6 @@ const ManageJobs = () => {
 
   // Helper function to determine job status based on available data
   const determineJobStatus = (job) => {
-    if (!job.deadline) return "Draft";
-
     const now = new Date();
     const deadlineDate = new Date(job.deadline);
 
@@ -119,15 +117,15 @@ const ManageJobs = () => {
   // Format job for display
   const formatJobForDisplay = (job) => {
     const status = determineJobStatus(job);
-    const applicantCount = job.applicant_count || 0; // This might need to be fetched separately
+    const applicantCount = job.applicant_count || 0;
 
     return {
       id: job.job_id,
       title: job.title || "Untitled Job",
       department: job.department || "General",
       location: job.location || "Unspecified",
-      type: job.job_type
-        ? job.job_type.charAt(0).toUpperCase() + job.job_type.slice(1)
+      type: job.workstyle
+        ? job.workstyle.charAt(0).toUpperCase() + job.workstyle.slice(1)
         : "Unspecified",
       applicants: applicantCount,
       status: status,
@@ -198,7 +196,7 @@ const ManageJobs = () => {
 
         {/* Status Tabs */}
         <div className="flex gap-2 overflow-x-auto pb-1">
-          {["all", "active", "draft", "expired"].map((tab) => (
+          {["all", "active", "expired"].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -310,8 +308,6 @@ const ManageJobs = () => {
                             className={`px-3 py-1 rounded-full text-sm ${
                               formattedJob.status === "Active"
                                 ? "bg-green-100 text-green-700"
-                                : formattedJob.status === "Draft"
-                                ? "bg-yellow-100 text-yellow-700"
                                 : "bg-gray-100 text-gray-700"
                             }`}
                           >
@@ -447,8 +443,6 @@ const ManageJobs = () => {
                       className={`px-3 py-1 rounded-full text-xs ${
                         formattedJob.status === "Active"
                           ? "bg-green-100 text-green-700"
-                          : formattedJob.status === "Draft"
-                          ? "bg-yellow-100 text-yellow-700"
                           : "bg-gray-100 text-gray-700"
                       }`}
                     >

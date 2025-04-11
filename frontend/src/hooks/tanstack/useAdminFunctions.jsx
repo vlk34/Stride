@@ -215,3 +215,20 @@ export const useDeleteAdminJob = () => {
     },
   });
 };
+
+// Get activity logs (admin only)
+export const useActivities = () => {
+  return useQuery({
+    queryKey: ["activities"],
+    queryFn: async () => {
+      const sessionToken = getSessionToken();
+      const response = await axios.get("http://localhost:8080/activities", {
+        headers: {
+          Authorization: `Bearer ${sessionToken}`,
+        },
+      });
+      return Array.isArray(response.data) ? response.data : [];
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+};

@@ -166,7 +166,7 @@ const App = () => {
             element={
               role === "business" ? (
                 <Navigate to="/business/dashboard" replace />
-              ) : role === "Admin" ? (
+              ) : role === "admin" ? (
                 <Navigate to="/admin/dashboard" replace />
               ) : (
                 <Home />

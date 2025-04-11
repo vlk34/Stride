@@ -9,6 +9,9 @@ import {
   Building2,
   GraduationCap,
   Filter,
+  LogIn,
+  UserPlus,
+  Lock,
 } from "lucide-react";
 
 // Simple JobCard component with placeholder instead of loading images
@@ -68,8 +71,39 @@ const SimpleJobCard = ({ job, onSelect }) => {
   );
 };
 
+// Authentication required card component
+const AuthRequiredCard = ({ title, description, onSignIn, onSignUp }) => {
+  return (
+    <div className="p-6 rounded-lg border border-gray-200 bg-blue-50">
+      <div className="flex items-center gap-3 mb-3">
+        <div className="bg-blue-100 p-2 rounded-full">
+          <Lock className="w-5 h-5 text-blue-600" />
+        </div>
+        <h3 className="font-semibold text-gray-900">{title}</h3>
+      </div>
+      <p className="text-gray-600 mb-4">{description}</p>
+      <div className="flex gap-3">
+        <button
+          onClick={onSignIn}
+          className="px-4 py-2 text-sm font-medium text-blue-600 bg-white border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors flex items-center gap-2"
+        >
+          <LogIn className="w-4 h-4" />
+          Sign In
+        </button>
+        <button
+          onClick={onSignUp}
+          className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+        >
+          <UserPlus className="w-4 h-4" />
+          Create Account
+        </button>
+      </div>
+    </div>
+  );
+};
+
 const Search = () => {
-  const { user } = useUser();
+  const { user, isSignedIn, isLoaded } = useUser();
   const navigate = useNavigate();
 
   // Set up search state with all filter parameters
@@ -288,7 +322,7 @@ const Search = () => {
         </form>
       </div>
 
-      {/* Featured Opportunities - Retaining but with improved styling */}
+      {/* Featured Opportunities */}
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-8 mb-10">
         <div className="flex items-center gap-3 mb-6">
           <div className="bg-blue-100 p-2 rounded-lg">
@@ -298,47 +332,81 @@ const Search = () => {
             Featured Opportunities
           </h2>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {dummyData.recommendedJobs.map((job) => (
-            <SimpleJobCard
-              key={job.job_id}
-              job={job}
-              onSelect={() => navigate(`/result?jobId=${job.job_id}`)}
+
+        {!isLoaded ? (
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          </div>
+        ) : !isSignedIn ? (
+          <div className="py-4">
+            <AuthRequiredCard
+              title="Sign in to see featured opportunities"
+              description="Create an account or sign in to see personalized job recommendations based on your profile and preferences."
+              onSignIn={() => navigate("/signin")}
+              onSignUp={() => navigate("/signup")}
             />
-          ))}
-        </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {dummyData.recommendedJobs.map((job) => (
+              <SimpleJobCard
+                key={job.job_id}
+                job={job}
+                onSelect={() => navigate(`/result?jobId=${job.job_id}`)}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* Recent Searches with improved styling */}
+      {/* Recent Searches */}
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-8">
         <h2 className="text-2xl font-bold text-gray-900 mb-6">
           Recent Searches
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {dummyData.recentSearches.map((search) => (
-            <div
-              key={search.id}
-              onClick={() => {
-                setSearchParams((prev) => ({
-                  ...prev,
-                  query: search.query,
-                }));
-                navigate(`/result?q=${encodeURIComponent(search.query)}`);
-              }}
-              className="bg-white hover:bg-blue-50 p-4 rounded-xl border border-gray-200 cursor-pointer transition-colors group"
-            >
-              <p className="font-medium text-gray-900 group-hover:text-blue-600">
-                {search.query}
-              </p>
-              <div className="flex justify-between mt-2">
-                <span className="text-sm text-gray-500">{search.location}</span>
-                <span className="text-sm text-blue-600 font-medium">
-                  {search.results}
-                </span>
+
+        {!isLoaded ? (
+          <div className="flex justify-center items-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          </div>
+        ) : !isSignedIn ? (
+          <div className="py-2">
+            <AuthRequiredCard
+              title="Sign in to see your recent searches"
+              description="Create an account or sign in to track your search history and quickly return to previous job searches."
+              onSignIn={() => navigate("/signin")}
+              onSignUp={() => navigate("/signup")}
+            />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {dummyData.recentSearches.map((search) => (
+              <div
+                key={search.id}
+                onClick={() => {
+                  setSearchParams((prev) => ({
+                    ...prev,
+                    query: search.query,
+                  }));
+                  navigate(`/result?q=${encodeURIComponent(search.query)}`);
+                }}
+                className="bg-white hover:bg-blue-50 p-4 rounded-xl border border-gray-200 cursor-pointer transition-colors group"
+              >
+                <p className="font-medium text-gray-900 group-hover:text-blue-600">
+                  {search.query}
+                </p>
+                <div className="flex justify-between mt-2">
+                  <span className="text-sm text-gray-500">
+                    {search.location}
+                  </span>
+                  <span className="text-sm text-blue-600 font-medium">
+                    {search.results}
+                  </span>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

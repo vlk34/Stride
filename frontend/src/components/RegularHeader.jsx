@@ -13,10 +13,26 @@ import {
   User,
   Building2,
   Sparkles,
+  Bell,
+  Check,
 } from "lucide-react";
 import { useUser, useClerk } from "@clerk/clerk-react";
 import { useUserData } from "../contexts/UserDataContext";
 import { useNavigate } from "react-router";
+import { useUserQuery } from "../hooks/useUserQuery";
+import axios from "axios";
+
+// Helper function to get the session token from cookie
+const getSessionToken = () => {
+  const cookies = document.cookie.split(";");
+  for (let i = 0; i < cookies.length; i++) {
+    const cookie = cookies[i].trim();
+    if (cookie.startsWith("__session=")) {
+      return cookie.substring("__session=".length, cookie.length);
+    }
+  }
+  return null;
+};
 
 const RegularHeader = () => {
   const { user, isLoaded } = useUser();
@@ -25,9 +41,15 @@ const RegularHeader = () => {
   const location = useLocation();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMobileProfileOpen, setIsMobileProfileOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const profileRef = useRef(null);
+  const notificationsRef = useRef(null);
   const navigate = useNavigate();
   const { openUserProfile, signOut } = useClerk();
+  const { notifications, refetchNotifications } = useUserQuery();
+
+  const notificationCount =
+    notifications?.filter((n) => !n.is_read).length || 0;
 
   const displayName = user
     ? localUserData.name || `${user.firstName || ""} ${user.lastName || ""}`
@@ -54,6 +76,12 @@ const RegularHeader = () => {
       if (profileRef.current && !profileRef.current.contains(event.target)) {
         setIsProfileOpen(false);
       }
+      if (
+        notificationsRef.current &&
+        !notificationsRef.current.contains(event.target)
+      ) {
+        setIsNotificationsOpen(false);
+      }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
@@ -75,7 +103,6 @@ const RegularHeader = () => {
   // Toggle hamburger menu
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
-    // Always ensure profile dropdown is closed when toggling menu
     setIsMobileProfileOpen(false);
   };
 
@@ -84,6 +111,24 @@ const RegularHeader = () => {
     navigate(path);
     setIsMenuOpen(false);
     setIsMobileProfileOpen(false);
+  };
+
+  // Mark notification as read
+  const markAsRead = async (notificationId) => {
+    try {
+      await axios.post(
+        "http://localhost:8080/read",
+        { id: notificationId },
+        {
+          headers: {
+            Authorization: `Bearer ${getSessionToken()}`,
+          },
+        }
+      );
+      refetchNotifications();
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
+    }
   };
 
   // Profile dropdown items
@@ -160,7 +205,79 @@ const RegularHeader = () => {
             >
               {user ? (
                 <>
-                  {/* Removed Messages Link */}
+                  {/* Notification Bell */}
+                  <div className="relative mx-2" ref={notificationsRef}>
+                    <button
+                      onClick={() =>
+                        setIsNotificationsOpen(!isNotificationsOpen)
+                      }
+                      className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-full"
+                    >
+                      <Bell className="w-5 h-5" />
+                      {notificationCount > 0 && (
+                        <span className="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                          {notificationCount}
+                        </span>
+                      )}
+                    </button>
+
+                    {/* Notifications Dropdown */}
+                    {isNotificationsOpen && (
+                      <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50 transition-all duration-200 ease-out">
+                        <div className="px-4 py-2 border-b border-gray-200">
+                          <p className="text-sm font-medium text-gray-900">
+                            Notifications
+                          </p>
+                        </div>
+
+                        <div className="max-h-80 overflow-y-auto">
+                          {notifications.length === 0 ? (
+                            <div className="px-4 py-3 text-sm text-gray-500">
+                              No notifications
+                            </div>
+                          ) : (
+                            notifications.map((notification) => (
+                              <div
+                                key={notification.id}
+                                className={`px-4 py-3 border-b border-gray-100 last:border-0 ${
+                                  !notification.is_read ? "bg-blue-50" : ""
+                                }`}
+                              >
+                                <div className="flex justify-between items-start">
+                                  <div className="flex-1">
+                                    <p className="text-sm font-medium text-gray-900">
+                                      {notification.title}
+                                    </p>
+                                    <p className="text-sm text-gray-600 mt-1">
+                                      {notification.content}
+                                    </p>
+                                    <p className="text-xs text-gray-500 mt-1">
+                                      {new Date(
+                                        notification.sent_at
+                                      ).toLocaleString()}
+                                    </p>
+                                  </div>
+                                  {!notification.is_read && (
+                                    <button
+                                      onClick={() =>
+                                        markAsRead(notification.id)
+                                      }
+                                      className="ml-2 text-blue-600 hover:text-blue-800 p-1"
+                                      title="Mark as read"
+                                    >
+                                      <Check className="w-4 h-4" />
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* User Profile Button */}
                   <div className="relative mx-2">
                     <button
                       onClick={() => setIsProfileOpen(!isProfileOpen)}
@@ -279,6 +396,60 @@ const RegularHeader = () => {
               {/* Mobile Profile Section with Collapsible Menu */}
               {user ? (
                 <>
+                  {/* Add notification button in mobile menu */}
+                  <div className="flex items-center justify-between px-4 py-3">
+                    <div className="flex items-center space-x-2">
+                      <Bell className="w-5 h-5 text-gray-600" />
+                      <span className="font-medium text-gray-700">
+                        Notifications
+                      </span>
+                    </div>
+                    {notificationCount > 0 && (
+                      <span className="bg-red-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] text-center">
+                        {notificationCount}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Recent notifications in mobile menu */}
+                  <div className="pl-10 pr-4 space-y-2 mb-2">
+                    {notifications.slice(0, 3).map((notification) => (
+                      <div
+                        key={notification.id}
+                        className={`py-2 text-sm ${
+                          !notification.is_read
+                            ? "text-gray-900"
+                            : "text-gray-600"
+                        }`}
+                      >
+                        <div className="flex justify-between">
+                          <p className="font-medium">{notification.title}</p>
+                          {!notification.is_read && (
+                            <button
+                              onClick={() => markAsRead(notification.id)}
+                              className="ml-2 text-blue-600"
+                            >
+                              <Check className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
+                        <p className="mt-1 text-xs text-gray-500">
+                          {new Date(notification.sent_at).toLocaleString()}
+                        </p>
+                      </div>
+                    ))}
+                    {notifications.length > 3 && (
+                      <p className="text-blue-600 text-sm font-medium pt-1">
+                        + {notifications.length - 3} more
+                      </p>
+                    )}
+                    {notifications.length === 0 && (
+                      <p className="text-gray-500 text-sm py-1">
+                        No notifications
+                      </p>
+                    )}
+                  </div>
+
                   <div className="border-t border-gray-200 pt-2 mt-2">
                     <button
                       onClick={() =>

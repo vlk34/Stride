@@ -11,6 +11,7 @@ import {
   ChevronRight,
   ChevronLeft,
   CheckCircle,
+  AlertCircle,
 } from "lucide-react";
 import { useUpgradeAccount } from "../../hooks/tanstack/useCompanyAccount";
 import axios from "axios";
@@ -52,6 +53,9 @@ const BusinessAccountCreation = () => {
     twitter: "",
   });
 
+  // Add errors state
+  const [errors, setErrors] = useState({});
+
   const steps = [
     {
       id: 1,
@@ -65,6 +69,14 @@ const BusinessAccountCreation = () => {
           placeholder: "Enter your company name",
           icon: <Building2 className="w-5 h-5 text-gray-400" />,
           required: true,
+          validation: (value) =>
+            !value
+              ? "Company name is required"
+              : value.length < 2
+              ? "Company name must be at least 2 characters"
+              : value.length > 100
+              ? "Company name must be less than 100 characters"
+              : null,
         },
         {
           name: "logo",
@@ -87,6 +99,7 @@ const BusinessAccountCreation = () => {
           ],
           icon: <Briefcase className="w-5 h-5 text-gray-400" />,
           required: true,
+          validation: (value) => (!value ? "Please select an industry" : null),
         },
         {
           name: "companySize",
@@ -95,6 +108,7 @@ const BusinessAccountCreation = () => {
           options: ["1-10", "11-50", "51-200", "201-500", "500+"],
           icon: <Users className="w-5 h-5 text-gray-400" />,
           required: true,
+          validation: (value) => (!value ? "Please select company size" : null),
         },
         {
           name: "foundedYear",
@@ -102,6 +116,15 @@ const BusinessAccountCreation = () => {
           type: "number",
           placeholder: "YYYY",
           required: true,
+          validation: (value) => {
+            const currentYear = new Date().getFullYear();
+            if (!value) return "Founded year is required";
+            const year = parseInt(value);
+            if (isNaN(year)) return "Please enter a valid year";
+            if (year < 1800) return "Year must be 1800 or later";
+            if (year > currentYear) return "Year cannot be in the future";
+            return null;
+          },
         },
       ],
     },
@@ -117,6 +140,14 @@ const BusinessAccountCreation = () => {
           placeholder: "contact@company.com",
           icon: <Mail className="w-5 h-5 text-gray-400" />,
           required: true,
+          validation: (value) => {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return !value
+              ? "Email is required"
+              : !emailRegex.test(value)
+              ? "Please enter a valid email address"
+              : null;
+          },
         },
         {
           name: "phone",
@@ -125,6 +156,14 @@ const BusinessAccountCreation = () => {
           placeholder: "+1 (555) 000-0000",
           icon: <Phone className="w-5 h-5 text-gray-400" />,
           required: true,
+          validation: (value) => {
+            const phoneRegex = /^\+?[0-9\s\-\(\)]{8,20}$/;
+            return !value
+              ? "Phone number is required"
+              : !phoneRegex.test(value)
+              ? "Please enter a valid phone number"
+              : null;
+          },
         },
         {
           name: "website",
@@ -132,6 +171,12 @@ const BusinessAccountCreation = () => {
           type: "url",
           placeholder: "https://",
           icon: <Globe className="w-5 h-5 text-gray-400" />,
+          validation: (value) => {
+            if (!value) return null; // Not required
+            const urlRegex =
+              /^(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/;
+            return !urlRegex.test(value) ? "Please enter a valid URL" : null;
+          },
         },
       ],
     },
@@ -147,30 +192,50 @@ const BusinessAccountCreation = () => {
           placeholder: "Enter street address",
           icon: <MapPin className="w-5 h-5 text-gray-400" />,
           required: true,
+          validation: (value) =>
+            !value
+              ? "Street address is required"
+              : value.length < 5
+              ? "Please enter a complete address"
+              : null,
         },
         {
           name: "city",
           label: "City",
           type: "text",
           required: true,
+          validation: (value) =>
+            !value
+              ? "City is required"
+              : value.length < 2
+              ? "Please enter a valid city name"
+              : null,
         },
         {
           name: "state",
           label: "State/Province",
           type: "text",
           required: true,
+          validation: (value) => (!value ? "State/Province is required" : null),
         },
         {
           name: "country",
           label: "Country",
           type: "text",
           required: true,
+          validation: (value) => (!value ? "Country is required" : null),
         },
         {
           name: "postalCode",
           label: "Postal Code",
           type: "text",
           required: true,
+          validation: (value) =>
+            !value
+              ? "Postal code is required"
+              : value.length < 3
+              ? "Please enter a valid postal code"
+              : null,
         },
       ],
     },
@@ -185,6 +250,14 @@ const BusinessAccountCreation = () => {
           type: "textarea",
           placeholder: "Tell us about your company...",
           required: true,
+          validation: (value) =>
+            !value
+              ? "Company description is required"
+              : value.length < 50
+              ? "Description must be at least 50 characters"
+              : value.length > 1000
+              ? "Description must be less than 1000 characters"
+              : null,
         },
         {
           name: "mission",
@@ -192,6 +265,14 @@ const BusinessAccountCreation = () => {
           type: "textarea",
           placeholder: "What is your company's mission?",
           required: true,
+          validation: (value) =>
+            !value
+              ? "Company mission is required"
+              : value.length < 20
+              ? "Mission statement must be at least 20 characters"
+              : value.length > 500
+              ? "Mission statement must be less than 500 characters"
+              : null,
         },
         {
           name: "benefits",
@@ -199,6 +280,14 @@ const BusinessAccountCreation = () => {
           type: "textarea",
           placeholder: "What benefits do you offer?",
           required: true,
+          validation: (value) =>
+            !value
+              ? "Employee benefits are required"
+              : value.length < 20
+              ? "Benefits description must be at least 20 characters"
+              : value.length > 500
+              ? "Benefits description must be less than 500 characters"
+              : null,
         },
       ],
     },
@@ -216,10 +305,48 @@ const BusinessAccountCreation = () => {
       ...prev,
       [name]: value,
     }));
+
+    // Validate field on change
+    validateField(name, value);
+  };
+
+  // Validate a single field
+  const validateField = (name, value) => {
+    const field = steps
+      .flatMap((step) => step.fields || [])
+      .find((f) => f.name === name);
+
+    if (field && field.validation) {
+      const error = field.validation(value);
+      setErrors((prev) => ({
+        ...prev,
+        [name]: error,
+      }));
+      return !error;
+    }
+    return true;
+  };
+
+  // Validate all fields in current step
+  const validateStep = () => {
+    const currentFields = currentStepData.fields || [];
+    let isValid = true;
+    let newErrors = { ...errors };
+
+    currentFields.forEach((field) => {
+      if (field.validation) {
+        const error = field.validation(formData[field.name]);
+        newErrors[field.name] = error;
+        if (error) isValid = false;
+      }
+    });
+
+    setErrors(newErrors);
+    return isValid;
   };
 
   const handleNext = () => {
-    if (currentStep < steps.length) {
+    if (validateStep() && currentStep < steps.length) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -233,12 +360,35 @@ const BusinessAccountCreation = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Validate all fields in the form
+    let isValid = true;
+    let newErrors = {};
+
+    steps.forEach((step) => {
+      if (step.fields) {
+        step.fields.forEach((field) => {
+          if (field.validation) {
+            const error = field.validation(formData[field.name]);
+            newErrors[field.name] = error;
+            if (error) isValid = false;
+          }
+        });
+      }
+    });
+
+    setErrors(newErrors);
+
+    if (!isValid) {
+      alert("Please fix all errors before submitting");
+      return;
+    }
+
     // Format data according to the expected endpoint structure in endpoints.txt
     const formattedData = {
       company: formData.companyName,
       industry: formData.industry,
       size: formData.companySize,
-      logo: formData.logo || null, // You might need to handle logo upload separately
+      logo: formData.logo || null,
       founded: parseInt(formData.foundedYear),
       email: formData.email,
       phone: formData.phone,
@@ -254,14 +404,11 @@ const BusinessAccountCreation = () => {
     };
 
     try {
-      // Call the mutation with formatted data
       await upgradeAccount.mutateAsync(formattedData);
-
-      // Move to success step after successful API call
       setCurrentStep(5);
     } catch (error) {
       console.error("Failed to create business account:", error);
-      // You might want to show an error message to the user
+      alert("Failed to create business account. Please try again.");
     }
   };
 
@@ -271,9 +418,27 @@ const BusinessAccountCreation = () => {
 
     // Check if file is png or jpeg
     if (!["image/png", "image/jpeg"].includes(file.type)) {
-      alert("Please upload a PNG or JPEG file");
+      setErrors((prev) => ({
+        ...prev,
+        logo: "Please upload a PNG or JPEG file",
+      }));
       return;
     }
+
+    // Check file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setErrors((prev) => ({
+        ...prev,
+        logo: "File size must be less than 5MB",
+      }));
+      return;
+    }
+
+    // Clear any previous logo errors
+    setErrors((prev) => ({
+      ...prev,
+      logo: null,
+    }));
 
     // Create preview
     const reader = new FileReader();
@@ -307,18 +472,31 @@ const BusinessAccountCreation = () => {
     } catch (error) {
       console.error("Error uploading logo:", error);
       setUploadingLogo(false);
-      alert("Failed to upload logo. Please try again.");
+      setErrors((prev) => ({
+        ...prev,
+        logo: "Failed to upload logo. Please try again.",
+      }));
     }
   };
 
   const currentStepData = steps.find((step) => step.id === currentStep);
 
-  // Check if all required fields in the current step are filled
-  const isNextDisabled = currentStepData.fields
-    ? currentStepData.fields.some(
-        (field) => field.required && !formData[field.name]
-      )
-    : false;
+  // Check if all required fields in the current step are filled and valid
+  const isNextDisabled = () => {
+    if (!currentStepData.fields) return false;
+
+    // Check if there are any validation errors in the current step
+    const hasErrors = currentStepData.fields.some(
+      (field) => errors[field.name]
+    );
+
+    // Check if required fields are filled
+    const missingRequired = currentStepData.fields.some(
+      (field) => field.required && !formData[field.name]
+    );
+
+    return hasErrors || missingRequired;
+  };
 
   // Render success step content
   const renderSuccessStep = () => (
@@ -329,19 +507,28 @@ const BusinessAccountCreation = () => {
         </div>
       </div>
       <h3 className="text-2xl font-bold text-gray-900 mb-2">
-        Welcome to the Business Community!
+        Business Account Application Submitted!
       </h3>
       <p className="text-gray-600 mb-8 max-w-md mx-auto">
-        Your business account has been successfully created. You can now start
-        posting jobs and connecting with potential candidates.
+        Thank you for your application. Our team will review your business
+        information within 1-2 hours. You'll receive a notification once your
+        account is approved.
       </p>
       <button
-        onClick={() => navigate("/business/dashboard")}
+        onClick={() => navigate("/")}
         className="inline-flex items-center justify-center px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors"
       >
-        Go to Dashboard
+        Return to Homepage
         <ChevronRight className="w-5 h-5 ml-2" />
       </button>
+    </div>
+  );
+
+  // Error message component
+  const ErrorMessage = ({ message }) => (
+    <div className="text-sm text-red-500 mt-1 flex items-center gap-1">
+      <AlertCircle className="w-3 h-3" />
+      <span>{message}</span>
     </div>
   );
 
@@ -459,55 +646,110 @@ const BusinessAccountCreation = () => {
                             {field.description}
                           </p>
                         )}
+
+                        {errors[field.name] && (
+                          <ErrorMessage message={errors[field.name]} />
+                        )}
                       </div>
                     ) : (
-                      <div className="relative">
-                        {field.icon && (
-                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            {field.icon}
-                          </div>
+                      <>
+                        <div className="relative">
+                          {field.icon && (
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                              {field.icon}
+                            </div>
+                          )}
+                          {field.type === "select" ? (
+                            <select
+                              id={field.name}
+                              name={field.name}
+                              value={formData[field.name]}
+                              onChange={handleInputChange}
+                              className={`block w-full rounded-lg border ${
+                                errors[field.name]
+                                  ? "border-red-500"
+                                  : "border-gray-300"
+                              } ${
+                                field.icon ? "pl-10" : "pl-3"
+                              } pr-3 py-2 focus:outline-none focus:ring-2 ${
+                                errors[field.name]
+                                  ? "focus:ring-red-500"
+                                  : "focus:ring-blue-500"
+                              } ${
+                                errors[field.name]
+                                  ? "focus:border-red-500"
+                                  : "focus:border-blue-500"
+                              }`}
+                              required={field.required}
+                            >
+                              <option value="">Select {field.label}</option>
+                              {field.options.map((option) => (
+                                <option key={option} value={option}>
+                                  {option}
+                                </option>
+                              ))}
+                            </select>
+                          ) : field.type === "textarea" ? (
+                            <textarea
+                              id={field.name}
+                              name={field.name}
+                              value={formData[field.name]}
+                              onChange={handleInputChange}
+                              placeholder={field.placeholder}
+                              rows={4}
+                              className={`block w-full rounded-lg border ${
+                                errors[field.name]
+                                  ? "border-red-500"
+                                  : "border-gray-300"
+                              } p-3 focus:outline-none focus:ring-2 ${
+                                errors[field.name]
+                                  ? "focus:ring-red-500"
+                                  : "focus:ring-blue-500"
+                              } ${
+                                errors[field.name]
+                                  ? "focus:border-red-500"
+                                  : "focus:border-blue-500"
+                              }`}
+                              required={field.required}
+                              onBlur={() =>
+                                validateField(field.name, formData[field.name])
+                              }
+                            />
+                          ) : (
+                            <input
+                              id={field.name}
+                              type={field.type}
+                              name={field.name}
+                              value={formData[field.name]}
+                              onChange={handleInputChange}
+                              placeholder={field.placeholder}
+                              className={`block w-full rounded-lg border ${
+                                errors[field.name]
+                                  ? "border-red-500"
+                                  : "border-gray-300"
+                              } ${
+                                field.icon ? "pl-10" : "pl-3"
+                              } pr-3 py-2 focus:outline-none focus:ring-2 ${
+                                errors[field.name]
+                                  ? "focus:ring-red-500"
+                                  : "focus:ring-blue-500"
+                              } ${
+                                errors[field.name]
+                                  ? "focus:border-red-500"
+                                  : "focus:border-blue-500"
+                              }`}
+                              required={field.required}
+                              onBlur={() =>
+                                validateField(field.name, formData[field.name])
+                              }
+                            />
+                          )}
+                        </div>
+
+                        {errors[field.name] && (
+                          <ErrorMessage message={errors[field.name]} />
                         )}
-                        {field.type === "select" ? (
-                          <select
-                            name={field.name}
-                            value={formData[field.name]}
-                            onChange={handleInputChange}
-                            className={`block w-full rounded-lg border border-gray-300 ${
-                              field.icon ? "pl-10" : "pl-3"
-                            } pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
-                            required={field.required}
-                          >
-                            <option value="">Select {field.label}</option>
-                            {field.options.map((option) => (
-                              <option key={option} value={option}>
-                                {option}
-                              </option>
-                            ))}
-                          </select>
-                        ) : field.type === "textarea" ? (
-                          <textarea
-                            name={field.name}
-                            value={formData[field.name]}
-                            onChange={handleInputChange}
-                            placeholder={field.placeholder}
-                            rows={4}
-                            className="block w-full rounded-lg border border-gray-300 p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            required={field.required}
-                          />
-                        ) : (
-                          <input
-                            type={field.type}
-                            name={field.name}
-                            value={formData[field.name]}
-                            onChange={handleInputChange}
-                            placeholder={field.placeholder}
-                            className={`block w-full rounded-lg border border-gray-300 ${
-                              field.icon ? "pl-10" : "pl-3"
-                            } pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
-                            required={field.required}
-                          />
-                        )}
-                      </div>
+                      </>
                     )}
                   </div>
                 ))}
@@ -528,9 +770,9 @@ const BusinessAccountCreation = () => {
                   <button
                     type="button"
                     onClick={handleNext}
-                    disabled={isNextDisabled}
+                    disabled={isNextDisabled()}
                     className={`flex items-center gap-2 px-6 py-2 ${
-                      isNextDisabled
+                      isNextDisabled()
                         ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                         : "bg-blue-600 text-white hover:bg-blue-700 transition-colors"
                     } rounded-lg ml-auto`}
@@ -541,7 +783,12 @@ const BusinessAccountCreation = () => {
                 ) : (
                   <button
                     type="submit"
-                    className="flex items-center gap-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors ml-auto px-6 py-2"
+                    disabled={isNextDisabled()}
+                    className={`flex items-center gap-2 px-6 py-2 ${
+                      isNextDisabled()
+                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        : "bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                    } rounded-lg ml-auto`}
                   >
                     Complete Setup
                     <ChevronRight className="w-4 h-4" />

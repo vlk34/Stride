@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   Building2,
   MapPin,
@@ -11,6 +11,8 @@ import {
   Heart,
   Award,
   Coffee,
+  ChartBar,
+  AlertCircle,
 } from "lucide-react";
 import { Link } from "react-router";
 import {
@@ -81,6 +83,67 @@ const BusinessProfile = () => {
   const { data: logoUrl, isLoading: logoLoading } = useImage(
     companyDetails?.logo || null
   );
+
+  // Calculate profile completion percentage
+  const completionData = useMemo(() => {
+    if (!companyDetails)
+      return { percentage: 0, status: "Incomplete", items: [] };
+
+    // Define fields to check for completion
+    const fields = [
+      { name: "company", label: "Basic info", required: true },
+      { name: "logo", label: "Company logo", required: false },
+      { name: "industry", label: "Industry", required: true },
+      { name: "description", label: "Company description", required: true },
+      { name: "mission", label: "Company mission", required: false },
+      { name: "benefits", label: "Benefits", required: false },
+      { name: "email", label: "Contact info", required: true },
+      { name: "address", label: "Location details", required: false },
+    ];
+
+    // Check which fields are complete
+    const completedItems = fields.map((field) => {
+      const isComplete =
+        field.name === "logo"
+          ? !!companyDetails.logo
+          : !!companyDetails[field.name];
+
+      return {
+        label: field.label,
+        complete: isComplete,
+        required: field.required,
+      };
+    });
+
+    // Calculate percentage based on required fields and bonus for optional fields
+    const requiredFields = fields.filter((f) => f.required).length;
+    const completedRequired = completedItems.filter(
+      (item) => item.required && item.complete
+    ).length;
+    const completedOptional = completedItems.filter(
+      (item) => !item.required && item.complete
+    ).length;
+    const optionalFields = fields.filter((f) => !f.required).length;
+
+    // Base percentage on required fields (80% max) + bonus for optional fields (20% max)
+    const requiredPercentage =
+      requiredFields > 0 ? (completedRequired / requiredFields) * 80 : 0;
+    const optionalPercentage =
+      optionalFields > 0 ? (completedOptional / optionalFields) * 20 : 0;
+    const totalPercentage = Math.round(requiredPercentage + optionalPercentage);
+
+    // Determine status
+    let status = "Incomplete";
+    if (totalPercentage >= 100) status = "Complete";
+    else if (totalPercentage >= 80) status = "Very Good";
+    else if (totalPercentage >= 50) status = "Good";
+
+    return {
+      percentage: totalPercentage,
+      status,
+      items: completedItems,
+    };
+  }, [companyDetails]);
 
   // Loading state for the company profile
   if (companyLoading) {
@@ -465,43 +528,86 @@ const BusinessProfile = () => {
             </div>
           </div>
 
-          {/* Profile Completion - Static */}
+          {/* Profile Completion - Updated and Functional */}
           <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <h3 className="text-lg font-medium mb-4">Profile Completion</h3>
+            <h3 className="text-lg font-medium mb-4 flex items-center gap-2">
+              <ChartBar className="w-5 h-5 text-blue-600" />
+              Profile Completion
+            </h3>
+
             <div className="w-full bg-gray-200 rounded-full h-2.5 mb-4">
-              <div className="bg-blue-600 h-2.5 rounded-full w-[85%]"></div>
+              <div
+                className={`bg-blue-600 h-2.5 rounded-full ${
+                  completionData.percentage >= 80
+                    ? "bg-green-600"
+                    : completionData.percentage >= 50
+                    ? "bg-blue-600"
+                    : "bg-yellow-500"
+                }`}
+                style={{ width: `${completionData.percentage}%` }}
+              ></div>
             </div>
-            <p className="text-sm text-gray-600 mb-4">85% complete</p>
+
+            <p className="text-sm text-gray-600 mb-4 flex justify-between items-center">
+              <span className="font-medium">
+                {completionData.percentage}% complete
+              </span>
+              <span
+                className={`text-xs px-2 py-1 rounded-full ${
+                  completionData.status === "Complete"
+                    ? "bg-green-100 text-green-800"
+                    : completionData.status === "Very Good"
+                    ? "bg-blue-100 text-blue-800"
+                    : completionData.status === "Good"
+                    ? "bg-yellow-100 text-yellow-800"
+                    : "bg-gray-100 text-gray-800"
+                }`}
+              >
+                {completionData.status}
+              </span>
+            </p>
 
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                  <span className="text-sm text-gray-600">Basic info</span>
+              {completionData.items.map((item, index) => (
+                <div key={index} className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    {item.complete ? (
+                      <CheckCircle className="w-4 h-4 text-green-500" />
+                    ) : (
+                      <div
+                        className={`w-4 h-4 rounded-full ${
+                          item.required
+                            ? "border-2 border-red-300"
+                            : "border border-gray-300"
+                        }`}
+                      ></div>
+                    )}
+                    <span className="text-sm text-gray-600">{item.label}</span>
+                  </div>
+                  <span className="text-xs">
+                    {item.complete ? (
+                      <span className="text-green-500">Complete</span>
+                    ) : (
+                      <span
+                        className={
+                          item.required ? "text-red-500" : "text-gray-400"
+                        }
+                      >
+                        {item.required ? "Required" : "Pending"}
+                      </span>
+                    )}
+                  </span>
                 </div>
-                <span className="text-xs text-green-500">Complete</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                  <span className="text-sm text-gray-600">Company details</span>
-                </div>
-                <span className="text-xs text-green-500">Complete</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 border border-gray-300 rounded-full"></div>
-                  <span className="text-sm text-gray-600">Social links</span>
-                </div>
-                <span className="text-xs text-gray-400">Pending</span>
-              </div>
+              ))}
             </div>
 
             <Link
               to="/business/edit-company"
               className="mt-4 block w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm text-center"
             >
-              Complete Your Profile
+              {completionData.percentage < 100
+                ? "Complete Your Profile"
+                : "Edit Profile"}
             </Link>
           </div>
         </div>

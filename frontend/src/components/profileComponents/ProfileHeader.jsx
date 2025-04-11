@@ -9,6 +9,11 @@ const ProfileHeader = ({ role, description, onEditProfile }) => {
     openUserProfile();
   };
 
+  // Check if the values are actually placeholder text stored as values
+  const isPlaceholder = (value, placeholder) => {
+    return !value || value === placeholder;
+  };
+
   return (
     <div className="w-full bg-white rounded-lg border border-gray-200">
       {/* Banner background */}
@@ -55,8 +60,20 @@ const ProfileHeader = ({ role, description, onEditProfile }) => {
           </div>
 
           {/* Role and description */}
-          <p className="text-gray-600 mt-1">{role}</p>
-          <p className="text-gray-500 text-sm mt-3">{description}</p>
+          <p className="text-gray-600 mt-1">
+            {isPlaceholder(role, "No role set") ? (
+              <span className="text-gray-400">No role set</span>
+            ) : (
+              role
+            )}
+          </p>
+          <p className="text-gray-500 text-sm mt-3">
+            {isPlaceholder(description, "No description set") ? (
+              <span className="text-gray-400">No description set</span>
+            ) : (
+              description
+            )}
+          </p>
         </div>
       </div>
     </div>
