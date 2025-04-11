@@ -11,6 +11,7 @@ const ApplicationModal = ({ isOpen, onClose, onSubmit, job, isSubmitting }) => {
   });
   const [error, setError] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
 
   // Use the resume upload mutation
   const resumeUpload = useUploadResume();
@@ -39,8 +40,17 @@ const ApplicationModal = ({ isOpen, onClose, onSubmit, job, isSubmitting }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Prevent multiple submissions
+    if (hasAttemptedSubmit) {
+      return;
+    }
+
+    // Mark that we've attempted to submit
+    setHasAttemptedSubmit(true);
+
     if (!formData.cv) {
       setError("Please upload your CV");
+      setHasAttemptedSubmit(false); // Reset if there's an error
       return;
     }
 
@@ -64,21 +74,30 @@ const ApplicationModal = ({ isOpen, onClose, onSubmit, job, isSubmitting }) => {
     } catch (err) {
       console.error("Error uploading CV:", err);
       setError("Failed to upload CV. Please try again.");
+      setHasAttemptedSubmit(false); // Reset if there's an error so they can retry
     } finally {
       setUploading(false);
     }
   };
 
+  // When the modal is closed, reset the hasAttemptedSubmit state
+  const handleClose = () => {
+    setHasAttemptedSubmit(false);
+    onClose();
+  };
+
   if (!isOpen) return null;
 
-  const isProcessing = isSubmitting || uploading || resumeUpload.isLoading;
+  // Determine if the form is in a processing state
+  const isProcessing =
+    isSubmitting || uploading || resumeUpload.isLoading || hasAttemptedSubmit;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg w-full max-w-md p-4 sm:p-6 relative">
         <button
-          onClick={onClose}
-          disabled={isProcessing}
+          onClick={handleClose}
+          disabled={isProcessing && !hasAttemptedSubmit}
           className="absolute right-3 sm:right-4 top-3 sm:top-4 text-gray-400 hover:text-gray-600"
         >
           <X className="w-5 h-5" />
@@ -175,7 +194,7 @@ const ApplicationModal = ({ isOpen, onClose, onSubmit, job, isSubmitting }) => {
           >
             {uploading
               ? "Uploading CV..."
-              : isSubmitting
+              : isSubmitting || hasAttemptedSubmit
               ? "Submitting Application..."
               : "Submit Application"}
           </button>

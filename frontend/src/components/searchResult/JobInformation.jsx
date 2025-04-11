@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Bookmark, BookmarkX } from "lucide-react";
+import { Bookmark, BookmarkX, AlertCircle } from "lucide-react";
 import ApplicationModal from "../modals/ApplicationModal";
 import {
   useJobDetails,
@@ -11,11 +11,17 @@ import {
 } from "../../hooks/tanstack/useJobInteractions";
 import { useImage } from "../../hooks/tanstack/useImageAndCompany";
 import { useQueryClient } from "@tanstack/react-query";
+import { useUser } from "@clerk/clerk-react";
 
 const JobInformation = ({ job }) => {
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const contentRef = useRef(null);
+  const { user } = useUser();
+
+  // Check if the user is a business user
+  const userRole = user?.publicMetadata?.role;
+  const isBusinessUser = userRole === "business";
 
   // Mutation hooks for job actions
   const saveJobMutation = useSaveJob();
@@ -233,56 +239,79 @@ const JobInformation = ({ job }) => {
           </div>
 
           <div className="flex gap-3">
-            <button
-              onClick={handleSaveToggle}
-              disabled={
-                saveJobMutation.isLoading || unsaveJobMutation.isLoading
-              }
-              className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg border ${
-                isSaved
-                  ? "border-red-600 text-red-600 hover:bg-red-50"
-                  : "border-blue-600 text-blue-600 hover:bg-blue-50"
-              } ${
-                saveJobMutation.isLoading || unsaveJobMutation.isLoading
-                  ? "opacity-50 cursor-wait"
-                  : ""
-              }`}
-            >
-              {isSaved ? (
-                <>
-                  <BookmarkX className="w-4 h-4" />
-                  <span>
-                    {unsaveJobMutation.isLoading ? "Removing..." : "Remove"}
-                  </span>
-                </>
-              ) : (
-                <>
-                  <Bookmark className="w-4 h-4" />
-                  <span>
-                    {saveJobMutation.isLoading ? "Saving..." : "Save"}
-                  </span>
-                </>
-              )}
-            </button>
-            <button
-              onClick={() => setIsModalOpen(true)}
-              disabled={isApplied || applyJobMutation.isLoading}
-              className={`px-4 py-2 rounded-lg flex items-center justify-center gap-2 ${
-                isApplied
-                  ? "bg-green-600 text-white cursor-not-allowed"
+            {!isBusinessUser && (
+              <button
+                onClick={handleSaveToggle}
+                disabled={
+                  saveJobMutation.isLoading || unsaveJobMutation.isLoading
+                }
+                className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg border ${
+                  isSaved
+                    ? "border-red-600 text-red-600 hover:bg-red-50"
+                    : "border-blue-600 text-blue-600 hover:bg-blue-50"
+                } ${
+                  saveJobMutation.isLoading || unsaveJobMutation.isLoading
+                    ? "opacity-50 cursor-wait"
+                    : ""
+                }`}
+              >
+                {isSaved ? (
+                  <>
+                    <BookmarkX className="w-4 h-4" />
+                    <span>
+                      {unsaveJobMutation.isLoading ? "Removing..." : "Remove"}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <Bookmark className="w-4 h-4" />
+                    <span>
+                      {saveJobMutation.isLoading ? "Saving..." : "Save"}
+                    </span>
+                  </>
+                )}
+              </button>
+            )}
+
+            {isBusinessUser ? (
+              <div className="px-4 py-2 rounded-lg bg-gray-100 text-gray-600 flex items-center justify-center gap-2">
+                <AlertCircle className="w-4 h-4" />
+                <span>Business Account</span>
+              </div>
+            ) : (
+              <button
+                onClick={() => setIsModalOpen(true)}
+                disabled={isApplied || applyJobMutation.isLoading}
+                className={`px-4 py-2 rounded-lg flex items-center justify-center gap-2 ${
+                  isApplied
+                    ? "bg-green-600 text-white cursor-not-allowed"
+                    : applyJobMutation.isLoading
+                    ? "bg-blue-500 text-white cursor-wait"
+                    : "bg-blue-600 text-white hover:bg-blue-700"
+                }`}
+              >
+                {isApplied
+                  ? "Applied"
                   : applyJobMutation.isLoading
-                  ? "bg-blue-500 text-white cursor-wait"
-                  : "bg-blue-600 text-white hover:bg-blue-700"
-              }`}
-            >
-              {isApplied
-                ? "Applied"
-                : applyJobMutation.isLoading
-                ? "Applying..."
-                : "Apply Now"}
-            </button>
+                  ? "Applying..."
+                  : "Apply Now"}
+              </button>
+            )}
           </div>
         </div>
+
+        {/* Display a notice about business users not being able to apply */}
+        {isBusinessUser && (
+          <div className="mb-6 bg-amber-50 border border-amber-200 rounded-lg p-3 text-amber-800 text-sm">
+            <p className="flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 flex-shrink-0" />
+              <span>
+                Business accounts cannot apply to job listings. Switch to a
+                personal account to apply for jobs.
+              </span>
+            </p>
+          </div>
+        )}
 
         <div className="space-y-6">
           <section>
@@ -411,13 +440,16 @@ const JobInformation = ({ job }) => {
         </div>
       </div>
 
-      <ApplicationModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSubmit={handleApplicationSubmit}
-        job={displayJob}
-        isSubmitting={applyJobMutation.isLoading}
-      />
+      {/* Only render the ApplicationModal if user is not a business user */}
+      {!isBusinessUser && (
+        <ApplicationModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSubmit={handleApplicationSubmit}
+          job={displayJob}
+          isSubmitting={applyJobMutation.isLoading}
+        />
+      )}
     </div>
   );
 };

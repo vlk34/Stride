@@ -46,7 +46,7 @@ const useCompanyDetails = () => {
         throw new Error("Session token not found");
       }
 
-      const response = await axios.get("http://localhost:8080/company/5", {
+      const response = await axios.get("http://localhost:8080/company", {
         headers: {
           Authorization: `Bearer ${sessionToken}`,
         },

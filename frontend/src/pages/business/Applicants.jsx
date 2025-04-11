@@ -60,12 +60,12 @@ const Applicants = () => {
           },
           {
             title: "New This Week",
-            value: statsData.new_applicants || 0,
+            value: statsData.total_applicants || 0,
             icon: <TrendingUp className="w-6 h-6 text-green-600" />,
           },
           {
             title: "Active Jobs",
-            value: statsData.active_jobs || 0,
+            value: statsData.total_jobs || 0,
             icon: <Briefcase className="w-6 h-6 text-purple-600" />,
           },
         ]

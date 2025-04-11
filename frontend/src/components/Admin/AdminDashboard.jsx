@@ -24,17 +24,17 @@ const AdminDashboard = () => {
   const stats = [
     {
       title: "Total Users",
-      value: statsLoading ? "..." : statsData?.total_users || "0",
+      value: statsLoading ? "..." : statsData?.user_count || "0",
       icon: <Users className="w-5 h-5 text-blue-600" />,
     },
     {
       title: "Job Posts",
-      value: statsLoading ? "..." : statsData?.total_jobs || "0",
+      value: statsLoading ? "..." : statsData?.job_count || "0",
       icon: <Briefcase className="w-5 h-5 text-blue-600" />,
     },
     {
       title: "Business Applications",
-      value: statsLoading ? "..." : statsData?.business_applications || "0",
+      value: statsLoading ? "..." : statsData?.business_pending || "0",
       icon: <Building2 className="w-5 h-5 text-blue-600" />,
     },
   ];
