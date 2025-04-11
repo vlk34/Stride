@@ -1083,7 +1083,7 @@ public class Database {
             if (users != null)
                 size = users.size();
             map.put("user_count", size);
-            map.put("company_count", company_count);
+            map.put("company_count", company_count - business_pending);
             map.put("job_count", job_count);
             map.put("business_pending", business_pending);
             return map;
