@@ -515,6 +515,8 @@ Authorization: Bearer session_jwt_here
 response body:
 [
     {
+        "company": "",
+        "company_id": 1,
         "job_id": 999,
         "title": "example",
         "department": "Technology",
@@ -533,6 +535,8 @@ response body:
         "openings": 99
     },
     {
+        "company": "",
+        "company_id": 1,
         "job_id": 999,
         "title": "example",
         "department": "Technology",
@@ -549,7 +553,7 @@ response body:
         "deadline": "date",
         "start": "date",
         "openings": 99
-    }
+    },
 ]
 
 GET /applicants (business)
