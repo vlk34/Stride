@@ -927,6 +927,14 @@ public class Database {
                 map.put("deadline", res.getTimestamp("closes_at"));
                 map.put("start", res.getTimestamp("created_at"));
                 map.put("openings", res.getInt("openings"));
+                PreparedStatement company_statement = connection.prepareStatement("SELECT company_name FROM companies WHERE company_id = ?");
+                company_statement.setInt(1, res.getInt("company_id"));
+                ResultSet company_res = company_statement.executeQuery();
+                if (company_res.next()) {
+                    map.put("company", company_res.getString("company_name"));
+                }
+                company_res.close();
+                company_statement.close();
                 list.add(map);
             }
             res.close();
@@ -1060,7 +1068,7 @@ public class Database {
             job_res.close();
             job_statement.close();
 
-            PreparedStatement business_statement = connection.prepareStatement("SELECT COUNT(1) FROM jobs");
+            PreparedStatement business_statement = connection.prepareStatement("SELECT COUNT(1) FROM business_applications");
             ResultSet business_res = business_statement.executeQuery();
             int business_pending = 0;
             if (business_res.next()) {
