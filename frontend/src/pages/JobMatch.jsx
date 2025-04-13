@@ -1,6 +1,5 @@
 import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router";
-import { useMutation } from "@tanstack/react-query";
 import { useUser } from "@clerk/clerk-react"; // Import Clerk hook
 import {
   Sparkles,
@@ -66,42 +65,10 @@ const JobMatch = () => {
   const [uploadedFileName, setUploadedFileName] = useState("");
   const [uploadError, setUploadError] = useState("");
   const [textError, setTextError] = useState(""); // Separate error state for the text input
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
-
-  // Text upload mutation
-  const textMutation = useMutation({
-    mutationFn: uploadText,
-    onSuccess: (data) => {
-      // Store results in localStorage for persistence
-      localStorage.setItem("recommendedJobs", JSON.stringify(data.results));
-      navigate("/recommended-jobs");
-    },
-    onError: (error) => {
-      console.error("Error uploading text:", error);
-      // Display custom error message regardless of actual error
-      setTextError(
-        "We couldn't find any available job listings matching your particular skills and experience. Please try adjusting your description or check back later for new opportunities."
-      );
-    },
-  });
-
-  // PDF upload mutation
-  const pdfMutation = useMutation({
-    mutationFn: uploadPdf,
-    onSuccess: (data) => {
-      // Store results in localStorage for persistence
-      localStorage.setItem("recommendedJobs", JSON.stringify(data.results));
-      navigate("/recommended-jobs");
-    },
-    onError: (error) => {
-      console.error("Error uploading PDF:", error);
-      // Display custom error message regardless of actual error
-      setUploadError(
-        "We couldn't find any available job listings matching your particular skills and experience. Please try adjusting your resume or check back later for new opportunities."
-      );
-    },
-  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -118,9 +85,20 @@ const JobMatch = () => {
 
     // Clear any previous error
     setTextError("");
+    setIsSubmitting(true);
 
-    // Submit to API and let the backend handle validation
-    textMutation.mutate(userDescription);
+    try {
+      const data = await uploadText(userDescription);
+      // Navigate with state instead of using localStorage
+      navigate("/recommended-jobs", { state: { results: data.results } });
+    } catch (error) {
+      console.error("Error uploading text:", error);
+      setTextError(
+        "We couldn't find any available job listings matching your particular skills and experience. Please try adjusting your description or check back later for new opportunities."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleFileChange = async (e) => {
@@ -151,8 +129,20 @@ const JobMatch = () => {
 
     setUploadError("");
     setUploadedFileName(file.name);
+    setIsUploading(true);
 
-    pdfMutation.mutate(file);
+    try {
+      const data = await uploadPdf(file);
+      // Navigate with state instead of using localStorage
+      navigate("/recommended-jobs", { state: { results: data.results } });
+    } catch (error) {
+      console.error("Error uploading PDF:", error);
+      setUploadError(
+        "We couldn't find any available job listings matching your particular skills and experience. Please try adjusting your resume or check back later for new opportunities."
+      );
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const triggerFileInput = () => {
@@ -288,14 +278,14 @@ const JobMatch = () => {
                   <button
                     type="button"
                     onClick={triggerFileInput}
-                    disabled={pdfMutation.isPending}
+                    disabled={isUploading}
                     className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                      pdfMutation.isPending
+                      isUploading
                         ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                         : "text-blue-600 bg-blue-50 hover:bg-blue-100"
                     }`}
                   >
-                    {pdfMutation.isPending ? "Uploading..." : "Choose PDF"}
+                    {isUploading ? "Uploading..." : "Choose PDF"}
                   </button>
 
                   {uploadedFileName && (
@@ -379,20 +369,14 @@ const JobMatch = () => {
           ) : (
             <button
               type="submit"
-              disabled={
-                textMutation.isPending ||
-                pdfMutation.isPending ||
-                !userDescription.trim()
-              }
+              disabled={isSubmitting || isUploading || !userDescription.trim()}
               className={`flex items-center gap-2 px-6 py-2.5 rounded-lg font-medium text-white ${
-                textMutation.isPending ||
-                pdfMutation.isPending ||
-                !userDescription.trim()
+                isSubmitting || isUploading || !userDescription.trim()
                   ? "bg-blue-400 cursor-not-allowed"
                   : "bg-blue-600 hover:bg-blue-700"
               }`}
             >
-              {textMutation.isPending ? (
+              {isSubmitting ? (
                 <>
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                   <span>Finding matches...</span>

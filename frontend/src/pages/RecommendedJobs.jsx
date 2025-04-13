@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Link } from "react-router";
-import { useQuery } from "@tanstack/react-query";
+import { Link, useLocation, useNavigate } from "react-router";
 import {
   ChevronLeft,
   Filter,
@@ -11,40 +10,16 @@ import {
 import JobCard from "../components/searchResult/JobCard";
 import JobInformation from "../components/searchResult/JobInformation";
 
-// Function to fetch jobs from localStorage
-const fetchJobs = () => {
-  const storedJobs = localStorage.getItem("recommendedJobs");
-  if (!storedJobs) return [];
-
-  try {
-    return JSON.parse(storedJobs);
-  } catch (error) {
-    console.error("Error parsing jobs from localStorage:", error);
-    return [];
-  }
-};
-
 const RecommendedJobs = () => {
-  // Use TanStack Query to handle the data
-  const selectJobs = useCallback((data) => {
-    return data.map((job) => ({
-      ...job,
-      // Generate an ID if one doesn't exist
-      id: job.id || Math.random().toString(36).substring(2, 9),
-    }));
-  }, []);
-
-  const { data: recommendedJobs = [], isLoading } = useQuery({
-    queryKey: ["recommendedJobs"],
-    queryFn: fetchJobs,
-    select: selectJobs,
-    staleTime: Infinity, // Keep this data fresh indefinitely
-  });
+  const location = useLocation();
+  const navigate = useNavigate();
+  const recommendedJobs = location.state?.results || [];
 
   const [filteredJobs, setFilteredJobs] = useState([]);
   const [selectedJob, setSelectedJob] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   // Current applied filters
   const [filters, setFilters] = useState({
@@ -60,6 +35,27 @@ const RecommendedJobs = () => {
     experience: [],
   });
 
+  // Process jobs to ensure they have IDs
+  const processJobs = useCallback((jobs) => {
+    return jobs.map((job) => ({
+      ...job,
+      // Generate an ID if one doesn't exist
+      id: job.id || Math.random().toString(36).substring(2, 9),
+    }));
+  }, []);
+
+  // Initialize job data when component mounts
+  useEffect(() => {
+    if (recommendedJobs && recommendedJobs.length > 0) {
+      const processedJobs = processJobs(recommendedJobs);
+      setFilteredJobs(processedJobs);
+
+      // If no jobs were passed via location state, redirect back to job match page
+    } else if (location.state === null) {
+      navigate("/job-match");
+    }
+  }, [location.state, navigate, processJobs, recommendedJobs]);
+
   // First useEffect - just for filtering
   useEffect(() => {
     if (!recommendedJobs.length) {
@@ -67,7 +63,7 @@ const RecommendedJobs = () => {
       return;
     }
 
-    let results = [...recommendedJobs];
+    let results = processJobs([...recommendedJobs]);
 
     // Apply search term filter
     if (searchTerm.trim() !== "") {
@@ -116,7 +112,7 @@ const RecommendedJobs = () => {
     }
 
     setFilteredJobs(results);
-  }, [recommendedJobs, searchTerm, filters]);
+  }, [recommendedJobs, searchTerm, filters, processJobs]);
 
   // Second useEffect - handle selecting a new job when filtered jobs change
   useEffect(() => {
@@ -131,14 +127,10 @@ const RecommendedJobs = () => {
 
   // Third useEffect - auto-select first job on initial load
   useEffect(() => {
-    if (
-      recommendedJobs.length > 0 &&
-      !selectedJob &&
-      window.innerWidth >= 1024
-    ) {
-      setSelectedJob(recommendedJobs[0]);
+    if (filteredJobs.length > 0 && !selectedJob && window.innerWidth >= 1024) {
+      setSelectedJob(filteredJobs[0]);
     }
-  }, [recommendedJobs]);
+  }, [filteredJobs]);
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
