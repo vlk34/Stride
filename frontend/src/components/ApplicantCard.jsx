@@ -75,9 +75,19 @@ const ApplicantCard = ({
         </span>
         <div className="text-xs md:text-sm font-medium text-purple-700 mt-2 whitespace-nowrap">
           {typeof applicant.similarity === "number"
-            ? `${(applicant.similarity * 100).toFixed(0)}%`
+            ? (() => {
+                const score = applicant.similarity * 100;
+                return `${Math.floor(score / 100)}.${Math.floor(score % 100)
+                  .toString()
+                  .padStart(2, "0")}%`;
+              })()
             : typeof applicant.match_score === "number"
-            ? `${applicant.match_score}%`
+            ? (() => {
+                const score = applicant.match_score;
+                return `${Math.floor(score / 100)}.${Math.floor(score % 100)
+                  .toString()
+                  .padStart(2, "0")}%`;
+              })()
             : "—"}{" "}
           match
         </div>

@@ -393,7 +393,13 @@ const ReviewApplicant = () => {
                 <div className="text-sm text-gray-600 mb-1">Match Score</div>
                 <div className="flex items-center text-purple-700 text-sm">
                   <Brain className="w-4 h-4 mr-2" />
-                  {applicant.match_score || 0}% match
+                  {(() => {
+                    const score = applicant.similarity || 0;
+                    return `${Math.floor(score)}.${((score % 1) * 100)
+                      .toFixed(0)
+                      .padStart(2, "0")}%`;
+                  })()}{" "}
+                  match
                 </div>
               </div>
 
@@ -553,7 +559,13 @@ const ReviewApplicant = () => {
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-6">
                     <div className="bg-purple-50 rounded-lg p-3 sm:p-4">
                       <div className="text-xl sm:text-2xl font-bold text-purple-700 mb-1">
-                        {applicant.ai_analysis.technical_match}%
+                        {(() => {
+                          const score =
+                            applicant.ai_analysis.technical_match || 0;
+                          return `${Math.floor(score)}.${((score % 1) * 100)
+                            .toFixed(0)
+                            .padStart(2, "0")}%`;
+                        })()}
                       </div>
                       <div className="text-xs sm:text-sm text-purple-600">
                         Technical Match
@@ -561,7 +573,12 @@ const ReviewApplicant = () => {
                     </div>
                     <div className="bg-purple-50 rounded-lg p-3 sm:p-4">
                       <div className="text-xl sm:text-2xl font-bold text-purple-700 mb-1">
-                        {applicant.ai_analysis.soft_skills}%
+                        {(() => {
+                          const score = applicant.ai_analysis.soft_skills || 0;
+                          return `${Math.floor(score)}.${((score % 1) * 100)
+                            .toFixed(0)
+                            .padStart(2, "0")}%`;
+                        })()}
                       </div>
                       <div className="text-xs sm:text-sm text-purple-600">
                         Soft Skills
@@ -569,7 +586,12 @@ const ReviewApplicant = () => {
                     </div>
                     <div className="bg-purple-50 rounded-lg p-3 sm:p-4">
                       <div className="text-xl sm:text-2xl font-bold text-purple-700 mb-1">
-                        {applicant.ai_analysis.culture_fit}%
+                        {(() => {
+                          const score = applicant.ai_analysis.culture_fit || 0;
+                          return `${Math.floor(score)}.${((score % 1) * 100)
+                            .toFixed(0)
+                            .padStart(2, "0")}%`;
+                        })()}
                       </div>
                       <div className="text-xs sm:text-sm text-purple-600">
                         Culture Fit

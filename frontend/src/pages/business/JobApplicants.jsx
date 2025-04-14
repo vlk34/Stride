@@ -421,7 +421,14 @@ const JobApplicants = () => {
                   <div className="text-center ml-4">
                     <div className="text-lg font-bold text-purple-700">
                       {typeof applicant.similarity === "number"
-                        ? `${(applicant.similarity * 100).toFixed(0)}%`
+                        ? (() => {
+                            const score = applicant.similarity * 100;
+                            return `${Math.floor(score / 100)}.${Math.floor(
+                              score % 100
+                            )
+                              .toString()
+                              .padStart(2, "0")}%`;
+                          })()
                         : "—"}
                     </div>
                     <div className="text-xs text-purple-600">match</div>
@@ -547,7 +554,14 @@ const JobApplicants = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-center">
                       <div className="text-sm font-medium text-purple-700">
                         {typeof applicant.similarity === "number"
-                          ? `${(applicant.similarity * 100).toFixed(0)}%`
+                          ? (() => {
+                              const score = applicant.similarity * 100;
+                              return `${Math.floor(score / 100)}.${Math.floor(
+                                score % 100
+                              )
+                                .toString()
+                                .padStart(2, "0")}%`;
+                            })()
                           : "—"}
                       </div>
                     </td>

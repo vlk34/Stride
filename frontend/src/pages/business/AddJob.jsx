@@ -376,7 +376,7 @@ const AddJob = () => {
                   htmlFor="description"
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  Job Description* (255 character limit)
+                  Job Description* (200 character limit)
                 </label>
                 <textarea
                   id="description"
@@ -385,12 +385,12 @@ const AddJob = () => {
                   onChange={handleInputChange}
                   required
                   rows={5}
-                  maxLength={255}
+                  maxLength={200}
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Describe the responsibilities and expectations for this role..."
                 ></textarea>
                 <p className="text-xs text-gray-500 mt-1">
-                  {formData.description.length}/255 characters
+                  {formData.description.length}/200 characters
                 </p>
               </div>
               <div>
@@ -398,7 +398,7 @@ const AddJob = () => {
                   htmlFor="responsibilities"
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  Responsibilities* (255 character limit)
+                  Responsibilities* (200 character limit)
                 </label>
                 <textarea
                   id="responsibilities"
@@ -407,12 +407,12 @@ const AddJob = () => {
                   onChange={handleInputChange}
                   required
                   rows={4}
-                  maxLength={255}
+                  maxLength={200}
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="List the key responsibilities for this position..."
                 ></textarea>
                 <p className="text-xs text-gray-500 mt-1">
-                  {formData.responsibilities.length}/255 characters
+                  {formData.responsibilities.length}/200 characters
                 </p>
               </div>
               <div>
@@ -420,7 +420,7 @@ const AddJob = () => {
                   htmlFor="qualifications"
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  Qualifications* (255 character limit)
+                  Qualifications* (200 character limit)
                 </label>
                 <textarea
                   id="qualifications"
@@ -429,12 +429,12 @@ const AddJob = () => {
                   onChange={handleInputChange}
                   required
                   rows={4}
-                  maxLength={255}
+                  maxLength={200}
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="List the qualifications needed for this role..."
                 ></textarea>
                 <p className="text-xs text-gray-500 mt-1">
-                  {formData.qualifications.length}/255 characters
+                  {formData.qualifications.length}/200 characters
                 </p>
               </div>
             </div>

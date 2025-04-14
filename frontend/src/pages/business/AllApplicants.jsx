@@ -285,7 +285,12 @@ const AllApplicants = () => {
                     </div>
                     {applicant.similarity > 0 && (
                       <div className="text-sm font-medium text-purple-700">
-                        {applicant.similarity}%
+                        {(() => {
+                          const score = applicant.similarity || 0;
+                          return `${Math.floor(score)}.${((score % 1) * 100)
+                            .toFixed(0)
+                            .padStart(2, "0")}%`;
+                        })()}
                       </div>
                     )}
                   </div>
@@ -412,7 +417,15 @@ const AllApplicants = () => {
                         {applicant.similarity > 0 ? (
                           <>
                             <div className="text-sm font-medium text-purple-700">
-                              {applicant.similarity}%
+                              {(() => {
+                                const score = applicant.similarity || 0;
+                                return `${Math.floor(score)}.${(
+                                  (score % 1) *
+                                  100
+                                )
+                                  .toFixed(0)
+                                  .padStart(2, "0")}%`;
+                              })()}
                             </div>
                             <div className="w-16 bg-gray-200 rounded-full h-1.5 mt-1">
                               <div
