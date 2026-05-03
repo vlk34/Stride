@@ -1,6 +1,5 @@
 package com.group28.Stride.util;
 
-import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -14,16 +13,20 @@ import java.util.List;
 import java.util.Map;
 
 public class Database {
-    private static final Dotenv dotenv;
     private static final Connection connection;
 
     static {
-        dotenv = Dotenv.configure()
-                .directory("backend")
-                .load();
-
         try {
-            connection = DriverManager.getConnection(String.format("jdbc:postgresql://%s:%s/%s", dotenv.get("DB_HOST"), dotenv.get("DB_PORT"), dotenv.get("DB_NAME")), dotenv.get("DB_USER"), dotenv.get("DB_PASSWORD"));
+            connection = DriverManager.getConnection(
+                    String.format(
+                            "jdbc:postgresql://%s:%s/%s",
+                            Env.get().get("DB_HOST"),
+                            Env.get().get("DB_PORT"),
+                            Env.get().get("DB_NAME")
+                    ),
+                    Env.get().get("DB_USER"),
+                    Env.get().get("DB_PASSWORD")
+            );
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -83,6 +86,31 @@ public class Database {
         } catch (SQLException ex) {
             ex.printStackTrace();
             return null;
+        }
+    }
+
+    public static boolean canAccessResume(String userId, int resumeId) {
+        try {
+            PreparedStatement statement = connection.prepareStatement("""
+                    SELECT 1
+                    FROM applications a
+                    JOIN jobs j ON a.job_id = j.job_id
+                    JOIN companies c ON j.company_id = c.company_id
+                    WHERE a.cv = ?
+                      AND (a.user_id = ? OR c.user_id = ?)
+                    LIMIT 1
+                    """);
+            statement.setInt(1, resumeId);
+            statement.setString(2, userId);
+            statement.setString(3, userId);
+            ResultSet res = statement.executeQuery();
+            boolean allowed = res.next();
+            res.close();
+            statement.close();
+            return allowed;
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            return false;
         }
     }
 

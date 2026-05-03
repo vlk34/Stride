@@ -4,7 +4,6 @@ import com.clerk.backend_api.Clerk;
 import com.clerk.backend_api.models.components.User;
 import com.clerk.backend_api.models.operations.*;
 import com.google.gson.Gson;
-import io.github.cdimascio.dotenv.Dotenv;
 import redis.clients.jedis.UnifiedJedis;
 
 import java.lang.Object;
@@ -15,13 +14,11 @@ import java.util.Map;
 
 public class GetUserInfo {
     public static Map<String, Object> fromUserID(String user_id) throws Exception {
-        Dotenv dotenv = Dotenv.configure()
-                .directory("backend")
-                .load();
+        var dotenv = Env.get();
 
         Gson gson = new Gson();
 
-        if (dotenv.get("REDIS_ENABLE").equals("true")) {
+        if ("true".equalsIgnoreCase(dotenv.get("REDIS_ENABLE"))) {
             try (UnifiedJedis jedis = new UnifiedJedis(String.format("redis://%s:%s", dotenv.get("REDIS_HOST"), dotenv.get("REDIS_PORT")))) {
                 if (jedis.exists(user_id)) {
                     return gson.fromJson(jedis.get(user_id), HashMap.class);
@@ -69,7 +66,7 @@ public class GetUserInfo {
                 users.put(clerk_user.id().get(), user);
         }
 
-        if (dotenv.get("REDIS_ENABLE").equals("true")) {
+        if ("true".equalsIgnoreCase(dotenv.get("REDIS_ENABLE"))) {
             try (UnifiedJedis jedis = new UnifiedJedis(String.format("redis://%s:%s", dotenv.get("REDIS_HOST"), dotenv.get("REDIS_PORT")))) {
                 for (Map.Entry<String, HashMap<String, Object>> entry : users.entrySet()) {
                     jedis.setex(entry.getKey(), Integer.parseInt(dotenv.get("REDIS_EXPIRE")), gson.toJson(entry.getValue()));
@@ -83,9 +80,7 @@ public class GetUserInfo {
     }
 
     public static List<Map<String, Object>> users() throws Exception {
-        Dotenv dotenv = Dotenv.configure()
-                .directory("backend")
-                .load();
+        var dotenv = Env.get();
 
         Clerk sdk = Clerk.builder()
                 .bearerAuth(dotenv.get("SECRET"))
@@ -118,9 +113,7 @@ public class GetUserInfo {
     }
 
     public static void businessUpgrade(String user_id) throws Exception {
-        Dotenv dotenv = Dotenv.configure()
-                .directory("backend")
-                .load();
+        var dotenv = Env.get();
 
         Clerk sdk = Clerk.builder()
                 .bearerAuth(dotenv.get("SECRET"))
@@ -137,9 +130,7 @@ public class GetUserInfo {
     }
 
     public static void businessDowngrade(String user_id) throws Exception {
-        Dotenv dotenv = Dotenv.configure()
-                .directory("backend")
-                .load();
+        var dotenv = Env.get();
 
         Clerk sdk = Clerk.builder()
                 .bearerAuth(dotenv.get("SECRET"))
@@ -156,9 +147,7 @@ public class GetUserInfo {
     }
 
     public static void deleteUser(String user_id) throws Exception {
-        Dotenv dotenv = Dotenv.configure()
-                .directory("backend")
-                .load();
+        var dotenv = Env.get();
 
         Clerk sdk = Clerk.builder()
                 .bearerAuth(dotenv.get("SECRET"))

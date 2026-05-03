@@ -43,7 +43,26 @@ public class UserController {
 
     @CrossOrigin
     @GetMapping("/resume/{id}")
-    public ResponseEntity<byte[]> resume(@PathVariable int id) {
+    public ResponseEntity<byte[]> resume(@PathVariable int id, @RequestHeader(value = "Authorization", required = false) String auth) {
+        if (auth == null || auth.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+        }
+        Claims user_claims = Authentication.getClaims(auth);
+        if (user_claims == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+        }
+
+        String user_id = user_claims.getSubject();
+        String role = null;
+        HashMap<?, ?> metadata = user_claims.get("metadata", HashMap.class);
+        if (metadata != null && metadata.get("role") != null) {
+            role = metadata.get("role").toString();
+        }
+
+        if (!("admin".equalsIgnoreCase(role) || Database.canAccessResume(user_id, id))) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not allowed");
+        }
+
         Map<String, Object> cv = Database.getResume(id);
         if (cv == null || cv.get("data") == null)
             return ResponseEntity.notFound().build();
