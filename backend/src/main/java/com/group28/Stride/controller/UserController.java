@@ -34,7 +34,15 @@ public class UserController {
 
     @CrossOrigin
     @PostMapping("/images/upload")
-    public Map<String, Integer> upload(@RequestParam("file") MultipartFile file) {
+    public Map<String, Integer> upload(@RequestParam("file") MultipartFile file, @RequestHeader(value = "Authorization", required = false) String auth) {
+        if (auth == null || auth.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+        }
+        Claims user_claims = Authentication.getClaims(auth);
+        if (user_claims == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+        }
+
         if (!("image/png".equals(file.getContentType()) || "image/jpeg".equals(file.getContentType())))
             throw new ResponseStatusException(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Not a PNG or JPEG file");
 
@@ -71,7 +79,15 @@ public class UserController {
 
     @CrossOrigin
     @PostMapping("/resume/upload")
-    public Map<String, Integer> resume_upload(@RequestParam("file") MultipartFile file) {
+    public Map<String, Integer> resume_upload(@RequestParam("file") MultipartFile file, @RequestHeader(value = "Authorization", required = false) String auth) {
+        if (auth == null || auth.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+        }
+        Claims user_claims = Authentication.getClaims(auth);
+        if (user_claims == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+        }
+
         if (!"application/pdf".equals(file.getContentType()))
             throw new ResponseStatusException(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Not a PDF file");
 

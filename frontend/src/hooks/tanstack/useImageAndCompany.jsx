@@ -1,17 +1,18 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
+import { API_BASE_URL } from "../../util/apiBase";
+import { getSessionToken } from "../../util/sessionToken";
 
 // Get image by ID
 export const useImage = (imageId) => {
   return useQuery({
     queryKey: ["image", imageId],
     queryFn: async () => {
+      const sessionToken = getSessionToken();
       const response = await axios.get(
-        `http://localhost:8080/images/${imageId}`,
+        `${API_BASE_URL}/images/${imageId}`,
         {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
+          headers: sessionToken ? { Authorization: `Bearer ${sessionToken}` } : {},
           responseType: "blob",
         }
       );
@@ -28,15 +29,19 @@ export const useUploadImage = () => {
 
   return useMutation({
     mutationFn: async (imageFile) => {
+      const sessionToken = getSessionToken();
+      if (!sessionToken) {
+        throw new Error("Not authenticated");
+      }
       const formData = new FormData();
       formData.append("file", imageFile);
 
       const response = await axios.post(
-        "http://localhost:8080/images/upload",
+        `${API_BASE_URL}/images/upload`,
         formData,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${sessionToken}`,
             "Content-Type": "multipart/form-data",
           },
         }
@@ -54,11 +59,15 @@ export const useResume = (resumeId) => {
   return useQuery({
     queryKey: ["resume", resumeId],
     queryFn: async () => {
+      const sessionToken = getSessionToken();
+      if (!sessionToken) {
+        throw new Error("Not authenticated");
+      }
       const response = await axios.get(
-        `http://localhost:8080/resume/${resumeId}`,
+        `${API_BASE_URL}/resume/${resumeId}`,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${sessionToken}`,
           },
           responseType: "blob",
         }
@@ -76,15 +85,19 @@ export const useUploadResume = () => {
 
   return useMutation({
     mutationFn: async (pdfFile) => {
+      const sessionToken = getSessionToken();
+      if (!sessionToken) {
+        throw new Error("Not authenticated");
+      }
       const formData = new FormData();
       formData.append("file", pdfFile);
 
       const response = await axios.post(
-        "http://localhost:8080/resume/upload",
+        `${API_BASE_URL}/resume/upload`,
         formData,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${sessionToken}`,
             "Content-Type": "multipart/form-data",
           },
         }
@@ -103,7 +116,7 @@ export const useCompanyDetails = (companyId) => {
     queryKey: ["companyDetails", companyId],
     queryFn: async () => {
       const response = await axios.get(
-        `http://localhost:8080/company/${companyId}`
+        `${API_BASE_URL}/company/${companyId}`
       );
       return response.data;
     },

@@ -1,5 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
+import { API_BASE_URL } from "../../util/apiBase";
+import { getSessionToken } from "../../util/sessionToken";
 
 export const useSearch = (searchParams) => {
   // Extract parameters from searchParams
@@ -41,10 +43,12 @@ export const useRecommendedJobs = () => {
   return useQuery({
     queryKey: ["recommendedJobs"],
     queryFn: async () => {
-      const response = await axios.get("/recommended", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
+      const sessionToken = getSessionToken();
+      if (!sessionToken) {
+        throw new Error("Not authenticated");
+      }
+      const response = await axios.get(`${API_BASE_URL}/recommended`, {
+        headers: { Authorization: `Bearer ${sessionToken}` },
       });
       return response.data;
     },

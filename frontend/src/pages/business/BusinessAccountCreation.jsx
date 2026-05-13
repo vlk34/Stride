@@ -15,6 +15,8 @@ import {
 } from "lucide-react";
 import { useUpgradeAccount } from "../../hooks/tanstack/useCompanyAccount";
 import axios from "axios";
+import { API_BASE_URL } from "../../util/apiBase";
+import { getSessionToken } from "../../util/sessionToken";
 
 const BusinessAccountCreation = () => {
   const navigate = useNavigate();
@@ -453,11 +455,16 @@ const BusinessAccountCreation = () => {
     formData.append("file", file);
 
     try {
+      const sessionToken = getSessionToken();
+      if (!sessionToken) {
+        throw new Error("Not authenticated");
+      }
       const response = await axios.post(
-        "http://localhost:8080/images/upload",
+        `${API_BASE_URL}/images/upload`,
         formData,
         {
           headers: {
+            Authorization: `Bearer ${sessionToken}`,
             "Content-Type": "multipart/form-data",
           },
         }
